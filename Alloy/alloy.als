@@ -58,6 +58,19 @@ pred receiveReportFromNetwork [vNetwork : ViolationReport, vServer : ViolationRe
 	vNetwork.typeOfViolation = vServer.typeOfViolation
 }
 
+/* Represent the act of sending a violation report to the server from the device.
+* This basically says that there exist a violation report sent in the network such that:
+* it has the same content of the violation report sent by the device,
+* and the same content of the violation report received by the server.
+* @param vNetwork the representation of the violation report in the network
+* @param vServer the representation of the violation report on the server.
+*/
+pred sendReportToServerFromDevice [vDevice: ViolationReport, vServer : ViolationReport] {
+	vDevice.state = AT_DEVICE
+	vServer.state = AT_SERVER
+	some vNetwork : ViolationReport | vNetwork.state = AT_NETWORK and sendReportToNetwork[vDevice, vNetwork] and receiveReportFromNetwork[vNetwork, vServer]
+}
+
 // [R4] The application must allow reporting of violations only from devices equipped with a GPS receiver which are in the conditions to obtain a GPS fix.
 // [R5] The application must allow reporting of violations only from devices equipped with a camera.
 // [R7] A user has the possibility to specify the type of the reported violation choosing from a list.
@@ -71,8 +84,7 @@ fact requirement4_5_7_8 {
 // This requirement basically says that the violation report created by the device will be correclty received by the server.
 fact requirement6 {
 	all vS : ViolationReport | vS.state = AT_SERVER implies 
-		(some vN : ViolationReport | vN.state = AT_NETWORK and receiveReportFromNetwork[vN, vS] and
-			(some vD : ViolationReport | vD.state = AT_DEVICE and sendReportToNetwork[vD, vN]))
+		(some vD : ViolationReport | vD.state = AT_DEVICE and sendReportToServerFromDevice[vD, vS])
 }
 
 // [G2] A violation report received by the system must have enough information to be valid, i.e. has at least one picture of the violation, one GPS position, one timestamp and one type of violation.
