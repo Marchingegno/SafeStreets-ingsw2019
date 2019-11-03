@@ -34,7 +34,7 @@ one sig AT_SERVER extends ViolationReportState {}
 
 /* Represent the act of sending a violation report through the network.
 * @param vDevice the representation of the violation report on the device.
-* @param vNetwork the representation of the violation report in the network
+* @param vNetwork the representation of the violation report in the network.
 */
 pred sendReportToNetwork [vDevice : ViolationReport, vNetwork : ViolationReport] {
 	vDevice.state = AT_DEVICE
@@ -46,7 +46,7 @@ pred sendReportToNetwork [vDevice : ViolationReport, vNetwork : ViolationReport]
 }
 
 /* Represent the act of receiving a violation report from the network.
-* @param vNetwork the representation of the violation report in the network
+* @param vNetwork the representation of the violation report in the network.
 * @param vServer the representation of the violation report on the server.
 */
 pred receiveReportFromNetwork [vNetwork : ViolationReport, vServer : ViolationReport] {
@@ -62,7 +62,7 @@ pred receiveReportFromNetwork [vNetwork : ViolationReport, vServer : ViolationRe
 * This basically says that there exist a violation report sent in the network such that:
 * it has the same content of the violation report sent by the device,
 * and the same content of the violation report received by the server.
-* @param vNetwork the representation of the violation report in the network
+* @param vDevice the representation of the violation report on the device.
 * @param vServer the representation of the violation report on the server.
 */
 pred sendReportToServerFromDevice [vDevice: ViolationReport, vServer : ViolationReport] {
