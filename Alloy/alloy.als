@@ -13,6 +13,7 @@ sig Timestamp {}
 sig TypeOfViolation {}
 
 
+
 // ########## Enums ##########
 abstract sig Bool {}
 one sig TRUE extends Bool {}
@@ -67,6 +68,7 @@ fact requirement4_5_7_8 {
 
 
 // [R6] The application must allow reporting of violations only from devices with an active internet connection.
+// This requirement basically says that the violation report created by the device will be correclty received by the server.
 fact requirement6 {
 	all vS : ViolationReport | vS.state = AT_SERVER implies 
 		(some vN : ViolationReport | vN.state = AT_NETWORK and receiveReportFromNetwork[vN, vS] and
