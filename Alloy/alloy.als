@@ -4,6 +4,7 @@ sig ViolationReport {
 	location: lone Location,
 	timestamp: lone Timestamp,
 	typeOfViolation: lone TypeOfViolation,
+	licensePlate: lone LicensePlate,
 	state: one ViolationReportState
 }
 
@@ -11,6 +12,7 @@ sig Picture {}
 sig Location {}
 sig Timestamp {}
 sig TypeOfViolation {}
+sig LicensePlate {}
 
 
 
@@ -43,6 +45,7 @@ pred sendReportToNetwork [vDevice : ViolationReport, vNetwork : ViolationReport]
 	vDevice.location = vNetwork.location
 	vDevice.timestamp = vNetwork.timestamp
 	vDevice.typeOfViolation = vNetwork.typeOfViolation
+	vDevice.licensePlate = vNetwork.licensePlate
 }
 
 /* Represent the act of receiving a violation report from the network.
@@ -56,6 +59,7 @@ pred receiveReportFromNetwork [vNetwork : ViolationReport, vServer : ViolationRe
 	vNetwork.location = vServer.location
 	vNetwork.timestamp = vServer.timestamp
 	vNetwork.typeOfViolation = vServer.typeOfViolation
+	vNetwork.licensePlate = vServer.licensePlate
 }
 
 /* Represent the act of sending a violation report to the server from the device.
@@ -74,9 +78,9 @@ pred sendReportToServerFromDevice [vDevice: ViolationReport, vServer : Violation
 // [R4] The application must allow reporting of violations only from devices equipped with a GPS receiver which are in the conditions to obtain a GPS fix.
 // [R5] The application must allow reporting of violations only from devices equipped with a camera.
 // [R7] A user has the possibility to specify the type of the reported violation choosing from a list.
-// [R8] The application creates a violation report with at least one picture, one timestamp, one location and one type of violation.
+// [R8] The application creates a violation report with at least one picture, exactly one timestamp, exactly one location, exactly one type of violation and the license plate of the vehicle.
 fact requirement4_5_7_8 {
-	all v : ViolationReport | v.state = AT_DEVICE implies (#v.pictures >= 1 and #v.location = 1 and #v.timestamp = 1 and #v.typeOfViolation = 1)
+	all v : ViolationReport | v.state = AT_DEVICE implies (#v.pictures >= 1 and #v.location = 1 and #v.timestamp = 1 and #v.typeOfViolation = 1 and #v.licensePlate = 1)
 }
 
 
@@ -87,9 +91,9 @@ fact requirement6 {
 		(some vD : ViolationReport | vD.state = AT_DEVICE and sendReportToServerFromDevice[vD, vS])
 }
 
-// [G2] A violation report received by the system must have enough information to be valid, i.e. has at least one picture of the violation, one GPS position, one timestamp and one type of violation.
+// [G2] A violation report received by the system must have enough information to be valid, i.e. has at least one picture of the violation, exactly one GPS position, exactly one timestamp, exactly one type of violation and the license plate of the vehicle.
 assert goal2 {
-	all v : ViolationReport | v.state = AT_SERVER implies  (#v.pictures >= 1 and #v.location = 1 and #v.timestamp = 1 and #v.typeOfViolation = 1)
+	all v : ViolationReport | v.state = AT_SERVER implies  (#v.pictures >= 1 and #v.location = 1 and #v.timestamp = 1 and #v.typeOfViolation = 1 and #v.licensePlate = 1)
 }
 check goal2 for 5
 
