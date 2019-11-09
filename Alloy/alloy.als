@@ -176,8 +176,14 @@ assert privacyRespected {
 }
 check privacyRespected for 5
 
+
+
 // ########## No entities with the same username ##########
 fact NoSameUsername {
 	no disj e1, e2 : Entity | e1.username = e2.username
 }
 
+assert checkNoSameUsername {
+	all e1 : Entity | all e2 : Entity | e1 != e2 => e1.username != e2. username
+}
+check checkNoSameUsername for 5
