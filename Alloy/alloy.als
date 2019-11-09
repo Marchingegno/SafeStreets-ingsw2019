@@ -1,4 +1,12 @@
 // ########## Signatures ##########
+sig Entity {
+	username: one Username
+}
+sig User extends Entity {}
+sig Municipality extends Entity {}
+
+sig Username{}
+
 sig ViolationReport {
 	pictures: set Picture,
 	location: lone Location,
@@ -14,7 +22,30 @@ sig Timestamp {}
 sig TypeOfViolation {}
 sig LicensePlate {}
 
+sig ViolationReportsQuery {
+	askingEntity: one Entity,
+	violationReportsData: set ViolationReportDataForQuery
+}
 
+sig ViolationReportDataForQuery {
+	pictures: set Picture,
+	location: lone Location,
+	timestamp: lone Timestamp,
+	typeOfViolation: lone TypeOfViolation,
+	licensePlate: lone LicensePlate,
+}
+
+sig ViolationReportDataForQueryWithPrivacy extends ViolationReportDataForQuery {
+} {
+	#pictures = 0
+	#licensePlate = 0
+}
+
+sig ViolationReportDataForQueryWithoutPrivacy extends ViolationReportDataForQuery {
+} {
+	#pictures >= 1
+	#licensePlate = 1
+}
 
 // ########## Enums ##########
 abstract sig Bool {}
@@ -85,7 +116,7 @@ fact requirement4_5_7_8 {
 
 
 // [R6] The application must allow reporting of violations only from devices with an active internet connection.
-// This requirement basically says that the violation report created by the device will be correclty received by the server.
+// This requirement basically says that the violation report created by the device will be correctly received by the server.
 fact requirement6 {
 	all vS : ViolationReport | vS.state = AT_SERVER implies 
 		(some vD : ViolationReport | vD.state = AT_DEVICE and sendReportToServerFromDevice[vD, vS])
@@ -101,7 +132,7 @@ check goal2 for 5
 
 // ########## Goal 6 ##########
 
-// [D6] All connections that use a modern encryption protocol can not be manipulated.
+// [D6] Data transferred through connections that use modern encryption protocols can not be manipulated.
 fact domainAssumption6 {
 	all n : AT_NETWORK | n.encryptedConnection = FALSE <=> n.canBeAltered = TRUE
 	all n : AT_NETWORK | n.encryptedConnection = TRUE <=> n.canBeAltered = FALSE
@@ -127,3 +158,26 @@ assert goal6 {
 	all v : ViolationReport | v.state.canBeAltered = FALSE
 }
 check goal6 for 5
+
+
+
+// ########## Privacy must be respected for queries ##########
+fact usePrivacyDataWhenNecessary {
+	all query : ViolationReportsQuery | query.askingEntity in User => query.violationReportsData in ViolationReportDataForQueryWithPrivacy
+}
+
+fact dontUsePrivacyDataWhenNotNecessary {
+	all query : ViolationReportsQuery | query.askingEntity in Municipality => query.violationReportsData in ViolationReportDataForQueryWithoutPrivacy
+}
+
+assert privacyRespected {
+	all query : ViolationReportsQuery | all data : ViolationReportDataForQuery | (data in query.violationReportsData and query.askingEntity in User) => (#data.pictures = 0 and #data.licensePlate = 0)
+	all query : ViolationReportsQuery | all data : ViolationReportDataForQuery | (data in query.violationReportsData and query.askingEntity in Municipality) => (#data.pictures >= 1 and #data.licensePlate = 1)
+}
+check privacyRespected for 5
+
+// ########## No entities with the same username ##########
+fact NoSameUsername {
+	no disj e1, e2 : Entity | e1.username = e2.username
+}
+
