@@ -7,7 +7,7 @@ sig Municipality extends Entity {}
 
 sig Username{}
 
-//—————— ENTITIES —————--
+//—————— DEVICES —————--
 sig Device {
 	hasGPS: one Bool,
 	hasInternet: one Bool,
@@ -107,7 +107,6 @@ fact networkModelling{
 fact useAnonymizedDataWhenUser {
 	all query : ViolationReportsQuery | query.askingEntity in User => query.violationReportsData in ViolationReportDataForQueryWithPrivacy
 }
-
 
 /* Municipality have access only to all the data
 */
@@ -276,7 +275,7 @@ check privacyRespected for 5
 
 
 
-// ########## No entities with the same username ##########
+// ########## NO ENTITIES WITH SAME USERNAME ##########
 assert checkNoSameUsername {
 	all e1 : Entity | all e2 : Entity | e1 != e2 => e1.username != e2. username
 }
