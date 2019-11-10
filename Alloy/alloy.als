@@ -177,26 +177,36 @@ pred sendReportToServerFromDevice [vDevice: ViolationReport, vServer : Violation
 	some vNetwork : ViolationReport | vNetwork.state = ON_NETWORK and sendReportToNetwork[vDevice, vNetwork] and receiveReportFromNetwork[vNetwork, vServer]
 }
 
+
 // ########## GOAL 2 ##########
 
 /*[R4] The application must allow reporting of violations only from devices equipped 
  *	with a GPS receiver which are in the conditions to obtain a GPS fix.
- *[R5] The application must allow reporting of violations only from devices equipped 
+*/
+fact requirement4 {
+	#{v:ViolationReport | v.state = ON_DEVICE and v.createdBy.hasGPS = FALSE} = 0
+}
+
+/*[R5] The application must allow reporting of violations only from devices equipped 
  *	with a camera.
- *[R6] The application must allow reporting of violations only from devices with an active 
+*/
+fact requirement5 {
+	#{v:ViolationReport | v.state = ON_DEVICE and v.createdBy.hasCamera = FALSE} = 0
+}
+
+ /*[R6] The application must allow reporting of violations only from devices with an active 
  *	internet connection. This requirement basically says that the violation report 
  *	created by the device will be correctly received by the server.
- *[R7] A user has the possibility to specify the type of the reported violation choosing from a list.
+*/
+fact requirement6 {
+	#{v:ViolationReport | v.state = ON_DEVICE and v.createdBy.hasInternet = FALSE } = 0
+}
+
+ /*[R7] A user has the possibility to specify the type of the reported violation choosing from a list.
  *[R8] The application creates a violation report with at least one picture, exactly one timestamp,
  *	exactly one location, exactly one type of violation and the license plate of the vehicle.
 */
-fact requirement4_5_6_7_8 {
-	//Only devisces with GPS camera and internet can create reports
-	#{v:ViolationReport | v.state=ON_DEVICE and 
-						(v.createdBy.hasGPS = FALSE or
-						v.createdBy.hasInternet = FALSE or
-						v.createdBy.hasCamera = FALSE)} = 0
-	
+fact requirement8 {
 	//A valid report is created only if the device has the GPS, a camera and internet
 	all v : ViolationReport | (v.state = ON_DEVICE and 
 						v.createdBy.hasGPS = TRUE and
@@ -209,9 +219,6 @@ fact requirement4_5_6_7_8 {
  	#v.typeOfViolation = 1 and 
  	#v.licensePlate = 1)
 }
-
-
-
 
 /*[G2] A violation report received by the system must have enough information to be valid,
  * i.e. has at least one picture of the violation, exactly one GPS position, exactly one 
