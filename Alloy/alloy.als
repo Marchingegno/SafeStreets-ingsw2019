@@ -95,11 +95,11 @@ fact networkModelling{
 	all vS : ViolationReport | vS.state = ON_SERVER implies 
 		(some vD : ViolationReport | vD.state = ON_DEVICE and sendReportToServerFromDevice[vD, vS])
 	// Ever report that is in the network has been created by a device
-	all vN : ViolationReport | vN.state = ON_NETWORK implies 
+	all vN : ViolationReport | vN.state in ON_NETWORK implies 
 		(some vD : ViolationReport | vD.state = ON_DEVICE and sendReportToNetwork[vD, vN])
 	// Every report created by a device has at most one corresponding report in the network
 	all vD : ViolationReport | vD.state = ON_DEVICE implies
-		(lone vN : ViolationReport | vN.state = ON_NETWORK and sendReportToNetwork[vD, vN])
+		(lone vN : ViolationReport | vN.state in ON_NETWORK and sendReportToNetwork[vD, vN])
 }
 
 /* Users have access only to anonymized data
@@ -132,6 +132,7 @@ fact allUsernamesAreAssociatedWithAnEtity{
 	all u:Username | some e : Entity | e.username = u
 }
 
+
 // ########## NETWORK PREDICATES ##########
 
 /* Represent the act of sending a violation report through the network.
@@ -140,7 +141,7 @@ fact allUsernamesAreAssociatedWithAnEtity{
 */
 pred sendReportToNetwork [vDevice : ViolationReport, vNetwork : ViolationReport] {
 	vDevice.state = ON_DEVICE
-	vNetwork.state = ON_NETWORK
+	vNetwork.state in ON_NETWORK
 	vDevice.pictures = vNetwork.pictures
 	vDevice.location = vNetwork.location
 	vDevice.timestamp = vNetwork.timestamp
@@ -154,7 +155,7 @@ pred sendReportToNetwork [vDevice : ViolationReport, vNetwork : ViolationReport]
 * @param vServer the representation of the violation report on the server.
 */
 pred receiveReportFromNetwork [vNetwork : ViolationReport, vServer : ViolationReport] {
-	vNetwork.state = ON_NETWORK
+	vNetwork.state in ON_NETWORK
 	vServer.state = ON_SERVER
 	vNetwork.pictures = vServer.pictures
 	vNetwork.location = vServer.location
@@ -174,7 +175,7 @@ pred receiveReportFromNetwork [vNetwork : ViolationReport, vServer : ViolationRe
 pred sendReportToServerFromDevice [vDevice: ViolationReport, vServer : ViolationReport] {
 	vDevice.state = ON_DEVICE
 	vServer.state = ON_SERVER
-	some vNetwork : ViolationReport | vNetwork.state = ON_NETWORK and sendReportToNetwork[vDevice, vNetwork] and receiveReportFromNetwork[vNetwork, vServer]
+	some vNetwork : ViolationReport | vNetwork.state in ON_NETWORK and sendReportToNetwork[vDevice, vNetwork] and receiveReportFromNetwork[vNetwork, vServer]
 }
 
 
@@ -272,7 +273,6 @@ assert goal6 {
 check goal6 for 5
 
 
-
 // ########## PRIVACY MUST BE RESPECTED FOR QUERIES ##########
 assert privacyRespected {
 	all query : ViolationReportsQuery | all data : ViolationReportDataForQuery | (data in query.violationReportsData and query.askingEntity in User) => (#data.pictures = 0 and #data.licensePlate = 0)
@@ -281,14 +281,17 @@ assert privacyRespected {
 check privacyRespected for 5
 
 
-
 // ########## NO ENTITIES WITH SAME USERNAME ##########
 assert checkNoSameUsername {
 	all e1 : Entity | all e2 : Entity | e1 != e2 => e1.username != e2. username
 }
 check checkNoSameUsername for 5
 
-pred asd {
-#ViolationReport > 1
+pred show{
+#{v:ViolationReport | v.state = ON_SERVER} > 0
+#Device > 3
+#Entity = 0
+#ViolationReportsQuery = 0
 }
-run asd{}
+
+run show for 5
