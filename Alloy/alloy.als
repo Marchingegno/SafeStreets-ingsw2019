@@ -120,6 +120,17 @@ fact allDataAreReferencedByAQuery{
 	all data : ViolationReportDataForQuery | some v:ViolationReportsQuery | v.violationReportsData = data
 }
 
+/* All queried data is located on the server 
+*/
+fact dataQueriedOnServer{
+	all q:ViolationReportDataForQuery |(
+		(#q.pictures > 0 implies some v : ViolationReport | v.state = ON_SERVER and #(q.pictures & v.pictures) > 0) and
+		(#q.location > 0 implies some v : ViolationReport | v.state = ON_SERVER and q.location = v.location)and
+		(#q.timestamp > 0 implies some v : ViolationReport | v.state = ON_SERVER and q.timestamp = v.timestamp)and
+		(#q.typeOfViolation > 0 implies some v : ViolationReport | v.state = ON_SERVER and q.typeOfViolation = v.typeOfViolation)and
+		(#q.licensePlate > 0 implies some v : ViolationReport | v.state = ON_SERVER and q.licensePlate = v.licensePlate))
+}
+
 /* The username of every entity must be unique
 */
 fact uniqueUsername {
@@ -286,12 +297,3 @@ assert checkNoSameUsername {
 	all e1 : Entity | all e2 : Entity | e1 != e2 => e1.username != e2. username
 }
 check checkNoSameUsername for 5
-
-pred show{
-#{v:ViolationReport | v.state = ON_SERVER} > 0
-#Device > 3
-#Entity = 0
-#ViolationReportsQuery = 0
-}
-
-run show for 5
