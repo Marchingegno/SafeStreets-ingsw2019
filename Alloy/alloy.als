@@ -22,7 +22,7 @@ sig ViolationReport {
 	typeOfViolation: lone TypeOfViolation,
 	licensePlate: lone LicensePlate,
 	state: one ViolationReportLocation,
-	createdBy: one Device
+	createdBy: one Device,
 	canBeAltered: one Bool
 }
 
@@ -255,7 +255,7 @@ fact requirement17 {
 /*[R18] All connections used by the system use modern encryption protocols.
 */
 fact requirement18 {
-	all v : ViolationReport | v.state = ON_NETWORK implies v.state = ON_NETWORK_ENCRYPTED
+	all v : ViolationReport | v.state != ON_NETWORK_NOT_ENCRYPTED
 }
 
 /*[R19] Data saved in the server can not be manipulated.
