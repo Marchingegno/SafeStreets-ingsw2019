@@ -23,6 +23,7 @@ sig ViolationReport {
 	licensePlate: lone LicensePlate,
 	state: one ViolationReportLocation,
 	createdBy: one Device
+	canBeAltered: one Bool
 }
 
 sig Picture {}
@@ -63,12 +64,11 @@ one sig TRUE extends Bool {}
 one sig FALSE extends Bool {}
 
 abstract sig ViolationReportLocation {
-	canBeAltered: one Bool
 }
 one sig ON_DEVICE extends ViolationReportLocation {}
-one sig ON_NETWORK extends ViolationReportLocation {
-	encryptedConnection: one Bool
-}
+abstract sig ON_NETWORK extends ViolationReportLocation {}
+one sig ON_NETWORK_ENCRYPTED extends ON_NETWORK {}
+one sig ON_NETWORK_NOT_ENCRYPTED extends ON_NETWORK {}
 one sig ON_SERVER extends ViolationReportLocation {}
 
 // ########## GENERAL FACTS ##########
@@ -241,33 +241,33 @@ check goal2 for 5
  *cannot be manipulated.
 */
 fact domainAssumption6 {
-	all n : ON_NETWORK | n.encryptedConnection = FALSE <=> n.canBeAltered = TRUE
-	all n : ON_NETWORK | n.encryptedConnection = TRUE <=> n.canBeAltered = FALSE
+	all v : ViolationReport | v.state = ON_NETWORK_ENCRYPTED implies v.canBeAltered = FALSE
+	all v : ViolationReport | v.state = ON_NETWORK_NOT_ENCRYPTED implies v.canBeAltered = TRUE
 }
 
 /*[R17] The application will allow using pictures in a violation report only if the picture
  * was taken by the application itself, preventing it to be manipulated on the device.
 */
 fact requirement17 {
-	all d : ON_DEVICE | d.canBeAltered = FALSE
+	all v : ViolationReport | v.state = ON_DEVICE implies v.canBeAltered = FALSE
 }
 
 /*[R18] All connections used by the system use modern encryption protocols.
 */
 fact requirement18 {
-	all n : ON_NETWORK | n.encryptedConnection = TRUE
+	all v : ViolationReport | v.state = ON_NETWORK implies v.state = ON_NETWORK_ENCRYPTED
 }
 
 /*[R19] Data saved in the server can not be manipulated.
 */
 fact requirement19 {
-	all s : ON_SERVER | s.canBeAltered = FALSE
+	all v : ViolationReport | v.state = ON_SERVER implies v.canBeAltered = FALSE
 }
 
 /*[G6] The integrity of the violation report is guaranteed.
 */
 assert goal6 {
-	all v : ViolationReport | v.state.canBeAltered = FALSE
+	all v : ViolationReport | v.canBeAltered = FALSE
 }
 check goal6 for 5
 
@@ -287,3 +287,8 @@ assert checkNoSameUsername {
 	all e1 : Entity | all e2 : Entity | e1 != e2 => e1.username != e2. username
 }
 check checkNoSameUsername for 5
+
+pred asd {
+#ViolationReport > 1
+}
+run asd{}
