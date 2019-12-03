@@ -8,4 +8,4 @@ https://drive.google.com/open?id=1CBsMZ8Gdj3NCnGjpzmdSQ2zPjetc_L_YsSlyMpWNy6w
 ## DD - Design document
 https://docs.google.com/document/d/1CaygP79kSGGhhu8kQA4cvQd8f2xsDiUF21gPHZdtfSQ
 
-The last version of the Design Document (29/11, not yet complete) can be found in IntermediateFolder.
+The last version of the Design Document (03/12, not yet complete) can be found in IntermediateFolder.
