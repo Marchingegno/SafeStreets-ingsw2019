@@ -1,0 +1,12 @@
+<resources>
+
+    <string name="app_name">SafeStreets</string>
+
+
+    <string-array name="type_violations">
+        <item>Parking on sidewalk</item>
+        <item>Parking on crosswalk</item>
+        <item>Other</item>
+    </string-array>
+
+</resources>
