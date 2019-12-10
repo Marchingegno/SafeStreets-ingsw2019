@@ -1,4 +1,4 @@
-package it.polimi.marcermarchiscianamotta.safestreets.activity;
+package it.polimi.marcermarchiscianamotta.safestreets.view;
 
 import android.Manifest;
 import android.content.Context;
@@ -13,44 +13,40 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.BuildConfig;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
-import it.polimi.marcermarchiscianamotta.safestreets.model.User;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReport;
-import it.polimi.marcermarchiscianamotta.safestreets.util.Util;
+import it.polimi.marcermarchiscianamotta.safestreets.util.AuthenticationManager;
+import it.polimi.marcermarchiscianamotta.safestreets.util.DatabaseConnection;
+import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
+import it.polimi.marcermarchiscianamotta.safestreets.util.StorageConnection;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
-    private static final String TAG = "ImageDemo";
+    private static final String TAG = "ReportViolationActivity";
     private static final int RC_CHOOSE_PHOTO = 101;
     private static final int RC_IMAGE_PERMS = 102;
     private static final int RC_LOCATION_PERMS = 124;
     private static final String PERMS = Manifest.permission.READ_EXTERNAL_STORAGE;
     private static final String LOCATION_PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
 
-    private ArrayList<StorageReference> inUploadPhotos = new ArrayList<>();
+    private List<String> picturesInUpload;
     private ArrayList<Uri> selectedPhotos = new ArrayList<>();
     private int numberOfUploadedPhotos = 0;
     private boolean failedUplaod = false;
@@ -109,13 +105,13 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
         if (requestCode == RC_CHOOSE_PHOTO) {
             if (resultCode == RESULT_OK) {
                 if(selectedPhotos.size() >= 3) {
-                    Util.showSnackbar(rootView, "Maximum number of photos reached");
+                    GeneralUtils.showSnackbar(rootView, "Maximum number of photos reached");
                 } else {
                     selectedPhotos.add(data.getData());
                     numberOfPhotosAddedTextView.setText("Number of photos added: " + selectedPhotos.size() + "/3");
                 }
             } else {
-                Util.showSnackbar(rootView, "No image chosen");
+                GeneralUtils.showSnackbar(rootView, "No image chosen");
             }
         }
         // If a result of a permission-request is received then process it.
@@ -166,7 +162,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
         Toast.makeText(this, "Uploading photos...", Toast.LENGTH_SHORT).show();
         numberOfUploadedPhotos = 0;
         failedUplaod = false;
-        uploadPhotosToFirebaseStorage();
+        uploadPhotosToCloudStorage();
     }
     //endregion
 
@@ -183,39 +179,29 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
         startActivityForResult(i, RC_CHOOSE_PHOTO);
     }
 
-    private void uploadPhotosToFirebaseStorage() {
-        for (Uri uri : selectedPhotos) {
-            // Name and path of the file.
-            String uuid = UUID.randomUUID().toString();
-            StorageReference mImageRef = FirebaseStorage.getInstance().getReference(uuid);
-
-            // Asynchronously uploads the file.
-            mImageRef.putFile(uri)
-                    .addOnSuccessListener(this, taskSnapshot -> {
-                        if (BuildConfig.DEBUG) {
-                            Log.d(TAG, "uploadPhotosToFirebaseStorage:onSuccess:" + taskSnapshot.getMetadata().getReference().getPath());
-                        }
-                        checkIfAllUploadsEnded();
-                        Toast.makeText(ReportViolationActivity.this, "Image uploaded", Toast.LENGTH_SHORT).show();
-                    })
-                    .addOnFailureListener(this, e -> {
-                        Log.w(TAG, "uploadPhotosToFirebaseStorage:onError", e);
-                        failedUplaod = true;
-                        checkIfAllUploadsEnded();
-                        Toast.makeText(ReportViolationActivity.this, "Upload failed", Toast.LENGTH_SHORT).show();
-                    });
-
-            // Save reference of the file currently uploading.
-            inUploadPhotos.add(mImageRef);
-        }
+    private void uploadPhotosToCloudStorage() {
+        picturesInUpload = StorageConnection.uploadPicturesToCloudStorage(selectedPhotos, this,
+                taskSnapshot -> {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "uploadPhotosToCloudStorage:onSuccess:" + taskSnapshot.getMetadata().getReference().getPath());
+                    }
+                    checkIfAllUploadsEnded();
+                    Toast.makeText(ReportViolationActivity.this, "Image uploaded", Toast.LENGTH_SHORT).show();
+                },
+                e -> {
+                    Log.w(TAG, "uploadPhotosToCloudStorage:onError", e);
+                    failedUplaod = true;
+                    checkIfAllUploadsEnded();
+                    Toast.makeText(ReportViolationActivity.this, "Upload failed", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void checkIfAllUploadsEnded() {
         numberOfUploadedPhotos++;
-        if(numberOfUploadedPhotos == selectedPhotos.size()) { // TODO selectedPhotos could change after starting upload
+        if(picturesInUpload != null && numberOfUploadedPhotos == picturesInUpload.size()) {
             // End upload
             if(failedUplaod) {
-                Util.showSnackbar(rootView, "Failed to send the violation report. Please try again.");
+                GeneralUtils.showSnackbar(rootView, "Failed to send the violation report. Please try again.");
             } else {
                 insertViolationReportInDatabase();
             }
@@ -223,34 +209,24 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
     }
 
     private void insertViolationReportInDatabase() {
-        // Get user uid.
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        // Get strings of uploaded photos links.
-        ArrayList<String> pictures = new ArrayList<>();
-        for (StorageReference sr : inUploadPhotos) {
-            pictures.add(sr.getName());
-        }
-
-        // UNCOMMENT NEXT LINE FOR TESTING "checkViolationReports" FUNCTION
-        //pictures.add("wrong picture test");
-
         //Get description
         String description = descriptionText.getText().toString();
 
         //TODO: Check if locationTask is finished
 
         // Create ViolationReport object.
-        ViolationReport vr = new ViolationReport(new User(uid), 0, description, pictures, "AB123CD", latitude[0], longitude[0]);
+        ViolationReport vr = new ViolationReport(AuthenticationManager.getUserUid(), 0, description, picturesInUpload, "AB123CD", latitude[0], longitude[0]);
 
-        // Insert object in database.
-        FirebaseFirestore.getInstance().collection("violationReports").add(vr).addOnFailureListener(this, e -> {
-            Log.e(TAG, "Failed to write message", e);
-            Util.showSnackbar(rootView, "Failed to send the violation report. Please try again.");
-        }).addOnSuccessListener(this, document -> {
-            Toast.makeText(this, "Violation Report sent successfully!", Toast.LENGTH_SHORT).show();
-            finish();
-        });
+        // Upload object to database.
+        DatabaseConnection.uploadViolationReport(vr, this,
+                document -> {
+                    Toast.makeText(this, "Violation Report sent successfully!", Toast.LENGTH_SHORT).show();
+                    finish();
+                },
+                e -> {
+                    Log.e(TAG, "Failed to write message", e);
+                    GeneralUtils.showSnackbar(rootView, "Failed to send the violation report. Please try again.");
+                });
     }
 
     private void startLocationTask() {
