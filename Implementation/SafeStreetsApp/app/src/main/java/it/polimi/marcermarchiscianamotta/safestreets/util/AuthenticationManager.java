@@ -1,7 +1,6 @@
 package it.polimi.marcermarchiscianamotta.safestreets.util;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 
 import com.firebase.ui.auth.AuthUI;

@@ -15,7 +15,7 @@ import java.util.UUID;
 
 public class StorageConnection {
 
-    public static List<String> uploadPicturesToCloudStorage(ArrayList<Uri> pictures, Activity listenerActivity, OnSuccessListener<UploadTask.TaskSnapshot> onSuccessListener, OnFailureListener onFailureListener) {
+    public static List<String> uploadPicturesToCloudStorage(List<Uri> pictures, Activity listenerActivity, OnSuccessListener<UploadTask.TaskSnapshot> onSuccessListener, OnFailureListener onFailureListener) {
         if(pictures.size() == 0)
             throw new RuntimeException("Trying to upload an array of pictures with 0 pictures.");
 

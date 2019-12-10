@@ -7,7 +7,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -27,13 +26,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import it.polimi.marcermarchiscianamotta.safestreets.BuildConfig;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
-import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReport;
-import it.polimi.marcermarchiscianamotta.safestreets.util.AuthenticationManager;
-import it.polimi.marcermarchiscianamotta.safestreets.util.DatabaseConnection;
+import it.polimi.marcermarchiscianamotta.safestreets.controller.ReportViolationManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
-import it.polimi.marcermarchiscianamotta.safestreets.util.StorageConnection;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -54,6 +49,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
     private final double[] longitude = {0};
     FusedLocationProviderClient fusedLocationProviderClient;
     Task<Location> locationTask;
+
+    private ReportViolationManager reportViolationManager;
 
 
     @BindView(R.id.report_violation_root) View rootView;
@@ -83,10 +80,12 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 
         setContentView(R.layout.activity_report_violation);
         ButterKnife.bind(this); // Needed for @BindView attributes.
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        reportViolationManager = new ReportViolationManager(this, rootView);
 
         //Start the task to get location
         //Ask permission for position
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (!EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
             EasyPermissions.requestPermissions(this, "Location permission", RC_LOCATION_PERMS, LOCATION_PERMS);
         } else {
@@ -159,10 +158,10 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 
     @OnClick(R.id.report_violation_floating_send_button)
     public void onClickSendViolation(View v) {
-        Toast.makeText(this, "Uploading photos...", Toast.LENGTH_SHORT).show();
-        numberOfUploadedPhotos = 0;
-        failedUplaod = false;
-        uploadPhotosToCloudStorage();
+        //Get description
+        String description = descriptionText.getText().toString();
+
+        reportViolationManager.onSendViolationReport(selectedPhotos, description, latitude[0], longitude[0]);
     }
     //endregion
 
@@ -177,56 +176,6 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 
         Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(i, RC_CHOOSE_PHOTO);
-    }
-
-    private void uploadPhotosToCloudStorage() {
-        picturesInUpload = StorageConnection.uploadPicturesToCloudStorage(selectedPhotos, this,
-                taskSnapshot -> {
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "uploadPhotosToCloudStorage:onSuccess:" + taskSnapshot.getMetadata().getReference().getPath());
-                    }
-                    checkIfAllUploadsEnded();
-                    Toast.makeText(ReportViolationActivity.this, "Image uploaded", Toast.LENGTH_SHORT).show();
-                },
-                e -> {
-                    Log.w(TAG, "uploadPhotosToCloudStorage:onError", e);
-                    failedUplaod = true;
-                    checkIfAllUploadsEnded();
-                    Toast.makeText(ReportViolationActivity.this, "Upload failed", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    private void checkIfAllUploadsEnded() {
-        numberOfUploadedPhotos++;
-        if(picturesInUpload != null && numberOfUploadedPhotos == picturesInUpload.size()) {
-            // End upload
-            if(failedUplaod) {
-                GeneralUtils.showSnackbar(rootView, "Failed to send the violation report. Please try again.");
-            } else {
-                insertViolationReportInDatabase();
-            }
-        }
-    }
-
-    private void insertViolationReportInDatabase() {
-        //Get description
-        String description = descriptionText.getText().toString();
-
-        //TODO: Check if locationTask is finished
-
-        // Create ViolationReport object.
-        ViolationReport vr = new ViolationReport(AuthenticationManager.getUserUid(), 0, description, picturesInUpload, "AB123CD", latitude[0], longitude[0]);
-
-        // Upload object to database.
-        DatabaseConnection.uploadViolationReport(vr, this,
-                document -> {
-                    Toast.makeText(this, "Violation Report sent successfully!", Toast.LENGTH_SHORT).show();
-                    finish();
-                },
-                e -> {
-                    Log.e(TAG, "Failed to write message", e);
-                    GeneralUtils.showSnackbar(rootView, "Failed to send the violation report. Please try again.");
-                });
     }
 
     private void startLocationTask() {

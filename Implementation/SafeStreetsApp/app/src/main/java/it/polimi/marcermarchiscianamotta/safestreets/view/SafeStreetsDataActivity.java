@@ -12,7 +12,7 @@ import it.polimi.marcermarchiscianamotta.safestreets.controller.RetrieveViolatio
 
 public class SafeStreetsDataActivity extends AppCompatActivity {
 
-    RetrieveViolationsManager retrieveViolationsManager = new RetrieveViolationsManager(this);
+    private RetrieveViolationsManager retrieveViolationsManager = new RetrieveViolationsManager(this);
 
     //region Static methods
     //================================================================================
