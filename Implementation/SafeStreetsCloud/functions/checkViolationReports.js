@@ -5,9 +5,6 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const queryablePromise = require('./utils/queryablePromise');
 
-// Initialization
-admin.initializeApp(functions.config().firebase);
-
 // Global variables
 const db = admin.firestore();
 const storage = admin.storage();
@@ -64,6 +61,3 @@ exports.checkViolationReportsTrigger = functions.firestore.document('/violationR
 	}
 	return null;
 });
-
-
-

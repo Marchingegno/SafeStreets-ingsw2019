@@ -16,6 +16,7 @@ public class ViolationReport {
     private List<String> pictures;
     private String licensePlate;
     private Date uploadTimestamp;
+    private ReportStatus reportStatus = ReportStatus.SUBMITTED;
 
     //Coordinates
     private double latitude;
@@ -77,5 +78,10 @@ public class ViolationReport {
 
     public void setUploadTimestamp(@NonNull Date uploadTimestamp) {
         this.uploadTimestamp = uploadTimestamp;
+    }
+
+    @NonNull
+    public ReportStatus getReportStatus() {
+        return reportStatus;
     }
 }
