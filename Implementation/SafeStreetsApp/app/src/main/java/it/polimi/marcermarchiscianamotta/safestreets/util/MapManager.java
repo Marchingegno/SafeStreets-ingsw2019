@@ -27,6 +27,4 @@ public class MapManager {
 			Log.e(TAG, "Sign-in error: ", e);}
 		return result.getLocality();
 	}
-
-
 }

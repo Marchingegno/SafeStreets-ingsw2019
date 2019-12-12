@@ -38,7 +38,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
     private static final int RC_CHOOSE_PHOTO = 101;
     private static final int RC_IMAGE_PERMS = 102;
     private static final int RC_LOCATION_PERMS = 124;
-    private static final String PERMS = Manifest.permission.READ_EXTERNAL_STORAGE;
+    private static final String READ_EXT_STORAGE_PERMS = Manifest.permission.READ_EXTERNAL_STORAGE;
     private static final String LOCATION_PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
 
     private List<String> picturesInUpload;
@@ -114,7 +114,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
             }
         }
         // If a result of a permission-request is received then process it.
-        else if (requestCode == AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE && EasyPermissions.hasPermissions(this, PERMS)) {
+        else if (requestCode == AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE && EasyPermissions.hasPermissions(this, READ_EXT_STORAGE_PERMS)) {
             pickImageFromStorage();
         }
     }
@@ -138,7 +138,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 
     @Override
     public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
-        if (EasyPermissions.somePermissionPermanentlyDenied(this, Collections.singletonList(PERMS))) {
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, Collections.singletonList(READ_EXT_STORAGE_PERMS))) {
             new AppSettingsDialog.Builder(this).build().show();
             finish();
         } else if (EasyPermissions.somePermissionPermanentlyDenied(this, Collections.singletonList(LOCATION_PERMS))) {
@@ -153,7 +153,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
     //================================================================================
     @OnClick(R.id.report_violation_add_photo_temporary)
     public void onClickAddPhoto(View v) {
-        pickImageFromStorage();
+        startActivity(CameraActivity.createIntent(v.getContext()));
+        // pickImageFromStorage();
     }
 
     @OnClick(R.id.report_violation_floating_send_button)
@@ -169,8 +170,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
     //region Private methods
     //================================================================================
     private void pickImageFromStorage() {
-        if (!EasyPermissions.hasPermissions(this, PERMS)) {
-            EasyPermissions.requestPermissions(this, "Storage permission needed for reading the image from local storage.", RC_IMAGE_PERMS, PERMS);
+        if (!EasyPermissions.hasPermissions(this, READ_EXT_STORAGE_PERMS)) {
+            EasyPermissions.requestPermissions(this, "Storage permission needed for reading the image from local storage.", RC_IMAGE_PERMS, READ_EXT_STORAGE_PERMS);
             return;
         }
 
