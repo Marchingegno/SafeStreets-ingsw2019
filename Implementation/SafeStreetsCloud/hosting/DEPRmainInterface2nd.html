@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta content="width=device-width, initial-scale=1" name="viewport">
+	<title>Welcome to Firebase Hosting</title>
+
+
+	<style media="screen">
+		body {
+			background: #ECEFF1;
+			color: rgba(0, 0, 0, 0.87);
+			font-family: Roboto, Helvetica, Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+		}
+
+		hamburger {
+			border-style: solid;
+		}
+
+		#message {
+			background: white;
+			text-align: center;
+			max-width: 360px;
+			margin: 100px auto 16px;
+			padding: 32px 24px;
+			border-radius: 3px;
+		}
+
+		#message h2 {
+			color: #ffa100;
+			font-weight: bold;
+			font-size: 16px;
+			margin: 0 0 8px;
+		}
+
+		#message h1 {
+			font-size: 22px;
+			font-weight: 300;
+			color: rgba(0, 0, 0, 0.6);
+			margin: 0 0 16px;
+		}
+
+		#message p {
+			line-height: 140%;
+			margin: 16px 0 24px;
+			font-size: 14px;
+		}
+
+		#message lg {
+			cursor: pointer;
+			display: block;
+			text-align: center;
+			background: #039be5;
+			text-transform: uppercase;
+			text-decoration: none;
+			color: white;
+			margin: 10px;
+			padding: 4px;
+			border-radius: 1px;
+		}
+
+		#message, #message lg {
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+		}
+
+		#message a[id=github] {
+			cursor: pointer;
+			color: darkgray;
+			font-size: 12px;
+			text-align: center;
+		}
+
+		@media (max-width: 600px) {
+			body, #message {
+				margin-top: 0;
+				background: white;
+				box-shadow: none;
+			}
+
+			body {
+				border-top: 16px solid #ffa100;
+			}
+		}
+	</style>
+</head>
+
+<body>
+<hamburger id="message">
+	<h2>SafeStreets Web Interface</h2>
+	<h1>Municipality login</h1>
+	<p>Please login to the interface</p>
+	<input id="username"
+		   placeholder="Username"
+		   type="text"/>
+
+	<input id="password"
+		   placeholder="Password"
+		   type="password"/>
+
+	<lg id="login" target="_blank">Login</lg>
+	<a href="https://github.com/Marchingegno/MarcerMarchiscianaMotta" id="github">GitHub</a>
+</hamburger>
+
+<!-- update the version number as needed -->
+<script defer src="/__/firebase/7.5.2/firebase-app.js"></script>
+<!-- include only the Firebase features as you need -->
+<script defer src="/__/firebase/7.5.2/firebase-auth.js"></script>
+<!--<script defer src="/__/firebase/7.5.2/firebase-database.js"></script>
+<script defer src="/__/firebase/7.5.2/firebase-messaging.js"></script>
+<script defer src="/__/firebase/7.5.2/firebase-storage.js"></script>
+initialize the SDK after all desired features are loaded -->
+<script defer src="/__/firebase/init.js"></script>
+
+<script>
+    //document.getElementById(login).addEventListener("click", console.log("hello"));
+    document.getElementById("login").addEventListener("click", login);
+
+    function login() {
+        let email = document.getElementById("username").value;
+        let password = document.getElementById("password").value;
+        console.log("Username: " + email + "\n" + "Password :) : " + password);
+        firebase.auth().signInWithEmailAndPassword(email, password).catch(function (error) {
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log("Clicked")
+            // ...
+        });
+    }
+</script>
+
+
+</body>
+</html>
