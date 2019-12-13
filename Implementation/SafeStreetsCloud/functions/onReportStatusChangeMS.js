@@ -3,6 +3,9 @@
 // Dependencies
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+try {
+    admin.initializeApp();
+} catch (e) { /* App already initialized */ }
 const queryablePromise = require('./utils/queryablePromise');
 
 // Global variables

@@ -3,6 +3,9 @@
 // Dependencies
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+try {
+	admin.initializeApp();
+} catch (e) { /* App already initialized */ }
 const queryablePromise = require('./utils/queryablePromise');
 
 // Global variables
@@ -31,7 +34,7 @@ exports.checkViolationReportsTrigger = functions.firestore.document('/violationR
 	// Execute promises of file existence
 	await Promise.all(promisesOfFileExistence);
 
-	// Checks if there exist a wrong picture
+	// Checks if there exist a wrong picture (picture placed in array but not present in cloud storage)
 	let missingPicture = false;
 	for (let i = 0; i < promisesOfFileExistence.length; i++) {
 		console.log(`Checking picture "${pictures[i]}", exists: "${promisesOfFileExistence[i].getResponse()}".`);

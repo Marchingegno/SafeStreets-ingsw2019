@@ -4,6 +4,9 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const queryablePromise = require('./utils/queryablePromise');
+try {
+    admin.initializeApp();
+} catch (e) { /* App already initialized */ }
 
 // Global variables
 const db = admin.firestore();
