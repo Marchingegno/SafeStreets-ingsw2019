@@ -153,8 +153,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
     //================================================================================
     @OnClick(R.id.report_violation_add_photo_temporary)
     public void onClickAddPhoto(View v) {
-        startActivity(CameraActivity.createIntent(v.getContext()));
-        // pickImageFromStorage();
+        //startActivity(CameraActivity.createIntent(v.getContext()));
+        pickImageFromStorage();
     }
 
     @OnClick(R.id.report_violation_floating_send_button)
