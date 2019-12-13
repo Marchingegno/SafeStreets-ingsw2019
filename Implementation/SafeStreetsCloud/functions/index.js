@@ -1,10 +1,5 @@
 'use strict';
 
-// Initialization
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
-admin.initializeApp(functions.config().firebase);
-
 
 /**
  * Triggers when a new violation report is added.
@@ -59,6 +54,6 @@ if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'helloWorld') {
 /**
  * Triggers when a new violation report is added.
  */
-if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'checkViolationReports') {
+/*if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'checkViolationReports') {
   exports.checkViolationReports = require('./checkViolationReports').checkViolationReportsTrigger;
-}
+}*/
