@@ -102,12 +102,19 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
         if (requestCode == RC_LOCATION_PERMS) {
         }
 
+        //
         if (requestCode == RC_IMAGE_PATH) {
-            if(resultCode == Activity.RESULT_OK && data != null){
-                Toast.makeText(ReportViolationActivity.this, "Saved:" + data.getExtras(), Toast.LENGTH_SHORT).show();
+            if (resultCode == RESULT_OK) {
+                Toast.makeText(ReportViolationActivity.this, "Saved: " +  data.getStringExtra("result"), Toast.LENGTH_LONG).show();
+                if(selectedPhotos.size() >= 3) {
+                    GeneralUtils.showSnackbar(rootView, "Maximum number of photos reached");
+                } else {
+                    selectedPhotos.add(Uri.parse(data.getStringExtra("result")));
+                    numberOfPhotosAddedTextView.setText("Number of photos added: " + selectedPhotos.size() + "/3");
+                }
+            } else {
+                GeneralUtils.showSnackbar(rootView, "No image chosen");
             }
-            if (resultCode == Activity.RESULT_CANCELED) {
-                Toast.makeText(ReportViolationActivity.this, "CANCELED", Toast.LENGTH_SHORT).show();            }
         }
 
         // If a result of a pick-image action is received then process it.

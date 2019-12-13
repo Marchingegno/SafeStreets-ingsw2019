@@ -71,7 +71,7 @@ public class CameraActivity extends AppCompatActivity implements EasyPermissions
 	private String cameraId;
 	private Size imageDimension;
 	private ImageReader imageReader;
-	private File file;
+	private static File file = new File(Environment.getExternalStorageDirectory() + "/pic.jpg");
 	private boolean mFlashSupported;
 	private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
 
@@ -168,7 +168,7 @@ public class CameraActivity extends AppCompatActivity implements EasyPermissions
 			@Override
 			public void onClick(View v) {
 				Intent returnIntent = new Intent();
-				returnIntent.putExtra("result", file.toString());
+				returnIntent.putExtra("result", file.toURI());
 				setResult(Activity.RESULT_OK, returnIntent);
 				finish();
 			}
@@ -224,7 +224,6 @@ public class CameraActivity extends AppCompatActivity implements EasyPermissions
 			// Orientation
 			int rotation = getWindowManager().getDefaultDisplay().getRotation();
 			captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
-			file = new File(Environment.getExternalStorageDirectory() + "/pic.jpg");
 			ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
 				@Override
 				public void onImageAvailable(ImageReader reader) {
@@ -264,8 +263,11 @@ public class CameraActivity extends AppCompatActivity implements EasyPermissions
 				@Override
 				public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
 					super.onCaptureCompleted(session, request, result);
-					Toast.makeText(CameraActivity.this, "Saved:" + file, Toast.LENGTH_SHORT).show();
-					createCameraPreview();
+					Intent resultIntent = new Intent();
+					resultIntent.putExtra("result", file.toURI().toString());
+					setResult(Activity.RESULT_OK, resultIntent);
+					finish();
+					//createCameraPreview();
 				}
 			};
 			cameraDevice.createCaptureSession(outputSurfaces, new CameraCaptureSession.StateCallback() {
