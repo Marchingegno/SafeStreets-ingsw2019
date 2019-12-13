@@ -31,6 +31,7 @@
 		list-style-type: none;
 		margin: 0 20px 0 0;
 		padding: 0;
+		background-color: #d3d3d3;
 		position: fixed;
 	}
 
@@ -38,16 +39,74 @@
 		text-align: center;
 		color: black;
 		display: block;
-		height: 100%;
 		padding: 8px 16px;
 		text-decoration: none;
-		background-color: #d3d3d3;
 		border-bottom: 1px solid black;
+		font-size: 1.7vw;
 	}
 
 	.hamburger-menu li a:hover {
 		background-color: #767676;
 		color: white;
+	}
+
+	.hamburger-menu li.active {
+		background-color: #7f7f7f;
+
+	}
+
+	lg {
+		text-align: center;
+		color: black;
+		display: block;
+		padding: 8px 16px;
+		text-decoration: none;
+		border-bottom: 1px solid black;
+		font-size: 1.7vw;
+	}
+
+	lg:hover {
+		background-color: #767676;
+		color: white;
+		cursor: pointer;
+	}
+
+	o_b {
+		display: inline-block;
+		height: 50%;
+		margin-left: 15%;
+		padding-top: 20px;
+		background-color: lightgrey;
+	}
+
+	h1 {
+		display: block;
+		font-size: xx-large;
+		padding-left: 50%;
+		height: auto;
+	}
+
+
+	report {
+		display: block;
+		margin-left: 10%;
+		padding-left: 5px;
+		list-style-type: none;
+		background-color: white;
+		font-size: large;
+		border-bottom: 1px solid black;
+		border-top: 1px solid black;
+	}
+
+	report li {
+		padding: 5px;
+	}
+
+	button {
+		display: inline-block;
+		margin-left: 10%;
+		padding: 2%;
+		text-align: center;
 	}
 
 </style>
@@ -59,13 +118,64 @@
 	<li class="active"><a href="AcceptViolations.html">Accept Violations</a></li>
 	<li><a href="DisplayData.html">Display Data</a></li>
 	<li><a href="ShowStatistics.html">Show Statistics</a></li>
+	<lg id="logout">Logout</lg>
 </ul>
 
+<o_b>
+	Order by
+	<menu style="display: inline">number of reports</menu>
+</o_b>
 
-<txt style="font-size: xx-large; margin-left: 10%; padding: 1px 0px; height: auto">
-	123456789
-</txt>
+<h1>
+	Violations
+</h1>
 
+<button onclick="createReport()">Create report</button>
+
+<script>
+    var counter = 0;
+
+    function createReport() {
+        var newReport = document.createElement('report');
+        var license = document.createElement('li');
+        var location = document.createElement('li');
+        var violationType = document.createElement('li');
+        var numOfReports = document.createElement('li');
+
+        license.textContent = "License plate: " + counter++;
+        location.textContent = "Location: " + counter++;
+        violationType.textContent = "Violation type: " + counter++;
+        numOfReports.textContent = "Number of reports: " + counter++;
+
+        newReport.appendChild(license);
+        newReport.appendChild(location);
+        newReport.appendChild(violationType);
+        newReport.appendChild(numOfReports);
+
+        document.body.appendChild(newReport);
+    }
+</script>
+
+<report>
+	<li>License plate: XXX</li>
+	<li>Location: ZZZ</li>
+	<li>Violation type: CCC</li>
+	<li>Number of reports: 99</li>
+</report>
+
+
+<script>
+    document.getElementById("logout").addEventListener("click", logout);
+
+
+    function logout() {
+        firebase.auth().signOut().then(function () {
+            window.location.href = "index.html"
+        }).catch(function (error) {
+            console.log("Error loggin out");
+        })
+    }
+</script>
 
 </body>
 </html>

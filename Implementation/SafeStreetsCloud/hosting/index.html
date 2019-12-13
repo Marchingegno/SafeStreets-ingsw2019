@@ -2,6 +2,8 @@
 <html>
 
 <head>
+	<script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+	<link href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" rel="stylesheet" type="text/css"/>
 	<meta charset="utf-8">
 	<meta content="width=device-width, initial-scale=1" name="viewport">
 	<title>Welcome to Firebase Hosting</title>
@@ -106,32 +108,50 @@
 	<a href="https://github.com/Marchingegno/MarcerMarchiscianaMotta" id="github">GitHub</a>
 </div>
 
-<!-- update the version number as needed -->
-<script defer src="/__/firebase/7.5.2/firebase-app.js"></script>
-<!-- include only the Firebase features as you need -->
-<script defer src="/__/firebase/7.5.2/firebase-auth.js"></script>
-<!--<script defer src="/__/firebase/7.5.2/firebase-database.js"></script>
-<script defer src="/__/firebase/7.5.2/firebase-messaging.js"></script>
-<script defer src="/__/firebase/7.5.2/firebase-storage.js"></script>
-initialize the SDK after all desired features are loaded -->
-<script defer src="/__/firebase/init.js"></script>
+
+<!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+<script>src = "https://www.gstatic.com/firebasejs/7.6.0/firebase-app.js";</script>
+<script>src = "https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js";</script>
 
 <script>
-    //document.getElementById(login).addEventListener("click", console.log("hello"));
+    import {config} from './api';
+    // Initialize Firebase
+    firebase.initializeApp(config);
+</script>
+
+<script>
+
+
     document.getElementById("login").addEventListener("click", login);
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
+
 
     function login() {
         let email = document.getElementById("username").value;
         let password = document.getElementById("password").value;
         console.log("Username: " + email + "\n" + "Password :) : " + password);
+
         firebase.auth().signInWithEmailAndPassword(email, password).catch(function (error) {
             // Handle Errors here.
             var errorCode = error.code;
             var errorMessage = error.message;
-            console.log("Clicked")
+            console.log("Error");
             // ...
         });
     }
+
+    firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+            // User is signed in.
+            let uid = user.uid;
+            console.log("User logged in")
+            window.location.href = "AcceptViolations.html"
+            // ...
+        } else {
+            // User is signed out.
+            // ...
+        }
+    });
 </script>
 
 
