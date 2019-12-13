@@ -9,61 +9,40 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Transaction;
 
+import java.util.UUID;
+
 import it.polimi.marcermarchiscianamotta.safestreets.model.User;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReport;
 
 public class DatabaseConnection {
 
-    public static void uploadViolationReport(ViolationReport violationReport, Activity listenerActivity, OnSuccessListener<Void> onSuccessListener, OnFailureListener onFailureListener) {
-        // Violation reports are inserted in path: /violationReports/
-        FirebaseFirestore.getInstance().collection("violationReports").add(violationReport)
-                .addOnSuccessListener(listenerActivity, violationReportDocRef -> {
-                    addViolationReportReferenceToUser(violationReportDocRef.getId(), listenerActivity, onSuccessListener, onFailureListener);
-                })
-                .addOnFailureListener(listenerActivity, onFailureListener);
-    }
-
-    private static void addViolationReportReferenceToUser(final String violationReportId, Activity listenerActivity, OnSuccessListener<Void> onSuccessListener, OnFailureListener onFailureListener) {
-        final DocumentReference userDocumentRef = FirebaseFirestore.getInstance().collection("users").document(AuthenticationManager.getUserUid());
+    public static void uploadViolationReport(final ViolationReport violationReport, Activity listenerActivity, OnSuccessListener<Void> onSuccessListener, OnFailureListener onFailureListener) {
+        final String violationReportId = UUID.randomUUID().toString();
+        final DocumentReference violationReportDocRef = FirebaseFirestore.getInstance().collection("violationReports").document(violationReportId);
+        final DocumentReference userDocRef = FirebaseFirestore.getInstance().collection("users").document(AuthenticationManager.getUserUid());
         FirebaseFirestore.getInstance()
                 .runTransaction((Transaction.Function<Void>) transaction -> {
                     // Get user document.
-                    DocumentSnapshot userDocumentSnap = transaction.get(userDocumentRef);
+                    DocumentSnapshot userDocumentSnap = transaction.get(userDocRef);
 
                     // Modify user document by adding the new id of the violation report.
                     User user = userDocumentSnap.toObject(User.class);
-                    if(user == null)
+                    if(user == null) // If user does not have a user document.
                         user = new User(violationReportId);
                     else
                         user.addReference(violationReportId);
 
+                    // Upload violation report.
+                    transaction.set(violationReportDocRef, violationReport);
+
                     // Update user document.
-                    transaction.set(userDocumentRef, user);
+                    transaction.set(userDocRef, user);
 
                     // Success.
                     return null;
                 })
                 .addOnSuccessListener(onSuccessListener)
                 .addOnFailureListener(onFailureListener);
-
-
-
-        /*FirebaseFirestore.getInstance().collection("users").document(AuthenticationManager.getUserUid()).get()
-                .addOnSuccessListener(listenerActivity, userDocument -> {
-                    updateViolationReportReferencesOfUser(userDocument, violationReportId, listenerActivity, onSuccessListener, onFailureListener);
-                })
-                .addOnFailureListener(listenerActivity, onFailureListener);*/
     }
 
-    /*private static void updateViolationReportReferencesOfUser(DocumentSnapshot userDocument, String violationReportReference, Activity listenerActivity, OnSuccessListener<Void> onSuccessListener, OnFailureListener onFailureListener) {
-        User user = userDocument.toObject(User.class);
-        if(user == null)
-            user = new User(violationReportReference);
-        else
-            user.addReference(violationReportReference);
-
-        FirebaseFirestore.getInstance().collection("users").document(AuthenticationManager.getUserUid()).set(user)
-                .addOnSuccessListener(onSuccessListener)
-                .addOnFailureListener(listenerActivity, onFailureListener);
-    }*/
 }
