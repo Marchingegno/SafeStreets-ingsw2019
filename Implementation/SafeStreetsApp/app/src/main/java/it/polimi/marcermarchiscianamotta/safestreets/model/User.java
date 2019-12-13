@@ -1,21 +1,32 @@
 package it.polimi.marcermarchiscianamotta.safestreets.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import androidx.annotation.NonNull;
 
 public class User {
 
-    private String uid;
+    private List<String> violationReportIds;
 
     public User() {
-        // Needed for Firebase
     }
 
-    public User(@NonNull String uid) {
-        this.uid = uid;
+    public User(String initialReference) {
+        violationReportIds = new ArrayList<>();
+        addReference(initialReference);
     }
 
     @NonNull
-    public String getUid() {
-        return uid;
+    public List<String> getViolationReportIds() {
+        return violationReportIds;
+    }
+
+    public void setViolationReportIds(List<String> violationReportIds) {
+        this.violationReportIds = violationReportIds;
+    }
+
+    public void addReference(String reference) {
+        violationReportIds.add(reference);
     }
 }

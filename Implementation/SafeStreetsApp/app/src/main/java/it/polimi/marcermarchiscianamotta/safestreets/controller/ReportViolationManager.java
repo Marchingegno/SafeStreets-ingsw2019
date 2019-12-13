@@ -86,7 +86,7 @@ public class ReportViolationManager {
 
         // Upload object to database.
         DatabaseConnection.uploadViolationReport(vr, activity,
-                document -> {
+                input -> {
                     Toast.makeText(activity, "Violation Report sent successfully!", Toast.LENGTH_SHORT).show();
                     activity.finish();
                 },
