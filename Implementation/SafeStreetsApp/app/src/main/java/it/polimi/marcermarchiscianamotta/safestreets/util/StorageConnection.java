@@ -22,8 +22,8 @@ public class StorageConnection {
         ArrayList<String> picturesInUpload = new ArrayList<>();
         for (Uri uri : pictures) {
             // Name and path of the file.
-            String uuid = UUID.randomUUID().toString();
-            StorageReference mImageRef = FirebaseStorage.getInstance().getReference(uuid);
+            String pictureUuid = UUID.randomUUID().toString();
+            StorageReference mImageRef = FirebaseStorage.getInstance().getReference("pictures/" + AuthenticationManager.getUserUid() + "/" + pictureUuid);
 
             // Asynchronously uploads the file.
             mImageRef.putFile(uri)
