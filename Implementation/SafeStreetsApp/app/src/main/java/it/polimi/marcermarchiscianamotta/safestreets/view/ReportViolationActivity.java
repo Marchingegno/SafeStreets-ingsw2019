@@ -1,6 +1,7 @@
 package it.polimi.marcermarchiscianamotta.safestreets.view;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
@@ -38,6 +39,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
     private static final int RC_CHOOSE_PHOTO = 101;
     private static final int RC_IMAGE_PERMS = 102;
     private static final int RC_LOCATION_PERMS = 124;
+    private static final int RC_IMAGE_PATH = 125;
     private static final String READ_EXT_STORAGE_PERMS = Manifest.permission.READ_EXTERNAL_STORAGE;
     private static final String LOCATION_PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -100,6 +102,14 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
         if (requestCode == RC_LOCATION_PERMS) {
         }
 
+        if (requestCode == RC_IMAGE_PATH) {
+            if(resultCode == Activity.RESULT_OK && data != null){
+                Toast.makeText(ReportViolationActivity.this, "Saved:" + data.getExtras(), Toast.LENGTH_SHORT).show();
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                Toast.makeText(ReportViolationActivity.this, "CANCELED", Toast.LENGTH_SHORT).show();            }
+        }
+
         // If a result of a pick-image action is received then process it.
         if (requestCode == RC_CHOOSE_PHOTO) {
             if (resultCode == RESULT_OK) {
@@ -153,7 +163,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
     //================================================================================
     @OnClick(R.id.report_violation_add_photo_temporary)
     public void onClickAddPhoto(View v) {
-        startActivity(CameraActivity.createIntent(v.getContext()));
+        startActivityForResult(CameraActivity.createIntent(v.getContext()), RC_IMAGE_PATH);
+        //startActivity(CameraActivity.createIntent(v.getContext()));
         // pickImageFromStorage();
     }
 
