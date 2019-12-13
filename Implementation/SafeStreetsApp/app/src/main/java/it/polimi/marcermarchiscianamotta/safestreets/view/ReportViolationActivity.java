@@ -1,7 +1,6 @@
 package it.polimi.marcermarchiscianamotta.safestreets.view;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
@@ -13,6 +12,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.Task;
@@ -21,9 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -34,6 +33,8 @@ import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
+
+    private static final int NUM_MAX_OF_PICTURES = 3;
 
     private static final String TAG = "ReportViolationActivity";
     private static final int RC_CHOOSE_PHOTO = 101;
@@ -96,44 +97,43 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == RC_LOCATION_PERMS) {
+        switch (requestCode) {
+            case (RC_IMAGE_PATH):
+                if (resultCode == RESULT_OK && data.hasExtra("result")) {
+                    Toast.makeText(ReportViolationActivity.this, "Saved: " + data.getStringExtra("result"), Toast.LENGTH_LONG).show();
+                    if (selectedPhotos.size() >= NUM_MAX_OF_PICTURES) {
+                        GeneralUtils.showSnackbar(rootView, "Maximum number of photos reached");
+                    } else {
+                        selectedPhotos.add(Uri.parse(data.getStringExtra("result")));
+                        numberOfPhotosAddedTextView.setText("Number of photos added: " + selectedPhotos.size() + "/3");
+                    }
+                } else {
+                    GeneralUtils.showSnackbar(rootView, "No image chosen");
+                }
+                break;
+            default:
         }
 
-        //
-        if (requestCode == RC_IMAGE_PATH) {
-            if (resultCode == RESULT_OK) {
-                Toast.makeText(ReportViolationActivity.this, "Saved: " +  data.getStringExtra("result"), Toast.LENGTH_LONG).show();
-                if(selectedPhotos.size() >= 3) {
-                    GeneralUtils.showSnackbar(rootView, "Maximum number of photos reached");
-                } else {
-                    selectedPhotos.add(Uri.parse(data.getStringExtra("result")));
-                    numberOfPhotosAddedTextView.setText("Number of photos added: " + selectedPhotos.size() + "/3");
-                }
-            } else {
-                GeneralUtils.showSnackbar(rootView, "No image chosen");
-            }
-        }
-
-        // If a result of a pick-image action is received then process it.
-        if (requestCode == RC_CHOOSE_PHOTO) {
-            if (resultCode == RESULT_OK) {
-                if(selectedPhotos.size() >= 3) {
-                    GeneralUtils.showSnackbar(rootView, "Maximum number of photos reached");
-                } else {
-                    selectedPhotos.add(data.getData());
-                    numberOfPhotosAddedTextView.setText("Number of photos added: " + selectedPhotos.size() + "/3");
-                }
-            } else {
-                GeneralUtils.showSnackbar(rootView, "No image chosen");
-            }
-        }
-        // If a result of a permission-request is received then process it.
-        else if (requestCode == AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE && EasyPermissions.hasPermissions(this, READ_EXT_STORAGE_PERMS)) {
-            pickImageFromStorage();
-        }
+//        // If a result of a pick-image action is received then process it.
+//        if (requestCode == RC_CHOOSE_PHOTO) {
+//            if (resultCode == RESULT_OK) {
+//                if(selectedPhotos.size() >= 3) {
+//                    GeneralUtils.showSnackbar(rootView, "Maximum number of photos reached");
+//                } else {
+//                    selectedPhotos.add(data.getData());
+//                    numberOfPhotosAddedTextView.setText("Number of photos added: " + selectedPhotos.size() + "/3");
+//                }
+//            } else {
+//                GeneralUtils.showSnackbar(rootView, "No image chosen");
+//            }
+//        }
+//        // If a result of a permission-request is received then process it.
+//        else if (requestCode == AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE && EasyPermissions.hasPermissions(this, READ_EXT_STORAGE_PERMS)) {
+//            pickImageFromStorage();
+//        }
     }
 
     @Override

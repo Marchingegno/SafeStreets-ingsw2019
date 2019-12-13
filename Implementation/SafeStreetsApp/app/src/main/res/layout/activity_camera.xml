@@ -25,9 +25,9 @@
         android:id="@+id/button_return"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@id/texture"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="13dp"
+        android:layout_marginRight="16dp"
         android:text="@string/returns" />
 
 </RelativeLayout>

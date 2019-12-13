@@ -20,7 +20,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".view.CameraActivity"></activity>
+        <activity
+            android:name=".view.CameraActivity"
+            android:screenOrientation="portrait"></activity>
 
         <meta-data
             android:name="com.google.android.gms.version"
