@@ -13,7 +13,7 @@ const bucket = storage.bucket();
 /**
  * Triggers when a new violation report is added.
  */
-exports.clusteringMS = functions.firestore.document('/users/{userId}/violationReports/{reportId}').onCreate(async (snap, context) => {
+exports.clusteringMS = functions.firestore.document('/violationReports/{reportId}').onCreate(async (snap, context) => {
     console.log(`clusteringMS started.`);
 
     console.log(`clusteringMS ended.`);

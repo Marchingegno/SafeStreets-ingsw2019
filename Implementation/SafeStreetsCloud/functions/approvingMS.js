@@ -13,7 +13,7 @@ const bucket = storage.bucket();
 /**
  * Triggers when a new violation report is added.
  */
-exports.approvingMS = functions.firestore.document('/users/{userId}/violationReports/{reportId}').onCreate(async (snap, context) => {
+exports.approvingMS = functions.firestore.document('/violationReports/{reportId}').onCreate(async (snap, context) => {
     console.log(`approvingMS started.`);
 
     console.log(`approvingMS ended.`);

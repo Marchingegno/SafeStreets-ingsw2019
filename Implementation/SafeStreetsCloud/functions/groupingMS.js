@@ -13,7 +13,7 @@ const bucket = storage.bucket();
 /**
  * Triggers when a new violation report is added.
  */
-exports.groupingMS = functions.firestore.document('/users/{userId}/violationReports/{reportId}').onCreate(async (snap, context) => {
+exports.groupingMS = functions.firestore.document('/violationReports/{reportId}').onCreate(async (snap, context) => {
     console.log(`groupingMS started.`);
 
     console.log(`groupingMS ended.`);
