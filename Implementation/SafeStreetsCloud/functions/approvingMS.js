@@ -30,10 +30,14 @@ exports.approvingMS = functions.firestore.document('/violationReports/{reportId}
     // Check if a vehicle is present in one of the pictures using the Google Vision API.
     const vehiclePresent = await isAVehiclePresentInOneOfThePictures(picturesUris);
 
+    // Approve or reject the report.
     if(vehiclePresent) {
-        console.log(`Report should be approved.`);
+        console.log(`Report has been approved.`);
+        await snap.ref.update("reportStatus", "APPROVED");
     } else {
-        console.log(`Report should be rejected.`);
+        console.log(`Report has been rejected.`);
+        await snap.ref.update("reportStatus", "REJECTED");
+        await snap.ref.update("statusMotivation", "No vehicles have been found in the pictures.");
     }
 
     console.log(`approvingMS ended.`);
