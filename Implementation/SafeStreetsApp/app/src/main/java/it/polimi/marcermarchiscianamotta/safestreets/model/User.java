@@ -10,6 +10,7 @@ public class User {
     private List<String> violationReportIds;
 
     public User() {
+        // Needed for Firebase
     }
 
     public User(String initialReference) {
