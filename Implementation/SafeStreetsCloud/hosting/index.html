@@ -109,22 +109,25 @@
 </div>
 
 
-<!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
-<script>src = "https://www.gstatic.com/firebasejs/7.6.0/firebase-app.js";</script>
-<script>src = "https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js";</script>
+<!-- IMPORT STATEMENTS -->
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js"></script>
+<script src="scripts/api.js"></script>
+
 
 <script>
-    import {config} from './api';
-    // Initialize Firebase
-    firebase.initializeApp(config);
-</script>
-
-<script>
-
-
-    document.getElementById("login").addEventListener("click", login);
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
+    document.getElementById("login").addEventListener("click", login);
 
+    document.getElementById("login").addEventListener("keyup", function (event) {
+        if (event.key === "13") {
+            console.log("ho premuto invio");
+            event.preventDefault();
+            document.getElementById("login").click();
+        }
+    });
+
+    //pressing enter does not work for some abstract reason
 
     function login() {
         let email = document.getElementById("username").value;
@@ -144,11 +147,8 @@
         if (user) {
             // User is signed in.
             let uid = user.uid;
-            console.log("User logged in")
+            console.log("User logged in");
             window.location.href = "AcceptViolations.html"
-            // ...
-        } else {
-            // User is signed out.
             // ...
         }
     });

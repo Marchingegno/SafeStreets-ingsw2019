@@ -3,73 +3,11 @@
 <head>
 	<meta charset="UTF-8">
 	<title>SafeStreets Municipality Interface</title>
+	<link href="stylesheets/TemplateStylesheet.css" media="screen" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 
 <style>
-	body {
-		background: white;
-		color: black;
-		font-family: Roboto, Helvetica, Arial, sans-serif;
-		margin: 0;
-		padding: 0;
-	}
-
-	div {
-		text-align: center;
-		color: #ffa100;
-		margin: auto;
-		border-bottom: solid black;
-		font-size: xx-large;
-		display: block;
-	}
-
-	.hamburger-menu {
-		border-right: 1px solid black;
-		height: 100%;
-		width: 10%;
-		list-style-type: none;
-		margin: 0 20px 0 0;
-		padding: 0;
-		background-color: #d3d3d3;
-		position: fixed;
-	}
-
-	.hamburger-menu li a {
-		text-align: center;
-		color: black;
-		display: block;
-		padding: 8px 16px;
-		text-decoration: none;
-		border-bottom: 1px solid black;
-		font-size: 1.7vw;
-	}
-
-	.hamburger-menu li a:hover {
-		background-color: #767676;
-		color: white;
-	}
-
-	.hamburger-menu li.active {
-		background-color: #7f7f7f;
-
-	}
-
-	lg {
-		text-align: center;
-		color: black;
-		display: block;
-		padding: 8px 16px;
-		text-decoration: none;
-		border-bottom: 1px solid black;
-		font-size: 1.7vw;
-	}
-
-	lg:hover {
-		background-color: #767676;
-		color: white;
-		cursor: pointer;
-	}
 
 	o_b {
 		display: inline-block;
@@ -163,19 +101,10 @@
 	<li>Number of reports: 99</li>
 </report>
 
-
-<script>
-    document.getElementById("logout").addEventListener("click", logout);
-
-
-    function logout() {
-        firebase.auth().signOut().then(function () {
-            window.location.href = "index.html"
-        }).catch(function (error) {
-            console.log("Error loggin out");
-        })
-    }
-</script>
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js"></script>
+<script src="scripts/api.js"></script>
+<script src="scripts/logout.js"></script>
 
 </body>
 </html>

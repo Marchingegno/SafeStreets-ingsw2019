@@ -1,4 +1,4 @@
-export const config = {
+const config = {
     apiKey: "AIzaSyBlIuZpimS107pjOQLOUdoScW-x63GDUw4",
     authDomain: "safestreets-project.firebaseapp.com",
     databaseURL: "https://safestreets-project.firebaseio.com",
@@ -7,4 +7,6 @@ export const config = {
     messagingSenderId: "748184582401",
     appId: "1:748184582401:web:2714dc01c3fae291248300",
     measurementId: "G-5DGEPQJCY7"
-}
+};
+
+firebase.initializeApp(config);
