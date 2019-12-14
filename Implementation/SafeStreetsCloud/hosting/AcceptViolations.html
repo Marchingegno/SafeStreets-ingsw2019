@@ -7,6 +7,11 @@
 </head>
 <body>
 
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-firestore.js"></script>
+<script src="scripts/api.js"></script>
+
 <style>
 
 	o_b {
@@ -69,28 +74,36 @@
 </h1>
 
 <button onclick="createReport()">Create report</button>
+<button onclick="retrieveReports()">Retrieve reports</button>
 
 <script>
-    var counter = 0;
+    let counter = 0;
 
     function createReport() {
-        var newReport = document.createElement('report');
-        var license = document.createElement('li');
-        var location = document.createElement('li');
-        var violationType = document.createElement('li');
-        var numOfReports = document.createElement('li');
+        createReportWithParameters(counter++, counter++, counter++, counter++)
 
-        license.textContent = "License plate: " + counter++;
-        location.textContent = "Location: " + counter++;
-        violationType.textContent = "Violation type: " + counter++;
-        numOfReports.textContent = "Number of reports: " + counter++;
+    }
 
-        newReport.appendChild(license);
-        newReport.appendChild(location);
-        newReport.appendChild(violationType);
-        newReport.appendChild(numOfReports);
+    function createReportWithParameters(licensePlate, location, violationType, numOfReports) {
+        console.log(firebase.auth().currentUser);
 
-        document.body.appendChild(newReport);
+        let newReportElem = document.createElement('report');
+        let licenseElem = document.createElement('li');
+        let locationElem = document.createElement('li');
+        let violationTypeElem = document.createElement('li');
+        let numOfReportsElem = document.createElement('li');
+
+        licenseElem.textContent = "License plate: " + licensePlate;
+        locationElem.textContent = "Location: " + location;
+        violationTypeElem.textContent = "Violation type: " + violationType;
+        numOfReportsElem.textContent = "Number of reports: " + numOfReports;
+
+        newReportElem.appendChild(licenseElem);
+        newReportElem.appendChild(locationElem);
+        newReportElem.appendChild(violationTypeElem);
+        newReportElem.appendChild(numOfReportsElem);
+
+        document.body.appendChild(newReportElem);
     }
 </script>
 
@@ -101,9 +114,27 @@
 	<li>Number of reports: 99</li>
 </report>
 
-<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js"></script>
-<script src="scripts/api.js"></script>
+<!-- RETRIEVE REPORT SCRIPT -->
+<script>
+    function retrieveReports() {
+        var reports = firebase.firestore().collection("violationReports");
+        reports.get().then(function (querySnapshot) {
+            querySnapshot.forEach(function (doc) {
+                console.log(doc.data());
+                let licensePlate = doc.get("licensePlate");
+                let location = doc.get("latitude").toString() + "  |  " + doc.get("longitude").toString();
+                let violationType = doc.get("violationType");
+                let numOfReports = "Not implemented yet";
+
+                createReportWithParameters(licensePlate, location, violationType, numOfReports);
+            })
+        })
+
+    }
+
+</script>
+
+
 <script src="scripts/logout.js"></script>
 
 </body>

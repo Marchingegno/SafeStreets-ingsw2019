@@ -2,9 +2,115 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Title</title>
+	<title>SafeStreets Municipality Interface</title>
+	<link href="stylesheets/TemplateStylesheet.css" media="screen" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 
+<style>
+	det {
+		margin-left: 11%;
+	}
+
+	det txt {
+		display: block;
+		margin-left: inherit;
+		padding-bottom: 23px;
+	}
+
+	infos {
+		display: block;
+		margin-left: 15%;
+	}
+
+	infos titles {
+		display: block;
+		margin-left: 50px;
+	}
+
+	infos txt {
+		display: inline-block;
+		font-size: x-large;
+		font-weight: bolder;
+	}
+
+	infos txt.one {
+		padding-right: 200px;
+	}
+
+	infos txt.two {
+		margin-left: 20%;
+	}
+
+	infos boxes {
+		display: block;
+		margin-top: 15px;
+	}
+
+	infos box {
+		display: inline-block;
+		border: 1px solid black;
+		height: 300px;
+		overflow: auto;
+	}
+
+	infos box.one {
+		width: 250px;
+	}
+
+
+	infos boxes box.two {
+		margin-left: 20%;
+		width: 400px;
+	}
+
+
+</style>
+
+
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-firestore.js"></script>
+<script src="scripts/api.js"></script>
+
+<div class="center">SafeStreets Municipality Interface</div>
+
+
+<ul class="hamburger-menu">
+	<li class="active"><a href="AcceptViolations.html">Accept Violations</a></li>
+	<li><a href="DisplayData.html">Display Data</a></li>
+	<li><a href="ShowStatistics.html">Show Statistics</a></li>
+	<lg id="logout">Logout</lg>
+</ul>
+
+<det>
+	<txt>Group id:</txt>
+	<txt>Number of reports:</txt>
+	<txt>Location:</txt>
+	<txt>License plate:</txt>
+	<txt>Violation type:</txt>
+	<txt>Time :</txt>
+</det>
+
+<infos>
+	<titles>
+		<txt class="one">Descriptions</txt>
+		<txt class="two">Pictures</txt>
+	</titles>
+
+	<boxes>
+		<box class="one">
+			robarobaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+		</box>
+
+		<box class="two">
+			altrarobaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+		</box>
+	</boxes>
+
+</infos>
+
+
+<script src="scripts/logout.js"></script>
 </body>
 </html>
