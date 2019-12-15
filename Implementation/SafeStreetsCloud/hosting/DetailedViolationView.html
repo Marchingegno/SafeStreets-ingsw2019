@@ -10,6 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-storage.js"></script>
 <script src="scripts/api.js"></script>
 
 <style>
@@ -56,20 +57,37 @@
 		display: inline-block;
 		border: 1px solid black;
 		height: 300px;
-		white-space: pre-line;
+		word-break: break-word;
 	}
 
 	infos box.one {
 		width: 250px;
-		max-width: 250px;
-		overflow-wrap: break-word;
+		max-width: 260px;
+		margin-right: 50px;
 	}
 
+	box txt {
+		font-size: medium;
+		font-weight: normal;
+	}
 
 	infos boxes box.two {
+		display: inline-block;
 		margin-left: 20%;
 		width: 250px;
 		max-width: 400px;
+		height: max-content;
+	}
+
+	img {
+		-webkit-transform: rotate(90deg);
+		-moz-transform: rotate(90deg);
+		-ms-transform: rotate(90deg);
+		-o-transform: rotate(90deg);
+		transform: rotate(90deg);
+		cursor: pointer;
+		padding-left: 15px;
+		padding-bottom: 30px;
 	}
 
 
@@ -103,20 +121,27 @@
 
 	<boxes>
 		<box class="one" id="descr">
-			robarobaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+			<txt>robarobaaaaaaaaaaaaaaafdsfsdfsf
+				aaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+			</txt>
 		</box>
 
 		<box class="two" id="pic">
-			altrarobaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+			<txt>altrarobaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</txt>
 		</box>
 	</boxes>
+
 
 </infos>
 
 <script>
+    //RETRIEVE REPORT DATA
+    var pictures;
+    var userid;
     var repoId = location.hash.toString();
     repoId = repoId.slice(1);
     console.log("This is the hash: " + repoId);
+
     var report = firebase.firestore().collection("violationReports").doc(repoId).get().then(function (documentSnapshot) {
         if (documentSnapshot.exists) {
             document.getElementById("id").textContent += documentSnapshot.id;
@@ -125,13 +150,37 @@
             document.getElementById("licp").textContent += documentSnapshot.get("licensePlate");
             document.getElementById("time").textContent += documentSnapshot.get("uploadTimestamp");
             document.getElementById("vtype").textContent += documentSnapshot.get("violationType");
-            document.getElementById("descr").textContent += "\n" + documentSnapshot.get("description");
-            console.log("found the mfer");
+            document.getElementById("descr").innerText += documentSnapshot.get("description");
+            pictures = documentSnapshot.get("pictures");
+            console.log(pictures);
+            userid = documentSnapshot.get("userUid");
         } else {
             console.log("report doesn't exists");
         }
+        //RETRIEVE REPORT PICTURES
+        var storage = firebase.storage().ref();
+        pictures.forEach(function (value) {
+            console.log("PATH: " + "pictures/" + userid + "/" + value + ".jpeg");
+            storage.child("pictures/" + userid + "/" + value).getDownloadURL().then(function (url) {
+                console.log(url);
+                newImg = document.createElement("img");
+                newImg.setAttribute("src", url);
+                newImg.setAttribute("width", 100);
+                newImg.setAttribute("height", 100);
+                newImg.addEventListener("click", function () {
+                    openPic(url);
+                });
+                document.getElementById("pic").appendChild(newImg);
+            });
+
+        });
 
     });
+
+    function openPic(picUrl) {
+        window.open(picUrl);
+    }
+
 </script>
 
 
