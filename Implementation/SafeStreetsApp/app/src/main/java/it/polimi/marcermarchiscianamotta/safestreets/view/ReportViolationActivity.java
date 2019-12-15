@@ -116,24 +116,6 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
                 break;
             default:
         }
-
-//        // If a result of a pick-image action is received then process it.
-//        if (requestCode == RC_CHOOSE_PHOTO) {
-//            if (resultCode == RESULT_OK) {
-//                if(selectedPhotos.size() >= 3) {
-//                    GeneralUtils.showSnackbar(rootView, "Maximum number of photos reached");
-//                } else {
-//                    selectedPhotos.add(data.getData());
-//                    numberOfPhotosAddedTextView.setText("Number of photos added: " + selectedPhotos.size() + "/3");
-//                }
-//            } else {
-//                GeneralUtils.showSnackbar(rootView, "No image chosen");
-//            }
-//        }
-//        // If a result of a permission-request is received then process it.
-//        else if (requestCode == AppSettingsDialog.DEFAULT_SETTINGS_REQ_CODE && EasyPermissions.hasPermissions(this, READ_EXT_STORAGE_PERMS)) {
-//            pickImageFromStorage();
-//        }
     }
 
     @Override
