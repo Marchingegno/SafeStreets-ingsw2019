@@ -7,6 +7,11 @@
 </head>
 <body>
 
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-firestore.js"></script>
+<script src="scripts/api.js"></script>
+
 <style>
 	det {
 		margin-left: 11%;
@@ -51,27 +56,25 @@
 		display: inline-block;
 		border: 1px solid black;
 		height: 300px;
-		overflow: auto;
+		white-space: pre-line;
 	}
 
 	infos box.one {
 		width: 250px;
+		max-width: 250px;
+		overflow-wrap: break-word;
 	}
 
 
 	infos boxes box.two {
 		margin-left: 20%;
-		width: 400px;
+		width: 250px;
+		max-width: 400px;
 	}
 
 
 </style>
 
-
-<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-firestore.js"></script>
-<script src="scripts/api.js"></script>
 
 <div class="center">SafeStreets Municipality Interface</div>
 
@@ -84,12 +87,12 @@
 </ul>
 
 <det>
-	<txt>Group id:</txt>
-	<txt>Number of reports:</txt>
-	<txt>Location:</txt>
-	<txt>License plate:</txt>
-	<txt>Violation type:</txt>
-	<txt>Time :</txt>
+	<txt id="id">Group id:</txt>
+	<txt id="num">Number of reports:</txt>
+	<txt id="loc">Location:</txt>
+	<txt id="licp">License plate:</txt>
+	<txt id="vtype">Violation type:</txt>
+	<txt id="time">Time:</txt>
 </det>
 
 <infos>
@@ -99,16 +102,37 @@
 	</titles>
 
 	<boxes>
-		<box class="one">
+		<box class="one" id="descr">
 			robarobaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 		</box>
 
-		<box class="two">
+		<box class="two" id="pic">
 			altrarobaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 		</box>
 	</boxes>
 
 </infos>
+
+<script>
+    var repoId = location.hash.toString();
+    repoId = repoId.slice(1);
+    console.log("This is the hash: " + repoId);
+    var report = firebase.firestore().collection("violationReports").doc(repoId).get().then(function (documentSnapshot) {
+        if (documentSnapshot.exists) {
+            document.getElementById("id").textContent += documentSnapshot.id;
+            document.getElementById("num").textContent += "not implemented yet.";
+            document.getElementById("loc").textContent += documentSnapshot.get("latitude") + "  |  " + documentSnapshot.get("longitude");
+            document.getElementById("licp").textContent += documentSnapshot.get("licensePlate");
+            document.getElementById("time").textContent += documentSnapshot.get("uploadTimestamp");
+            document.getElementById("vtype").textContent += documentSnapshot.get("violationType");
+            document.getElementById("descr").textContent += "\n" + documentSnapshot.get("description");
+            console.log("found the mfer");
+        } else {
+            console.log("report doesn't exists");
+        }
+
+    });
+</script>
 
 
 <script src="scripts/logout.js"></script>

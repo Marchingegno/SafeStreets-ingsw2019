@@ -41,6 +41,11 @@
 		border-top: 1px solid black;
 	}
 
+	report:hover {
+		background-color: lightgrey;
+		cursor: pointer;
+	}
+
 	report li {
 		padding: 5px;
 	}
@@ -84,7 +89,7 @@
 
     }
 
-    function createReportWithParameters(licensePlate, location, violationType, numOfReports) {
+    function createReportWithParameters(licensePlate, location, violationType, numOfReports, uid) {
         console.log(firebase.auth().currentUser);
 
         let newReportElem = document.createElement('report');
@@ -104,6 +109,17 @@
         newReportElem.appendChild(numOfReportsElem);
 
         document.body.appendChild(newReportElem);
+
+        newReportElem.addEventListener("click", function () {
+            gotoDetailedViolation(uid);
+        });
+    }
+</script>
+
+<script>
+    function gotoDetailedViolation(uid) {
+
+        window.location.href = "DetailedViolationView.html#" + uid;
     }
 </script>
 
@@ -121,12 +137,13 @@
         reports.get().then(function (querySnapshot) {
             querySnapshot.forEach(function (doc) {
                 console.log(doc.data());
+                let uid = doc.id;
                 let licensePlate = doc.get("licensePlate");
                 let location = doc.get("latitude").toString() + "  |  " + doc.get("longitude").toString();
                 let violationType = doc.get("violationType");
                 let numOfReports = "Not implemented yet";
 
-                createReportWithParameters(licensePlate, location, violationType, numOfReports);
+                createReportWithParameters(licensePlate, location, violationType, numOfReports, uid);
             })
         })
 
