@@ -17,6 +17,7 @@ public class ViolationReport {
     private String licensePlate;
     private Date uploadTimestamp;
     private ReportStatus reportStatus = ReportStatus.SUBMITTED;
+    private String statusMotivation;
 
     //Coordinates
     private double latitude;
@@ -83,5 +84,10 @@ public class ViolationReport {
     @NonNull
     public ReportStatus getReportStatus() {
         return reportStatus;
+    }
+
+    @Nullable
+    public String getStatusMotivation() {
+        return statusMotivation;
     }
 }
