@@ -74,6 +74,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 
 	File directory = new File(directoryPath);
 	Uri currentPhoto;
+	String plate = null;
 
 	@BindView(R.id.report_violation_root)
 	View rootView;
@@ -164,7 +165,12 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 					public void onSuccess(FirebaseVisionText firebaseVisionText) {
 						// Task completed successfully
 						String resultText = firebaseVisionText.getText();
-						Log.e(TAG, "result:	" + findFirstPlate(resultText));
+						String resultPlate = findFirstPlate(resultText);
+						Log.e(TAG, "result: " + resultPlate);
+						if(plate == null && !resultPlate.equals("NOT FOUND")){
+							plate = resultPlate;
+							Log.e(TAG, "plate changed to: " + plate);
+						}
 					}
 				})
 				.addOnFailureListener(
@@ -173,6 +179,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 							public void onFailure(@NonNull Exception e) {
 								// Task failed with an exception
 								// ...
+								Log.e(TAG, "No text found");
 							}
 						});
 	}
@@ -183,8 +190,9 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		int i = 0;
 		lines = text.split(System.getProperty("line.separator"));
 		while(!found && i < lines.length){
+			lines[i] = lines[i].replace('-', ' ').replace(" ","");
 			Log.e(TAG, lines[i]);
-			found = lines[i].matches("[A-Z][A-Z] [0-9][0-9][0-9][A-Z][A-Z]");
+			found = lines[i].matches("[A-Z][A-Z][0-9][0-9][0-9][A-Z][A-Z]");
 			i++;
 		}
 		return found? lines[i-1]: "NOT FOUND";
