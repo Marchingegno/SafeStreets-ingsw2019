@@ -6,7 +6,7 @@
 	<link href="stylesheets/TemplateStylesheet.css" media="screen" rel="stylesheet" type="text/css"/>
 	<style>
 		h3 {
-			margin-left: 250px;
+			margin-left: 150px;
 		}
 
 		div.mapContainer {
@@ -15,9 +15,44 @@
 			width: 70%;
 		}
 
+		div.pageContent {
+			margin-left: 14%;
+			margin-top: 30px;
+		}
+
+		div.locationInput, div.dateInput {
+			padding-right: 50px;
+			width: 150px;
+		}
+
+		div.locationInput, div.licenseInput, div.dateInput {
+			display: inline-block;
+		}
+
+
+		input[type=text] {
+			border: 1px solid black;
+			border-radius: 200px;
+		}
+
+		input[type=checkbox] {
+			display: inline-block;
+			margin-bottom: 10px;
+		}
+
+		h4 {
+			color: #7a7a7a;
+			font-weight: normal;
+		}
+
 		#map {
 			height: inherit;
 			margin-top: 50px;
+		}
+
+		button {
+			display: block;
+			margin-top: 1%;
 		}
 
 	</style>
@@ -39,10 +74,39 @@
 	<lg id="logout">Logout</lg>
 </ul>
 
-<h3>Display data</h3>
+<div class="pageContent">
+	<div class="Container">
+		<div class="locationInput">
+			<input id="loc" placeholder=" Search location" type="text"/>
+		</div>
 
-<div class="mapContainer">
-	<div id="map"></div>
+		<div class="licenseInput">
+			<input id="lic" placeholder=" Search license plate" type="text"/>
+		</div>
+	</div>
+
+	<div class="Container">
+		<div class="dateInput">
+			<h4>Start date</h4>
+			<input id="stDate" placeholder=" Search location" type="date" value="2011-11-30"/>
+		</div>
+
+		<div class="dateInput">
+			<h4>End date</h4>
+			<input id="eDate" placeholder=" Search license plate" type="date"/>
+		</div>
+	</div>
+
+	<h4>Display...</h4>
+
+	<input name="Violations" type="checkbox">Violations<br>
+	<input name="Accidents" type="checkbox">Accidents<br>
+	<button>Select types</button>
+	<button onclick="updateSearch()">Search</button>
+
+	<div class="mapContainer">
+		<div id="map"></div>
+	</div>
 </div>
 
 <script>
@@ -50,6 +114,7 @@
     var map;
 
     function initMap() {
+        console.log("Func started");
         latitude = 45.5488358;
         longitude = 9.1217414;
         var loc = {lat: latitude, lng: longitude};
@@ -65,11 +130,25 @@
 
     }
 
+    function updateSearch() {
+        console.log("update search started");
+        var db = firebase.firestore();
+        var reportsToDisplay;
+        var startDate = document.getElementById("stDate").value;
+        var endDate = document.getElementById("eDate").value;
+        var date = new Date(startDate);
+        console.log("Start date: " + date);
+        console.log("End date: " + endDate);
+        console.log(endDate == "");
+    }
+
 </script>
 
+<!--
 <script async defer
 		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAm3oFtymMHMAt5B5pvtejRRb0d2mARJY8&callback=initMap"
 		type="text/javascript"></script>
+-->
 
 <script src="scripts/logout.js"></script>
 </body>
