@@ -3,78 +3,74 @@
 <head>
 	<meta charset="UTF-8">
 	<title>SafeStreets Municipality Interface</title>
+	<link href="stylesheets/TemplateStylesheet.css" media="screen" rel="stylesheet" type="text/css"/>
+	<style>
+		h3 {
+			margin-left: 250px;
+		}
+
+		div.mapContainer {
+			margin-left: 14%;
+			height: 550px;
+			width: 70%;
+		}
+
+		#map {
+			height: inherit;
+			margin-top: 50px;
+		}
+
+	</style>
 </head>
 <body>
 
-<style>
-	body {
-		background: white;
-		color: black;
-		font-family: Roboto, Helvetica, Arial, sans-serif;
-		margin: 0;
-		padding: 0;
-	}
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-firestore.js"></script>
+<script src="scripts/api.js"></script>
 
-	div {
-		text-align: center;
-		color: #ffa100;
-		margin: auto;
-		border-bottom: solid black;
-		font-size: xx-large;
-		display: block;
-	}
-
-	.hamburger-menu {
-		border-right: 1px solid black;
-		height: 100%;
-		width: 10%;
-		list-style-type: none;
-		margin: 0 20px 0 0;
-		padding: 0;
-		background-color: #d3d3d3;
-		position: fixed;
-	}
-
-	.hamburger-menu li a {
-		text-align: center;
-		color: black;
-		display: block;
-		height: 100%;
-		padding: 8px 16px;
-		text-decoration: none;
-		border-bottom: 1px solid black;
-	}
-
-	.hamburger-menu li a:hover {
-		background-color: #767676;
-		color: white;
-	}
-
-	.hamburger-menu li.active {
-		background-color: #7f7f7f;
-
-	}
-
-</style>
 
 <div class="center">SafeStreets Municipality Interface</div>
-
 
 <ul class="hamburger-menu">
 	<li><a href="AcceptViolations.html">Accept Violations</a></li>
 	<li class="active"><a href="DisplayData.html">Display Data</a></li>
 	<li><a href="ShowStatistics.html">Show Statistics</a></li>
+	<lg id="logout">Logout</lg>
 </ul>
 
+<h3>Display data</h3>
 
-<txt style="font-size: xx-large; margin-left: 10%; padding: 1px 0px; height: auto">
-	123456789
-</txt>
+<div class="mapContainer">
+	<div id="map"></div>
+</div>
 
-<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js"></script>
-<script src="scripts/api.js"></script>
+<script>
+    // Initialize and add the map
+    var map;
+
+    function initMap() {
+        latitude = 45.5488358;
+        longitude = 9.1217414;
+        var loc = {lat: latitude, lng: longitude};
+        map = new google.maps.Map(
+            document.getElementById('map'), {zoom: 14, center: loc, streetViewControl: false});
+        addMarkerAtLocationAndCenter(loc.lat, loc.lng);
+    }
+
+    function addMarkerAtLocationAndCenter(latitude, longitude) {
+        var loc = {lat: latitude, lng: longitude};
+        var marker = new google.maps.Marker({position: loc, map: map});
+        map.setCenter(loc);
+
+    }
+
+</script>
+
+<script async defer
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAm3oFtymMHMAt5B5pvtejRRb0d2mARJY8&callback=initMap"
+		type="text/javascript"></script>
+
 <script src="scripts/logout.js"></script>
-
 </body>
 </html>

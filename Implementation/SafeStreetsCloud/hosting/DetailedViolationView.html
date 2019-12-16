@@ -171,8 +171,9 @@
                     openPic(url);
                 });
                 document.getElementById("pic").appendChild(newImg);
-            });
-
+            }).catch(function (error) {
+                console.log("There has been an error. " + error);
+            })
         });
 
     });
