@@ -2,6 +2,7 @@ package it.polimi.marcermarchiscianamotta.safestreets.model;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import com.google.firebase.Timestamp;
 
@@ -12,9 +13,11 @@ import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.ViolationEnum;
 
 public class Report {
-	private String licencePlate;
-	private float latitude;
-	private float longitude;
+	private static final String TAG = "Report";
+
+	private String licencePlate = null;
+	private double latitude;
+	private double longitude;
 	private String locality;
 	private List<Uri> violationPhotos = new ArrayList<>();
 	private Timestamp timestamp;
@@ -26,13 +29,14 @@ public class Report {
 
 	public void setLicencePlate(String licencePlate) {
 		this.licencePlate = licencePlate;
+		Log.d(TAG, "Licence plate: " + licencePlate);
 	}
 
-	public float getLatitude() {
+	public double getLatitude() {
 		return latitude;
 	}
 
-	public void setCoordinates(Context context, float latitude, float longitude) {
+	public void setCoordinates(Context context, double latitude, double longitude) {
 		this.latitude = latitude;
 		this.longitude = longitude;
 
@@ -41,13 +45,14 @@ public class Report {
 
 	private void setLocality(Context context) {
 		this.locality = MapManager.getCityFromLocation(context, latitude, longitude);
+		Log.d(TAG, "Locality added: " + locality);
 	}
 
 	public String getLocality() {
 		return locality;
 	}
 
-	public float getLongitude() {
+	public double getLongitude() {
 		return longitude;
 	}
 
@@ -55,8 +60,9 @@ public class Report {
 		return violationPhotos;
 	}
 
-	public void setViolationPhotos(List<Uri> violationPhotos) {
-		this.violationPhotos = violationPhotos;
+	public void addPhoto(Uri photoPath) {
+		violationPhotos.add(photoPath);
+		Log.d(TAG, "Photo added: " + photoPath);
 	}
 
 	public Timestamp getTimestamp() {
@@ -73,5 +79,9 @@ public class Report {
 
 	public void setTypeOfViolation(ViolationEnum typeOfViolation) {
 		this.typeOfViolation = typeOfViolation;
+	}
+
+	public boolean hasPlate() {
+		return licencePlate != null;
 	}
 }
