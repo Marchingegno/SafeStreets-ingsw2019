@@ -3,7 +3,6 @@ package it.polimi.marcermarchiscianamotta.safestreets.view;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -18,12 +17,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 
 import java.io.File;
 import java.net.URI;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -55,18 +53,15 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	private static final String LOCATION_PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
 	private static final String CAMERA_PERMS = Manifest.permission.CAMERA;
 	File directory = new File(mainDirectoryPath);
-	private final double[] latitude = {0};
-	private final double[] longitude = {0};
-	Task<Location> locationTask;
 
 	private ReportViolationManager reportViolationManager;
 	Uri currentPhotoPath;
+
 	@BindView(R.id.first_photo_view)
 	ImageView firstPhotoView;
 
 	@BindView(R.id.report_violation_root)
 	View rootView;
-	private ArrayList<Uri> violationPhotos = new ArrayList<>();
 
 	@BindView(R.id.description)
 	EditText descriptionText;
@@ -100,9 +95,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 
 		reportViolationManager = new ReportViolationManager(this, rootView);
 
-		//Start the task to get location
-		//Ask permission for position
-		//fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+		//Ask permissions
 		if (!EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
 			EasyPermissions.requestPermissions(this, "Location permission", RC_LOCATION_PERMS, LOCATION_PERMS);
 		}
@@ -130,11 +123,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 				if (resultCode == RESULT_OK) {
 					if (new File(URI.create(currentPhotoPath.toString())).exists()) {
 						reportViolationManager.addPhotoToReport(currentPhotoPath);
-
 						String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPhotos() + "/" + reportViolationManager.getMaxNumOfPhotos();
 						numberOfPhotosAddedTextView.setText(textToDisplay);
-
-						//firstPhotoView.setImageURI(currentPhotoPath);
 					} else
 						Log.e(TAG, "Photo not found");
 				}
@@ -156,7 +146,6 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 				EasyPermissions.requestPermissions(this, "Location permission", RC_CAMERA_PERMISSION, CAMERA_PERMS);
 			}
 		}
-
 		if (requestCode == RC_CAMERA_PERMISSION) {
 			if (!EasyPermissions.hasPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 				EasyPermissions.requestPermissions(this, "Location permission", RC_READ_EXT_STORAGE_PERMS, READ_EXT_STORAGE_PERMS);
@@ -185,28 +174,27 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	@OnClick(R.id.report_violation_add_photo_temporary)
 	public void onClickAddPhoto(View v) {
 		if (reportViolationManager.canTakeAnotherPicture()) {
-
-			StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-			StrictMode.setVmPolicy(builder.build());
-
 			String fileName = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss").format(new Date());
 			File destination = new File(mainDirectoryPath, fileName + ".jpg");
 			currentPhotoPath = Uri.parse(destination.toURI().toString());
 
+			StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+			StrictMode.setVmPolicy(builder.build());
 			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 			intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(destination));
 			startActivityForResult(intent, RC_IMAGE_TAKEN);
 		} else
-			GeneralUtils.showSnackbar(rootView, "Maximum number of pictures taken.");
+			GeneralUtils.showSnackbar(rootView, "Maximum number of pictures reached.");
 	}
 
 
 	@OnClick(R.id.report_violation_floating_send_button)
 	public void onClickSendViolation(View v) {
-		//Get description
-		String description = descriptionText.getText().toString();
-
-		reportViolationManager.onSendViolationReport(violationPhotos, description, latitude[0], longitude[0]);
+		reportViolationManager.setTimestamp(Timestamp.now());
+		if (reportViolationManager.isReadyToSend())
+			reportViolationManager.sendViolationReport(descriptionText.getText().toString());
+		else
+			GeneralUtils.showSnackbar(rootView, "Before reporting, please complete all mandatory fields.");
 	}
 	//endregion
 

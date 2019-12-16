@@ -6,9 +6,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.firebase.Timestamp;
+
 import java.util.List;
 
-import it.polimi.marcermarchiscianamotta.safestreets.model.Report;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReport;
 import it.polimi.marcermarchiscianamotta.safestreets.util.AuthenticationManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.DatabaseConnection;
@@ -26,36 +27,33 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	private Activity activity;
 	private View rootView;
 
-	private Report report;
+	private ViolationReport report;
 
-	private List<Uri> selectedPictures;
-	private String violationDescription;
-	private double latitude;
-	private double longitude;
 	private List<String> picturesInUpload;
 	private int numberOfUploadedPhotos = 0;
-	private boolean failedUplaod = false;
 
 
 	public ReportViolationManager(Activity activity, View rootView) {
 		this.activity = activity;
 		this.rootView = rootView;
-		report = new Report();
+		report = new ViolationReport(AuthenticationManager.getUserUid());
 	}
 
 
 	//region Public methods
 	//================================================================================
-	public void onSendViolationReport(List<Uri> selectedPictures, String violationDescription, double latitude, double longitude) {
-		this.selectedPictures = selectedPictures;
-		this.violationDescription = violationDescription;
-		this.latitude = latitude;
-		this.longitude = longitude;
-		numberOfUploadedPhotos = 0;
-		failedUplaod = false;
-
+	public void sendViolationReport(String description) {
+		report.setDescription(description);
 		Toast.makeText(activity, "Uploading photos...", Toast.LENGTH_SHORT).show();
 		uploadPhotosToCloudStorage();
+	}
+
+	public boolean isReadyToSend() {
+		return report.isReadyToSend();
+	}
+
+	public void setTimestamp(Timestamp timestamp) {
+		report.setTimestamp(timestamp);
 	}
 
 	public void addPhotoToReport(Uri photoPath) {
@@ -96,15 +94,14 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	//region Private methods
 	//================================================================================
 	private void uploadPhotosToCloudStorage() {
-		picturesInUpload = StorageConnection.uploadPicturesToCloudStorage(selectedPictures, activity,
+		picturesInUpload = StorageConnection.uploadPicturesToCloudStorage(report.getViolationPhotos(), activity,
 				taskSnapshot -> {
 					checkIfAllUploadsEnded();
-					Toast.makeText(activity, "Image uploaded", Toast.LENGTH_SHORT).show();
+					Toast.makeText(activity, "Image uploaded successfully", Toast.LENGTH_SHORT).show();
 				},
 				e -> {
-					Log.w(TAG, "uploadPhotosToCloudStorage:onError", e);
-					failedUplaod = true;
-					checkIfAllUploadsEnded();
+					Log.e(TAG, "uploadPhotosToCloudStorage:onError", e);
+					GeneralUtils.showSnackbar(rootView, "Failed to upload the photos. Please try again.");
 					Toast.makeText(activity, "Upload failed", Toast.LENGTH_SHORT).show();
 				});
 	}
@@ -113,28 +110,20 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 		numberOfUploadedPhotos++;
 		if (picturesInUpload != null && numberOfUploadedPhotos == picturesInUpload.size()) {
 			// End upload
-			if (failedUplaod) {
-				GeneralUtils.showSnackbar(rootView, "Failed to send the violation report. Please try again.");
-			} else {
-				insertViolationReportInDatabase();
-			}
+			insertViolationReportInDatabase();
 		}
 	}
 
 	private void insertViolationReportInDatabase() {
-		// Create ViolationReport object.
-		// TODO violationType, licensePlate
-		ViolationReport vr = new ViolationReport(AuthenticationManager.getUserUid(), 0, violationDescription, picturesInUpload, "AB123CD", latitude, longitude);
-
 		// Upload object to database.
-		DatabaseConnection.uploadViolationReport(vr, activity,
+		DatabaseConnection.uploadViolationReport(report.getReportRepresentation(), activity,
 				input -> {
-					Toast.makeText(activity, "Violation Report sent successfully!", Toast.LENGTH_SHORT).show();
+					GeneralUtils.showSnackbar(rootView, "Violation ViolationReport sent successfully!");
 					activity.finish();
 				},
 				e -> {
-					Log.e(TAG, "Failed to write message", e);
 					GeneralUtils.showSnackbar(rootView, "Failed to send the violation report. Please try again.");
+					Log.e(TAG, "Failed to write message", e);
 				});
 	}
 
