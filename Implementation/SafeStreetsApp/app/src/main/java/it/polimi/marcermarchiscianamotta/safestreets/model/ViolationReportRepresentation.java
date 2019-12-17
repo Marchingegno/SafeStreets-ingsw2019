@@ -17,7 +17,7 @@ public class ViolationReportRepresentation {
 	private static final String TAG = "ViolationReportRep";
 
 	private String userUid;
-	private String licencePlate;
+	private String licensePlate;
 	private String description;
 	private Double latitude;
 	private Double longitude;
@@ -29,7 +29,7 @@ public class ViolationReportRepresentation {
 
 	public ViolationReportRepresentation(ViolationReport report) {
 		this.userUid = report.getUserUid();
-		this.licencePlate = report.getLicencePlate();
+		this.licensePlate = report.getlicensePlate();
 		this.description = report.getDescription();
 		this.latitude = report.getLatitude();
 		this.longitude = report.getLongitude();
@@ -50,8 +50,8 @@ public class ViolationReportRepresentation {
 	}
 
 	@NonNull
-	public String getLicencePlate() {
-		return licencePlate;
+	public String getlicensePlate() {
+		return licensePlate;
 	}
 
 	@Nullable
