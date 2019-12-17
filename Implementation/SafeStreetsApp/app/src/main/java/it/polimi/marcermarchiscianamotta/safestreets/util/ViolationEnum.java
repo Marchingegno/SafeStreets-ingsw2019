@@ -2,6 +2,9 @@ package it.polimi.marcermarchiscianamotta.safestreets.util;
 
 import androidx.annotation.NonNull;
 
+/**
+ * The list of possible traffic violations.
+ */
 public enum ViolationEnum {
 	//TODO add more violations from https://en.wikipedia.org/wiki/Parking_violation
 	PARKING_IN_A_PROHIBITED_SPACE("Parking in a prohibited space"),
@@ -16,6 +19,7 @@ public enum ViolationEnum {
 	OTHER("Other");
 
 	private String text;
+
 	ViolationEnum(String string){
 		text = string;
 	}

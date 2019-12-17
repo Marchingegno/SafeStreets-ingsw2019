@@ -141,13 +141,13 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	 * @param result the String found by the text recognition process.
 	 */
 	@Override
-	public void onTextRecognized(String result) {
+	public void onTextRecognized(String[] result) {
 		if (result != null) {
-			Log.d(TAG, "Plate found: " + result);
-			GeneralUtils.showSnackbar(rootView, "Plate found: " + result);
+			Log.d(TAG, "Plate found: " + result[0]);
+			GeneralUtils.showSnackbar(rootView, "Plate found: " + result[0]);
 			if (!report.hasPlate()) {
-				report.setLicensePlate(result);
-				reportViolationActivity.setPlateText(result);
+				report.setLicensePlate(result[0]);
+				reportViolationActivity.setPlateText(result[0]);
 			}
 		} else {
 			Log.d(TAG, "No plate found");
@@ -193,7 +193,7 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 					String toastText = "Image " + numberOfUploadedPhotos + "/" + ((picturesIDOnServer != null) ? picturesIDOnServer.size() : "?") + " uploaded successfully";
 					Toast.makeText(reportViolationActivity, toastText, Toast.LENGTH_SHORT).show();
 				},
-				//Called if the upload failed
+				//Called if the upload throws an exception
 				e -> {
 					Log.e(TAG, "uploadPhotosToCloudStorage:onError", e);
 					GeneralUtils.showSnackbar(rootView, "Failed to upload the photos. Please try again.");
@@ -225,7 +225,7 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 					GeneralUtils.showSnackbar(rootView, "Violation report sent successfully!");
 					reportViolationActivity.finish();
 				},
-				//On error
+				//On exception
 				e -> {
 					GeneralUtils.showSnackbar(rootView, "Failed to send the violation report. Please try again.");
 					Log.e(TAG, "Failed to write message", e);

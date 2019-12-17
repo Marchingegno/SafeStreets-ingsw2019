@@ -29,7 +29,8 @@ public class MapManager {
 		}
 		catch(IOException e)
 		{
-			Log.e(TAG, "Sign-in error: ", e);}
+			Log.e(TAG, TAG + "failed while retrieving the municipality ", e);
+		}
 		return result.getLocality();
 	}
 

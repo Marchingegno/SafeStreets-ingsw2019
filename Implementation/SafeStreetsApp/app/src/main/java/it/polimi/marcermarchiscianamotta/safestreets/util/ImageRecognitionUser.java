@@ -9,5 +9,5 @@ public interface ImageRecognitionUser {
 	 *
 	 * @param result the String found by the text recognition process.
 	 */
-	void onTextRecognized(String result);
+	void onTextRecognized(String[] result);
 }
