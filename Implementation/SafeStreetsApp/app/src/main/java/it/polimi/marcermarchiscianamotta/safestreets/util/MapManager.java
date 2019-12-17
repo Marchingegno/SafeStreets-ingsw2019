@@ -5,9 +5,14 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.util.Log;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+
 import java.io.IOException;
 
 public class MapManager {
+
+
 	private static final String TAG = "MapManager";
 
 	/**
@@ -17,7 +22,8 @@ public class MapManager {
 	 * @param longitude the longitude of the location.
 	 * @return the name of the city where the location belongs.
 	 */
-	public String getCityFromLocation(Context context, double latitude, double longitude){
+	public static String getMunicipalityFromLocation(Context context, double latitude, double longitude) {
+		//TODO maybe is better to create a thread
 		Address result = null;
 		try{
 			result = new Geocoder(context).getFromLocation(latitude, longitude, 1).get(0);
@@ -26,5 +32,16 @@ public class MapManager {
 		{
 			Log.e(TAG, "Sign-in error: ", e);}
 		return result.getLocality();
+	}
+
+	static public void retrieveLocation(Context context, MapUser caller) {
+		FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
+		fusedLocationProviderClient.getLastLocation()
+				.addOnSuccessListener(location -> {
+					if (location != null) {
+						caller.onLocationFound(location.getLatitude(), location.getLongitude());
+					}
+				})
+				.addOnFailureListener(location -> Log.e(TAG, "Failed to retrieve the location"));
 	}
 }
