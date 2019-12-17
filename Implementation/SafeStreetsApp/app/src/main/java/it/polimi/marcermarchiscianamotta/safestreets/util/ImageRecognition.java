@@ -18,6 +18,35 @@ import java.io.IOException;
 public class ImageRecognition {
 	private static final String TAG = "ImageRecognition";
 
+	static public void retrieveText(Context context, Uri photoPath, ImageRecognitionUser caller) {
+		FirebaseVisionImage image = null;
+		try {
+			image = FirebaseVisionImage.fromFilePath(context, photoPath);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance()
+				.getOnDeviceTextRecognizer();
+
+		detector.processImage(image)
+				.addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+					@Override
+					public void onSuccess(FirebaseVisionText firebaseVisionText) {
+						// Task completed successfully
+						caller.onTextRecognized(firebaseVisionText.getText());
+					}
+				})
+				.addOnFailureListener(
+						new OnFailureListener() {
+							@Override
+							public void onFailure(@NonNull Exception e) {
+								// Task failed with an exception
+								Log.e(TAG, "Failed to find text", e);
+								caller.onTextRecognized(null);
+							}
+						});
+	}
+
 	static public void retrievePlateFromPhoto(Context context, Uri photoPath, ImageRecognitionUser caller) {
 		FirebaseVisionImage image = null;
 		try {

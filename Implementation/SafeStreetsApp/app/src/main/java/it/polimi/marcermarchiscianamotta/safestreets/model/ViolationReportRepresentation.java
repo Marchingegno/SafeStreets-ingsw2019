@@ -13,6 +13,10 @@ import java.util.List;
 
 import it.polimi.marcermarchiscianamotta.safestreets.util.ViolationEnum;
 
+/**
+ * Represents a representation of a violation report. This class contains only the relevant attributes
+ * that need to be sent to the database.
+ */
 public class ViolationReportRepresentation {
 	private static final String TAG = "ViolationReportRep";
 
@@ -29,7 +33,7 @@ public class ViolationReportRepresentation {
 
 	public ViolationReportRepresentation(ViolationReport report) {
 		this.userUid = report.getUserUid();
-		this.licensePlate = report.getlicensePlate();
+		this.licensePlate = report.getLicensePlate();
 		this.description = report.getDescription();
 		this.latitude = report.getLatitude();
 		this.longitude = report.getLongitude();
@@ -37,13 +41,15 @@ public class ViolationReportRepresentation {
 		this.typeOfViolation = report.getTypeOfViolation();
 
 		List<String> pictureIDs = report.getPicturesIDOnServer();
-		if (pictureIDs == null || pictureIDs.size() == 0)
-			Log.e(TAG, "Report should have at least one picture in server");
-		else {
+		if (pictureIDs == null || pictureIDs.size() == 0) {
+			Log.e(TAG, "Report should have at least one picture in order to be uploaded");
+			throw new NullPointerException("Report should have at least one picture in order to be uploaded");
+		} else
 			pictures = new ArrayList<>(pictureIDs);
-		}
 	}
 
+	//region Getter methods
+	//================================================================================
 	@NonNull
 	public String getUserUid() {
 		return userUid;
@@ -89,4 +95,5 @@ public class ViolationReportRepresentation {
 	public List<String> getPictures() {
 		return pictures;
 	}
+	//endregion
 }

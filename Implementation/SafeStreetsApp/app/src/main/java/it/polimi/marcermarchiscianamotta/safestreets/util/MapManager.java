@@ -16,14 +16,13 @@ public class MapManager {
 	private static final String TAG = "MapManager";
 
 	/**
-	 * Returns the name of the city where the location belongs.
+	 * Returns the name of the city accordingly to the specified coordinates.
 	 * @param context the context of the application.
 	 * @param latitude the latitude of the location.
 	 * @param longitude the longitude of the location.
 	 * @return the name of the city where the location belongs.
 	 */
 	public static String getMunicipalityFromLocation(Context context, double latitude, double longitude) {
-		//TODO maybe is better to create a thread
 		Address result = null;
 		try{
 			result = new Geocoder(context).getFromLocation(latitude, longitude, 1).get(0);
