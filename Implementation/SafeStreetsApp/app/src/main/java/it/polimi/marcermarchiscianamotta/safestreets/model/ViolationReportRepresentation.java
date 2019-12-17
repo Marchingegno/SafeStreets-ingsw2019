@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import it.polimi.marcermarchiscianamotta.safestreets.util.ViolationEnum;
+
 public class ViolationReportRepresentation {
 	private static final String TAG = "ViolationReportRep";
 
@@ -20,8 +22,8 @@ public class ViolationReportRepresentation {
 	private Double latitude;
 	private Double longitude;
 	private String municipality;
-	private Date timestamp;
-	private String typeOfViolation;
+	private Date uploadTimestamp;
+	private ViolationEnum typeOfViolation;
 	private List<String> pictures;
 	private ReportStatus reportStatus = ReportStatus.SUBMITTED;
 
@@ -74,12 +76,12 @@ public class ViolationReportRepresentation {
 
 	@ServerTimestamp
 	@NonNull
-	public Date getTimestamp() {
-		return timestamp;
+	public Date getUploadTimestamp() {
+		return uploadTimestamp;
 	}
 
 	@NonNull
-	public String getTypeOfViolation() {
+	public ViolationEnum getTypeOfViolation() {
 		return typeOfViolation;
 	}
 

@@ -11,7 +11,6 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -57,8 +56,11 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	private ReportViolationManager reportViolationManager;
 	Uri currentPhotoPath;
 
-	@BindView(R.id.first_photo_view)
-	ImageView firstPhotoView;
+	@BindView(R.id.municipality_text_view)
+	TextView municipalityTextView;
+
+	@BindView(R.id.plate_text_view)
+	TextView plateTextView;
 
 	@BindView(R.id.report_violation_root)
 	View rootView;
@@ -208,6 +210,14 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			reportViolationManager.sendViolationReport(descriptionText.getText().toString());
 		else
 			GeneralUtils.showSnackbar(rootView, "Before reporting, please complete all mandatory fields.");
+	}
+
+	public void setPlateText(String plate) {
+		plateTextView.setText("Licence plate: " + plate);
+	}
+
+	public void setMunicipalityText(String municipality) {
+		municipalityTextView.setText("Municipality:" + municipality);
 	}
 	//endregion
 

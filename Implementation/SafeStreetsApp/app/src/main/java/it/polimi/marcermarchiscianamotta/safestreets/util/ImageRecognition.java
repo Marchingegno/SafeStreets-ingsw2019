@@ -58,7 +58,7 @@ public class ImageRecognition {
 		lines = text.split(System.getProperty("line.separator"));
 
 		while (!found && i < lines.length) {
-			lines[i] = lines[i].replace('-', ' ').replace(" ", "");
+			lines[i] = lines[i].replace('-', ' ').replace(".", "").replace(" ", "");
 			Log.d(TAG, lines[i]);
 			found = lines[i].matches("[A-Z][A-Z][0-9][0-9][0-9][A-Z][A-Z](.)*");
 			i++;

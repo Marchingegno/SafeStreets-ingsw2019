@@ -1,6 +1,5 @@
 package it.polimi.marcermarchiscianamotta.safestreets.model;
 
-import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
@@ -8,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.ViolationEnum;
 
 public class ViolationReport {
@@ -23,7 +21,7 @@ public class ViolationReport {
 	private List<Uri> pictures = new ArrayList<>();
 	private List<String> picturesIDOnServer;
 	private Date uploadTimestamp;
-	private ViolationEnum typeOfViolation = ViolationEnum.PARKING_OUTSIDE_OF_THE_LINES; //TODO update with users choice
+	private ViolationEnum typeOfViolation = ViolationEnum.PARKING_OUTSIDE_THE_LINES; //TODO update with users choice
 	private ReportStatus reportStatus = ReportStatus.SUBMITTED;
 	private String statusMotivation = null;
 
@@ -32,11 +30,13 @@ public class ViolationReport {
 		this.userUid = userUid;
 	}
 
-	public void setLocationAndMunicipality(Context context, double latitude, double longitude) {
+	public void setLocation(double latitude, double longitude) {
 		this.latitude = latitude;
 		this.longitude = longitude;
+	}
 
-		setMunicipality(context);
+	public void setMunicipality(String municipality) {
+		this.municipality = municipality;
 	}
 
 	public void setDescription(String description) {
@@ -56,11 +56,6 @@ public class ViolationReport {
 		return municipality;
 	}
 
-	private void setMunicipality(Context context) {
-		this.municipality = MapManager.getMunicipalityFromLocation(context, latitude, longitude);
-		Log.d(TAG, "Municipality added: " + municipality);
-	}
-
 	public Double getLatitude() {
 		return latitude;
 	}
@@ -77,8 +72,8 @@ public class ViolationReport {
 		return pictures;
 	}
 
-	public String getTypeOfViolation() {
-		return typeOfViolation.toString();
+	public ViolationEnum getTypeOfViolation() {
+		return typeOfViolation;
 	}
 
 	public Date getTimestamp() {

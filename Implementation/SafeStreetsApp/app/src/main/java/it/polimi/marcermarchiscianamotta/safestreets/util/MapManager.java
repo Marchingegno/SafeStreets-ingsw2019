@@ -23,6 +23,7 @@ public class MapManager {
 	 * @return the name of the city where the location belongs.
 	 */
 	public static String getMunicipalityFromLocation(Context context, double latitude, double longitude) {
+		//TODO maybe is better to create a thread
 		Address result = null;
 		try{
 			result = new Geocoder(context).getFromLocation(latitude, longitude, 1).get(0);
