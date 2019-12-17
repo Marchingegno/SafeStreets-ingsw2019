@@ -10,7 +10,9 @@ import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -29,6 +31,7 @@ import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.ReportViolationManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
+import it.polimi.marcermarchiscianamotta.safestreets.util.ViolationEnum;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -71,6 +74,9 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	@BindView(R.id.report_violation_number_of_photos_added)
 	TextView numberOfPhotosAddedTextView;
 
+	@BindView(R.id.report_violation_spinner)
+	Spinner violationTypeSpinner;
+
 	//region Static methods
 	//================================================================================
 
@@ -96,6 +102,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		ButterKnife.bind(this); // Needed for @BindView attributes.
 
 		reportViolationManager = new ReportViolationManager(this, rootView);
+
+		violationTypeSpinner.setAdapter(new ArrayAdapter<ViolationEnum>(this, R.layout.personal_spinner, ViolationEnum.values()));
 
 		//Ask permissions
 		if (!EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {

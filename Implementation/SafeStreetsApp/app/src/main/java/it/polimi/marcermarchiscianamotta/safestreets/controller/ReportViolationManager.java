@@ -88,6 +88,7 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 		report.setLocation(latitude, longitude);
 		String municipality = MapManager.getMunicipalityFromLocation(reportViolationActivity.getApplicationContext(), latitude, longitude);
 		reportViolationActivity.setMunicipalityText(municipality);
+		report.setMunicipality(municipality);
 		Log.d(TAG, "Location[" + latitude + ", " + longitude + "] and Municipality[" + municipality + "] set.");
 	}
 	//endregion

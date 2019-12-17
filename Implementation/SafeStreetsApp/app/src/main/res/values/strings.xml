@@ -4,11 +4,4 @@
     <string name="take_picture">Take Picture</string>
     <string name="returns">Return</string>
 
-
-    <string-array name="type_violations">
-        <item>Parking on sidewalk</item>
-        <item>Parking on crosswalk</item>
-        <item>Other</item>
-    </string-array>
-
 </resources>

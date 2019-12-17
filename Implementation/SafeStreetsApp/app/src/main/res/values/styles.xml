@@ -13,4 +13,10 @@
         <item name="android:textColor">@android:color/white</item>
     </style>
 
+
+    <style name="spinnerItemStyle" parent="android:Widget.TextView.SpinnerItem"></style>
+
+    <style name="spinnerDropDownItemStyle" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
+        <item name="android:textAppearanceListItem"></item>
+    </style>
 </resources>
