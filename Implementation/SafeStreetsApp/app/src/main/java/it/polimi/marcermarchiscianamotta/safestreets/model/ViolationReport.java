@@ -21,7 +21,7 @@ public class ViolationReport {
 	private List<Uri> pictures = new ArrayList<>();
 	private List<String> picturesIDOnServer;
 	private Date uploadTimestamp;
-	private ViolationEnum typeOfViolation = ViolationEnum.PARKING_OUTSIDE_THE_LINES; //TODO update with users choice
+	private ViolationEnum typeOfViolation;
 	private ReportStatus reportStatus = ReportStatus.SUBMITTED;
 	private String statusMotivation = null;
 

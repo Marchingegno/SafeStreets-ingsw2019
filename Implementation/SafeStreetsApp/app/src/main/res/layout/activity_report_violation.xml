@@ -52,7 +52,7 @@
                 style="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="license plate:" />
+                android:text="License plate:" />
 
             <TextView
                 android:id="@+id/municipality_text_view"
