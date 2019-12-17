@@ -10,6 +10,7 @@ import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -35,7 +36,7 @@ import it.polimi.marcermarchiscianamotta.safestreets.util.ViolationEnum;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
+public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, AdapterView.OnItemSelectedListener {
 
 	private static final String TAG = "ReportViolationActivity";
 
@@ -103,7 +104,11 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 
 		reportViolationManager = new ReportViolationManager(this, rootView);
 
-		violationTypeSpinner.setAdapter(new ArrayAdapter<ViolationEnum>(this, R.layout.personal_spinner, ViolationEnum.values()));
+		violationTypeSpinner.setOnItemSelectedListener(this);
+		ArrayAdapter<ViolationEnum> langAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ViolationEnum.values());
+		langAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		violationTypeSpinner.setAdapter(langAdapter);
+		//violationTypeSpinner.setAdapter(new ArrayAdapter<ViolationEnum>(this, R.layout.personal_spinner, ViolationEnum.values()));
 
 		//Ask permissions
 		if (!EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -221,11 +226,23 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	}
 
 	public void setPlateText(String plate) {
-		plateTextView.setText("Licence plate: " + plate);
+		plateTextView.setText("license plate: " + plate);
 	}
 
 	public void setMunicipalityText(String municipality) {
 		municipalityTextView.setText("Municipality:" + municipality);
+	}
+
+	@Override
+	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+		String violationType = parent.getItemAtPosition(position).toString();
+		reportViolationManager.setViolationType(violationType);
+		Log.d(TAG, "Type of violation set to: " + violationType);
+	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> parent) {
+		// TODO Auto-generated method stub
 	}
 	//endregion
 

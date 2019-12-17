@@ -16,6 +16,7 @@ import it.polimi.marcermarchiscianamotta.safestreets.util.ImageRecognitionUser;
 import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.MapUser;
 import it.polimi.marcermarchiscianamotta.safestreets.util.StorageConnection;
+import it.polimi.marcermarchiscianamotta.safestreets.util.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.view.ReportViolationActivity;
 
 public class ReportViolationManager implements ImageRecognitionUser, MapUser {
@@ -56,6 +57,16 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 		MapManager.retrieveLocation(reportViolationActivity, this);
 	}
 
+	public void setViolationType(String violationType) {
+		//Default violation type is the first one
+		ViolationEnum resultType = ViolationEnum.values()[0];
+		for (ViolationEnum violationEnum : ViolationEnum.values()) {
+			if (violationType.equals(violationEnum.toString()))
+				resultType = violationEnum;
+		}
+		report.setTypeOfViolation(resultType);
+	}
+
 	public boolean canTakeAnotherPicture() {
 		return report.getPictures().size() < MAX_NUM_OF_PHOTOS;
 	}
@@ -74,7 +85,7 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 			Log.d(TAG, "Plate found: " + result);
 			GeneralUtils.showSnackbar(rootView, "Plate found: " + result);
 			if (!report.hasPlate()) {
-				report.setLicencePlate(result);
+				report.setlicensePlate(result);
 				reportViolationActivity.setPlateText(result);
 			}
 		} else {

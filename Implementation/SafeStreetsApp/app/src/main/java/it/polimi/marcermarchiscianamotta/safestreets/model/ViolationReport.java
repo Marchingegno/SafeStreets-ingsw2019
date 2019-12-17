@@ -13,7 +13,7 @@ public class ViolationReport {
 	private static final String TAG = "ViolationReport";
 
 	private String userUid;
-	private String licencePlate = null;
+	private String licensePlate = null;
 	private String description;
 	private Double latitude;
 	private Double longitude;
@@ -21,7 +21,7 @@ public class ViolationReport {
 	private List<Uri> pictures = new ArrayList<>();
 	private List<String> picturesIDOnServer;
 	private Date uploadTimestamp;
-	private ViolationEnum typeOfViolation = ViolationEnum.PARKING_OUTSIDE_THE_LINES; //TODO update with users choice
+	private ViolationEnum typeOfViolation;
 	private ReportStatus reportStatus = ReportStatus.SUBMITTED;
 	private String statusMotivation = null;
 
@@ -47,9 +47,9 @@ public class ViolationReport {
 		this.typeOfViolation = typeOfViolation;
 	}
 
-	public void setLicencePlate(String licencePlate) {
-		this.licencePlate = licencePlate;
-		Log.d(TAG, "Licence plate: " + licencePlate);
+	public void setlicensePlate(String licensePlate) {
+		this.licensePlate = licensePlate;
+		Log.d(TAG, "license plate: " + licensePlate);
 	}
 
 	public String getMunicipality() {
@@ -64,8 +64,8 @@ public class ViolationReport {
 		return longitude;
 	}
 
-	public String getLicencePlate() {
-		return licencePlate;
+	public String getlicensePlate() {
+		return licensePlate;
 	}
 
 	public List<Uri> getPictures() {
@@ -102,13 +102,13 @@ public class ViolationReport {
 	}
 
 	public boolean hasPlate() {
-		return licencePlate != null;
+		return licensePlate != null;
 	}
 
 	public boolean isReadyToSend() {
 		Log.d(TAG, this.toString());
 		return userUid != null &&
-				licencePlate != null &&
+				licensePlate != null &&
 				latitude != null &&
 				longitude != null &&
 				municipality != null &&
@@ -124,17 +124,18 @@ public class ViolationReport {
 	@Override
 	public String toString() {
 		return "ViolationReport[" + '\n' +
-				"userUid= " + userUid + '\n' +
-				"licencePlate= " + licencePlate + '\n' +
-				"description= " + description + '\n' +
-				"latitude= " + latitude + '\n' +
-				"longitude =" + longitude + '\n' +
-				"municipality= " + municipality + '\n' +
-				"pictures= " + pictures + '\n' +
-				"timestamp= " + uploadTimestamp + '\n' +
-				"typeOfViolation= " + typeOfViolation + '\n' +
-				"reportStatus= " + reportStatus + '\n' +
-				"statusMotivation= " + statusMotivation + ']';
+				"userUid: " + userUid + '\n' +
+				"licensePlate: " + licensePlate + '\n' +
+				"description: " + description + '\n' +
+				"latitude: " + latitude + '\n' +
+				"longitude: " + longitude + '\n' +
+				"municipality: " + municipality + '\n' +
+				"pictures: " + pictures + '\n' +
+				"picturesIDOnServer: " + picturesIDOnServer + '\n' +
+				"uploadTimestamp: " + uploadTimestamp + '\n' +
+				"typeOfViolation: " + typeOfViolation + '\n' +
+				"reportStatus: " + reportStatus + '\n' +
+				"statusMotivation: " + statusMotivation + ']';
 	}
 }
 
