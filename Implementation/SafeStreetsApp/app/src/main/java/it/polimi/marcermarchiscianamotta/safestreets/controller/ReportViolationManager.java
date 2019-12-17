@@ -6,8 +6,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.google.firebase.Timestamp;
-
 import java.util.List;
 
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReport;
@@ -29,7 +27,7 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 
 	private ViolationReport report;
 
-	private List<String> picturesInUpload;
+	private List<String> picturesIDOnServer;
 	private int numberOfUploadedPhotos = 0;
 
 
@@ -52,18 +50,14 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 		return report.isReadyToSend();
 	}
 
-	public void setTimestamp(Timestamp timestamp) {
-		report.setTimestamp(timestamp);
-	}
-
 	public void addPhotoToReport(Uri photoPath) {
 		report.addPhoto(photoPath);
 		ImageRecognition.retrievePlateFromPhoto(activity, photoPath, this);
-		MapManager.retireveLocation(activity, this);
+		MapManager.retrieveLocation(activity, this);
 	}
 
 	public boolean canTakeAnotherPicture() {
-		return report.getViolationPhotos().size() < MAX_NUM_OF_PHOTOS;
+		return report.getPictures().size() < MAX_NUM_OF_PHOTOS;
 	}
 
 	public int getMaxNumOfPhotos() {
@@ -71,22 +65,26 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	}
 
 	public int numberOfPhotos() {
-		return report.getViolationPhotos().size();
+		return report.getPictures().size();
 	}
 
 	@Override
 	public void onTextRecognized(String result) {
-		GeneralUtils.showSnackbar(rootView, result);
 		if (result != null) {
 			Log.d(TAG, "Plate found: " + result);
+			GeneralUtils.showSnackbar(rootView, "Plate found: " + result);
 			if (!report.hasPlate())
 				report.setLicencePlate(result);
+		} else {
+			Log.d(TAG, "No plate found");
+			GeneralUtils.showSnackbar(rootView, "No plate found");
 		}
 	}
 
 	@Override
 	public void onLocationFound(double latitude, double longitude) {
-		report.setCoordinates(activity, latitude, longitude);
+		report.setLocationAndMunicipality(activity, latitude, longitude);
+		Log.d(TAG, "Location and Municipality set.");
 	}
 	//endregion
 
@@ -94,7 +92,7 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	//region Private methods
 	//================================================================================
 	private void uploadPhotosToCloudStorage() {
-		picturesInUpload = StorageConnection.uploadPicturesToCloudStorage(report.getViolationPhotos(), activity,
+		picturesIDOnServer = StorageConnection.uploadPicturesToCloudStorage(report.getPictures(), activity,
 				taskSnapshot -> {
 					checkIfAllUploadsEnded();
 					Toast.makeText(activity, "Image uploaded successfully", Toast.LENGTH_SHORT).show();
@@ -104,11 +102,12 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 					GeneralUtils.showSnackbar(rootView, "Failed to upload the photos. Please try again.");
 					Toast.makeText(activity, "Upload failed", Toast.LENGTH_SHORT).show();
 				});
+		report.setPicturesIDOnServer(picturesIDOnServer);
 	}
 
 	private void checkIfAllUploadsEnded() {
 		numberOfUploadedPhotos++;
-		if (picturesInUpload != null && numberOfUploadedPhotos == picturesInUpload.size()) {
+		if (picturesIDOnServer != null && numberOfUploadedPhotos == picturesIDOnServer.size()) {
 			// End upload
 			insertViolationReportInDatabase();
 		}
@@ -118,7 +117,7 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 		// Upload object to database.
 		DatabaseConnection.uploadViolationReport(report.getReportRepresentation(), activity,
 				input -> {
-					GeneralUtils.showSnackbar(rootView, "Violation ViolationReport sent successfully!");
+					GeneralUtils.showSnackbar(rootView, "Violation report sent successfully!");
 					activity.finish();
 				},
 				e -> {

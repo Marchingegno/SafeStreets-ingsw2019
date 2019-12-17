@@ -3,7 +3,7 @@ package it.polimi.marcermarchiscianamotta.safestreets.util;
 import androidx.annotation.NonNull;
 
 public enum ViolationEnum {
-	PARKING_OUTSIDE_OF_THE_LINES("Parking outside of the lines");
+	PARKING_OUTSIDE_THE_LINES("Parking outside the lines");
 
 	private String text;
 	ViolationEnum(String string){

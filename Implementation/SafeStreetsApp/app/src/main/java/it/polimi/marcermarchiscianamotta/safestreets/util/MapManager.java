@@ -22,7 +22,7 @@ public class MapManager {
 	 * @param longitude the longitude of the location.
 	 * @return the name of the city where the location belongs.
 	 */
-	public static String getCityFromLocation(Context context, double latitude, double longitude) {
+	public static String getMunicipalityFromLocation(Context context, double latitude, double longitude) {
 		Address result = null;
 		try{
 			result = new Geocoder(context).getFromLocation(latitude, longitude, 1).get(0);
@@ -33,7 +33,7 @@ public class MapManager {
 		return result.getLocality();
 	}
 
-	static public void retireveLocation(Context context, MapUser caller) {
+	static public void retrieveLocation(Context context, MapUser caller) {
 		FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
 		fusedLocationProviderClient.getLastLocation()
 				.addOnSuccessListener(location -> {

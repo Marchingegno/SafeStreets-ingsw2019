@@ -17,8 +17,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.Timestamp;
-
 import java.io.File;
 import java.net.URI;
 import java.text.SimpleDateFormat;
@@ -45,11 +43,13 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	//Request codes
 	private static final int RC_CAMERA_PERMISSION = 201;
 	private static final int RC_READ_EXT_STORAGE_PERMS = 202;
-	private static final int RC_LOCATION_PERMS = 203;
-	private static final int RC_IMAGE_TAKEN = 204;
+	private static final int RC_WRITE_EXT_STORAGE_PERMS = 203;
+	private static final int RC_LOCATION_PERMS = 204;
+	private static final int RC_IMAGE_TAKEN = 205;
 
 	//Permissions
 	private static final String READ_EXT_STORAGE_PERMS = Manifest.permission.READ_EXTERNAL_STORAGE;
+	private static final String WRITE_EXT_STORAGE_PERMS = Manifest.permission.WRITE_EXTERNAL_STORAGE;
 	private static final String LOCATION_PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
 	private static final String CAMERA_PERMS = Manifest.permission.CAMERA;
 	File directory = new File(mainDirectoryPath);
@@ -105,12 +105,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		if (!EasyPermissions.hasPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 			EasyPermissions.requestPermissions(this, "Camera permission", RC_READ_EXT_STORAGE_PERMS, READ_EXT_STORAGE_PERMS);
 		}
-
-		//Initializes the directories
-		if (!directory.exists()) {
-			boolean created = directory.mkdirs();
-			if (!created)
-				Log.e(TAG, "Folders not created");
+		if (!EasyPermissions.hasPermissions(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+			EasyPermissions.requestPermissions(this, "Camera permission", RC_WRITE_EXT_STORAGE_PERMS, WRITE_EXT_STORAGE_PERMS);
 		}
 	}
 
@@ -125,8 +121,10 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 						reportViolationManager.addPhotoToReport(currentPhotoPath);
 						String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPhotos() + "/" + reportViolationManager.getMaxNumOfPhotos();
 						numberOfPhotosAddedTextView.setText(textToDisplay);
-					} else
-						Log.e(TAG, "Photo not found");
+					} else {
+						GeneralUtils.showSnackbar(rootView, "Photo not found.");
+						Log.e(TAG, "Photo not found at " + currentPhotoPath.toString());
+					}
 				}
 				break;
 			default:
@@ -151,6 +149,19 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 				EasyPermissions.requestPermissions(this, "Location permission", RC_READ_EXT_STORAGE_PERMS, READ_EXT_STORAGE_PERMS);
 			}
 		}
+		if (requestCode == RC_READ_EXT_STORAGE_PERMS) {
+			if (!EasyPermissions.hasPermissions(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+				EasyPermissions.requestPermissions(this, "Location permission", RC_WRITE_EXT_STORAGE_PERMS, WRITE_EXT_STORAGE_PERMS);
+			}
+		}
+		if (requestCode == RC_WRITE_EXT_STORAGE_PERMS) {
+			//Initializes the directories
+			if (!directory.exists()) {
+				boolean created = directory.mkdirs();
+				if (!created)
+					Log.e(TAG, "Folders not created");
+			}
+		}
 	}
 
 	@Override
@@ -162,6 +173,9 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			new AppSettingsDialog.Builder(this).build().show();
 			finish();
 		} else if (EasyPermissions.somePermissionPermanentlyDenied(this, Collections.singletonList(LOCATION_PERMS))) {
+			new AppSettingsDialog.Builder(this).build().show();
+			finish();
+		} else if (EasyPermissions.somePermissionPermanentlyDenied(this, Collections.singletonList(WRITE_EXT_STORAGE_PERMS))) {
 			new AppSettingsDialog.Builder(this).build().show();
 			finish();
 		}
@@ -190,7 +204,6 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 
 	@OnClick(R.id.report_violation_floating_send_button)
 	public void onClickSendViolation(View v) {
-		reportViolationManager.setTimestamp(Timestamp.now());
 		if (reportViolationManager.isReadyToSend())
 			reportViolationManager.sendViolationReport(descriptionText.getText().toString());
 		else

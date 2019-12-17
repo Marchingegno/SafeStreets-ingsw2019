@@ -20,12 +20,12 @@ public class DatabaseConnection {
     //================================================================================
     /**
      * Uploads the violation report passed as parameter to the Database.
-     * @param violationReportRepresentation the violation report representation to upload.
+     * @param violationReportRep the violation report representation to upload.
      * @param listenerActivity the activity that will listen for success or failure events.
      * @param onSuccessListener the listener for a success event.
      * @param onFailureListener the listener for a failure event.
      */
-    public static void uploadViolationReport(final ViolationReportRepresentation violationReportRepresentation, Activity listenerActivity, OnSuccessListener<Void> onSuccessListener, OnFailureListener onFailureListener) {
+    public static void uploadViolationReport(final ViolationReportRepresentation violationReportRep, Activity listenerActivity, OnSuccessListener<Void> onSuccessListener, OnFailureListener onFailureListener) {
 
         // Generate new ID for the violation report.
         final String violationReportId = UUID.randomUUID().toString();
@@ -44,7 +44,7 @@ public class DatabaseConnection {
                     User newUser = addViolationReportIdToUser(userDocSnap, violationReportId);
 
                     // Upload violation report.
-                    transaction.set(violationReportDocRef, violationReportRepresentation);
+                    transaction.set(violationReportDocRef, violationReportRep);
 
                     // Update user document.
                     transaction.set(userDocRef, newUser);
