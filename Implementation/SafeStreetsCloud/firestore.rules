@@ -16,6 +16,21 @@ service cloud.firestore {
              allow read, write: if isOwner(userId);
         }
 
+        // Group documents
+        // Allows reading by everyone (for queries)
+        // Allows update only from the municipality, doesn't allow creating or deleting.
+        match /municipalities/{municipality}/groups/{groupId} {
+             allow read;
+             allow update: if isMunicipality(municipality);
+        }
+
+        // Cluster documents
+        // Allows reading by everyone (for queries)
+        // Doesn't allow creating, updating or deleting.
+        match /municipalities/{municipality}/clusters/{clusterId} {
+             allow read;
+        }
+
         // TODO delete (allows everything)
         match /{document=**} {
             allow read, write;
@@ -30,4 +45,10 @@ function prefix() {
 // Returns true if the user is the owner of the file.
 function isOwner(uid) {
     return request.auth.uid == uid;
+}
+
+// Returns true if the user is the specified municipality
+// TODO
+function isMunicipality(municipality) {
+    return true;
 }
