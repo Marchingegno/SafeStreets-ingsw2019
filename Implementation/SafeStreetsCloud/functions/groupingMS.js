@@ -16,11 +16,19 @@ const DISTANCE_OFFSET_IN_DEGREE = 0.0001; // more or less 10 meters but depends 
 const TIME_OFFSET_IN_HOURS = 6;
 
 /**
- * Triggers when a new violation report is added.
+ * Triggers when a violation report is updated, and starts only if the report has been approved.
+ * The changes made by this function may trigger the clusteringMS.
  */
 exports.groupingMS = functions.firestore.document('/violationReports/{reportId}').onUpdate(async (change, context) => {
     console.log(`groupingMS started.`);
 
+    await doGroupingIfReportIsApproved(change);
+
+    console.log(`groupingMS ended.`);
+    return null;
+});
+
+async function doGroupingIfReportIsApproved(change) {
     const reportStatusBefore = change.before.get("reportStatus");
     const reportStatusAfter = change.after.get("reportStatus");
 
@@ -30,10 +38,7 @@ exports.groupingMS = functions.firestore.document('/violationReports/{reportId}'
     } else {
         console.log('Not a report approval.');
     }
-
-    console.log(`groupingMS ended.`);
-    return null;
-});
+}
 
 async function doGrouping(violationReportSnap) {
     // Get data of the new report.

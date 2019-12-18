@@ -16,7 +16,7 @@ const bucket = storage.bucket();
 /**
  * Triggers when the municipality confirms or rejects a violation group.
  */
-exports.onReportStatusChangeMS = functions.firestore.document('/municipalities/{municipalityId}/violationGroups/{groupId}').onUpdate(async (change, context) => {
+exports.onReportStatusChangeMS = functions.firestore.document('/municipalities/{municipalityId}/groups/{groupId}').onUpdate(async (change, context) => {
     console.log(`onReportStatusChangeMS started.`);
 
     console.log(`onReportStatusChangeMS ended.`);

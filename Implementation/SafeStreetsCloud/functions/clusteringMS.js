@@ -14,7 +14,7 @@ const db = admin.firestore();
 const DISTANCE_OFFSET_IN_DEGREE = 0.0002; // more or less 20 meters but depends on position
 
 /**
- * Triggers when a new violation report is added.
+ * Triggers when a new group is created.
  */
 exports.clusteringMS = functions.firestore.document('/municipalities/{municipality}/groups/{groupId}').onCreate(async (snap, context) => {
     console.log(`clusteringMS started.`);
