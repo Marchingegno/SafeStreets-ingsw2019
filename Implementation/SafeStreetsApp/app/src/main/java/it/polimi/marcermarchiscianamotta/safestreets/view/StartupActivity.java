@@ -16,7 +16,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
-import it.polimi.marcermarchiscianamotta.safestreets.util.AuthenticationManager;
+import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.AuthenticationManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 
 public class StartupActivity extends AppCompatActivity {

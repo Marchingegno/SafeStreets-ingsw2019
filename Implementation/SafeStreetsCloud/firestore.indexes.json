@@ -5,7 +5,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "licensePlate", "order": "ASCENDING" },
-        { "fieldPath": "violationType", "order": "ASCENDING" },
+        { "fieldPath": "typeOfViolation", "order": "ASCENDING" },
         { "fieldPath": "latitude", "order": "ASCENDING" }
       ]
     }

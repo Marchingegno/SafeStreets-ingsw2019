@@ -32,7 +32,7 @@ import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.ReportViolationManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
-import it.polimi.marcermarchiscianamotta.safestreets.util.ViolationEnum;
+import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 

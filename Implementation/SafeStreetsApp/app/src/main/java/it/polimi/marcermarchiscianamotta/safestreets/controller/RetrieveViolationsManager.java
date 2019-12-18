@@ -4,9 +4,9 @@ import android.app.Activity;
 
 public class RetrieveViolationsManager {
 
-    private Activity activity;
+	private Activity activity;
 
-    public RetrieveViolationsManager(Activity activity) {
-        this.activity = activity;
-    }
+	public RetrieveViolationsManager(Activity activity) {
+		this.activity = activity;
+	}
 }
