@@ -1,7 +1,7 @@
 <resources>
 
-    <string name="app_name">SafeStreets</string>
-    <string name="take_picture">Take Picture</string>
-    <string name="returns">Return</string>
+	<string name="app_name">SafeStreets</string>
+	<string name="take_picture">Take Picture</string>
+	<string name="returns">Return</string>
 
 </resources>
