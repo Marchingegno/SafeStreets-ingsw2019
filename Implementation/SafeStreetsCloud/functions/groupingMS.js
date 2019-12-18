@@ -40,27 +40,27 @@ async function doGrouping(violationReportSnap) {
     const latitude = violationReportSnap.get("latitude");
     const longitude = violationReportSnap.get("longitude");
     const uploadTimestamp = violationReportSnap.get("uploadTimestamp");
-    const violationType = violationReportSnap.get("violationType");
+    const typeOfViolation = violationReportSnap.get("typeOfViolation");
     const municipality = violationReportSnap.get("municipality");
 
     // Get group to which the report must be added, null if no group exists.
-    const groupDocSnap = await getGroupOfReport(municipality, licensePlate, violationType, latitude, longitude, uploadTimestamp);
+    const groupDocSnap = await getGroupOfReport(municipality, licensePlate, typeOfViolation, latitude, longitude, uploadTimestamp);
 
     if(groupDocSnap === null) { // If a group doesn't exist...
         console.log('No groups found. Creating a new group...');
-        await createNewGroup(licensePlate, violationType, uploadTimestamp, latitude, longitude, violationReportSnap.ref.id, municipality);
+        await createNewGroup(licensePlate, typeOfViolation, uploadTimestamp, latitude, longitude, violationReportSnap.ref.id, municipality);
     } else {
         console.log('A group has been found. Adding report to the group...');
         await addViolationReportToExistingGroup(groupDocSnap, violationReportSnap.ref.id, uploadTimestamp.toDate(), municipality)
     }
 }
 
-async function getGroupOfReport(municipality, licensePlate, violationType, latitude, longitude, uploadTimestamp) {
+async function getGroupOfReport(municipality, licensePlate, typeOfViolation, latitude, longitude, uploadTimestamp) {
     // Make query on database for getting the group (similar location and timestamp).
     // Note: Queries with range filters on different fields are not supported by Firestore.
     const querySnapshot = await db.collection("municipalities").doc(municipality).collection("groups")
         .where("licensePlate", "==", licensePlate)
-        .where("violationType", "==", violationType)
+        .where("typeOfViolation", "==", typeOfViolation)
         .where("latitude", ">=", latitude - DISTANCE_OFFSET)
         .where("latitude", "<=", latitude + DISTANCE_OFFSET)
         .get();
@@ -84,11 +84,11 @@ function alsoCheckForLongitudeAndTimestampForQuery(querySnapshot, newLongitude, 
     return null; // No group has been found.
 }
 
-async function createNewGroup(licensePlate, violationType, uploadTimestamp, latitude, longitude, violationReportId, municipality) {
+async function createNewGroup(licensePlate, typeOfViolation, uploadTimestamp, latitude, longitude, violationReportId, municipality) {
     // Create group data.
     const newGroup = {
         licensePlate: licensePlate,
-        violationType: violationType,
+        typeOfViolation: typeOfViolation,
         groupStatus: "APPROVED",
         firstTimestamp: uploadTimestamp,
         lastTimestamp: uploadTimestamp,
