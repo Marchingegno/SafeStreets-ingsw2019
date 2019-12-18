@@ -42,8 +42,6 @@ public class StorageConnection {
 					.addOnSuccessListener(listenerActivity, onSuccessListener)
 					.addOnFailureListener(listenerActivity, onFailureListener);
 
-			//TODO should save the reference only when the upload has ended
-
 			// Save reference of the file currently uploading.
 			picturesInUpload.add(mImageRef.getName());
 		}

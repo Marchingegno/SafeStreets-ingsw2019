@@ -67,11 +67,11 @@ public class DatabaseConnection {
 	//================================================================================
 
 	/**
-	 * TODO add comment
+	 * Add the id of the violation report to the user representation which is created from the user document snapshot.
 	 *
-	 * @param userDocSnap
-	 * @param violationReportId
-	 * @return
+	 * @param userDocSnap       the user document snapshot.
+	 * @param violationReportId the id of the violation report to be added.
+	 * @return the user representation of the user document.
 	 */
 	private static UserRepresentation addViolationReportIdToUser(DocumentSnapshot userDocSnap, String violationReportId) {
 		UserRepresentation userRepresentation = userDocSnap.toObject(UserRepresentation.class);
