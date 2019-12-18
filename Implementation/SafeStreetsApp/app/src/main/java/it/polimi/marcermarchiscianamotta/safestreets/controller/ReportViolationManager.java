@@ -8,15 +8,15 @@ import android.widget.Toast;
 import java.util.List;
 
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReport;
-import it.polimi.marcermarchiscianamotta.safestreets.util.AuthenticationManager;
-import it.polimi.marcermarchiscianamotta.safestreets.util.DatabaseConnection;
+import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.AuthenticationManager;
+import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.DatabaseConnection;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 import it.polimi.marcermarchiscianamotta.safestreets.util.ImageRecognition;
 import it.polimi.marcermarchiscianamotta.safestreets.util.ImageRecognitionUser;
 import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.MapUser;
-import it.polimi.marcermarchiscianamotta.safestreets.util.StorageConnection;
-import it.polimi.marcermarchiscianamotta.safestreets.util.ViolationEnum;
+import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.StorageConnection;
+import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.view.ReportViolationActivity;
 
 /**

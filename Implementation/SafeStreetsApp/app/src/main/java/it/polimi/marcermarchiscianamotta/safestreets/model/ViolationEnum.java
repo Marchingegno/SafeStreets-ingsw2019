@@ -1,4 +1,4 @@
-package it.polimi.marcermarchiscianamotta.safestreets.util;
+package it.polimi.marcermarchiscianamotta.safestreets.model;
 
 import androidx.annotation.NonNull;
 

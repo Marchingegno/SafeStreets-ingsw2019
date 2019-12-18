@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import it.polimi.marcermarchiscianamotta.safestreets.util.ViolationEnum;
-
 /**
  * Contains all the attributes of a report.
  */
@@ -25,7 +23,7 @@ public class ViolationReport {
 	private List<String> picturesIDOnServer;
 	private Date uploadTimestamp;
 	private ViolationEnum typeOfViolation;
-	private ReportStatus reportStatus = ReportStatus.SUBMITTED;
+	private ReportStatusEnum reportStatus = ReportStatusEnum.SUBMITTED;
 	private String statusMotivation = null;
 
 
@@ -144,7 +142,7 @@ public class ViolationReport {
 				municipality != null &&
 				pictures.size() > 0 &&
 				typeOfViolation != null &&
-				reportStatus == ReportStatus.SUBMITTED;
+				reportStatus == ReportStatusEnum.SUBMITTED;
 	}
 
 	/**

@@ -1,4 +1,4 @@
-package it.polimi.marcermarchiscianamotta.safestreets.util;
+package it.polimi.marcermarchiscianamotta.safestreets.util.cloud;
 
 import android.app.Activity;
 import android.net.Uri;

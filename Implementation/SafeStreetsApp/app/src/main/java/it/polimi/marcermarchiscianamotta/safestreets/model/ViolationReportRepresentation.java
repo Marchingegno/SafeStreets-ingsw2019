@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import it.polimi.marcermarchiscianamotta.safestreets.util.ViolationEnum;
-
 /**
  * Represents a representation of a violation report. This class contains only the relevant attributes
  * that need to be sent or retrieved from the database.
@@ -29,7 +27,7 @@ public class ViolationReportRepresentation {
 	private Date uploadTimestamp;
 	private ViolationEnum typeOfViolation;
 	private List<String> pictures;
-	private ReportStatus reportStatus = ReportStatus.SUBMITTED;
+	private ReportStatusEnum reportStatus = ReportStatusEnum.SUBMITTED;
 	private String statusMotivation = null;
 
 	public ViolationReportRepresentation(ViolationReport report) {
@@ -98,7 +96,7 @@ public class ViolationReportRepresentation {
 	}
 
 	@NonNull
-	public ReportStatus getReportStatus() {
+	public ReportStatusEnum getReportStatus() {
 		return reportStatus;
 	}
 
