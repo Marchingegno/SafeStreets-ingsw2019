@@ -15,7 +15,7 @@ import it.polimi.marcermarchiscianamotta.safestreets.util.ViolationEnum;
 
 /**
  * Represents a representation of a violation report. This class contains only the relevant attributes
- * that need to be sent to the database.
+ * that need to be sent or retrieved from the database.
  */
 public class ViolationReportRepresentation {
 	private static final String TAG = "ViolationReportRep";
@@ -30,6 +30,7 @@ public class ViolationReportRepresentation {
 	private ViolationEnum typeOfViolation;
 	private List<String> pictures;
 	private ReportStatus reportStatus = ReportStatus.SUBMITTED;
+	private String statusMotivation = null;
 
 	public ViolationReportRepresentation(ViolationReport report) {
 		this.userUid = report.getUserUid();
@@ -56,7 +57,7 @@ public class ViolationReportRepresentation {
 	}
 
 	@NonNull
-	public String getlicensePlate() {
+	public String getLicensePlate() {
 		return licensePlate;
 	}
 
@@ -94,6 +95,16 @@ public class ViolationReportRepresentation {
 	@NonNull
 	public List<String> getPictures() {
 		return pictures;
+	}
+
+	@NonNull
+	public ReportStatus getReportStatus() {
+		return reportStatus;
+	}
+
+	@Nullable
+	public String getStatusMotivation() {
+		return statusMotivation;
 	}
 	//endregion
 }
