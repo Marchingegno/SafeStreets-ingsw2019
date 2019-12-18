@@ -142,7 +142,7 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	 */
 	@Override
 	public void onTextRecognized(String[] result) {
-		if (result != null) {
+		if (result != null && result.length > 0) {
 			Log.d(TAG, "Plate found: " + result[0]);
 			GeneralUtils.showSnackbar(rootView, "Plate found: " + result[0]);
 			if (!report.hasPlate()) {
