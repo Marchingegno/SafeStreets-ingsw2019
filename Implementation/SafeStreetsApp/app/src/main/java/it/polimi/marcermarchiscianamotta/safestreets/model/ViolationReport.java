@@ -7,8 +7,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import it.polimi.marcermarchiscianamotta.safestreets.util.ViolationEnum;
-
+/**
+ * Contains all the attributes of a report.
+ */
 public class ViolationReport {
 	private static final String TAG = "ViolationReport";
 
@@ -22,14 +23,18 @@ public class ViolationReport {
 	private List<String> picturesIDOnServer;
 	private Date uploadTimestamp;
 	private ViolationEnum typeOfViolation;
-	private ReportStatus reportStatus = ReportStatus.SUBMITTED;
+	private ReportStatusEnum reportStatus = ReportStatusEnum.SUBMITTED;
 	private String statusMotivation = null;
 
 
+	//Constructor
+	//================================================================================
 	public ViolationReport(String userUid) {
 		this.userUid = userUid;
 	}
 
+	//region Setter methods
+	//================================================================================
 	public void setLocation(double latitude, double longitude) {
 		this.latitude = latitude;
 		this.longitude = longitude;
@@ -47,13 +52,20 @@ public class ViolationReport {
 		this.typeOfViolation = typeOfViolation;
 	}
 
-	public void setlicensePlate(String licensePlate) {
-		this.licensePlate = licensePlate;
-		Log.d(TAG, "license plate: " + licensePlate);
+	public void setPicturesIDOnServer(List<String> picturesIDOnServer) {
+		this.picturesIDOnServer = picturesIDOnServer;
 	}
+	//endregion
 
+	//region Getter methods
+	//================================================================================
 	public String getMunicipality() {
 		return municipality;
+	}
+	//endregion
+
+	public String getLicensePlate() {
+		return licensePlate;
 	}
 
 	public Double getLatitude() {
@@ -64,8 +76,9 @@ public class ViolationReport {
 		return longitude;
 	}
 
-	public String getlicensePlate() {
-		return licensePlate;
+	public void setLicensePlate(String licensePlate) {
+		this.licensePlate = licensePlate;
+		Log.d(TAG, "license plate: " + licensePlate);
 	}
 
 	public List<Uri> getPictures() {
@@ -88,23 +101,38 @@ public class ViolationReport {
 		return description;
 	}
 
-	public void setPicturesIDOnServer(List<String> picturesIDOnServer) {
-		this.picturesIDOnServer = picturesIDOnServer;
-	}
-
 	public String getUserUid() {
 		return userUid;
 	}
+	//endregion
 
+	//region Public methods
+	//================================================================================
+
+	/**
+	 * Adds a photo path to the report.
+	 *
+	 * @param photoPath photo's path to be added.
+	 */
 	public void addPhoto(Uri photoPath) {
 		pictures.add(photoPath);
 		Log.d(TAG, "Photo added: " + photoPath);
 	}
 
+	/**
+	 * Returns true if and only if the license plate is not null.
+	 *
+	 * @return true if and only if the license plate is not null.
+	 */
 	public boolean hasPlate() {
 		return licensePlate != null;
 	}
 
+	/**
+	 * Returns true id and only if all the mandatory fields hare specified.
+	 *
+	 * @return true id and only if all the mandatory fields hare specified.
+	 */
 	public boolean isReadyToSend() {
 		Log.d(TAG, this.toString());
 		return userUid != null &&
@@ -114,9 +142,14 @@ public class ViolationReport {
 				municipality != null &&
 				pictures.size() > 0 &&
 				typeOfViolation != null &&
-				reportStatus == ReportStatus.SUBMITTED;
+				reportStatus == ReportStatusEnum.SUBMITTED;
 	}
 
+	/**
+	 * Returns a representation of the report so that it can be sent to the database.
+	 *
+	 * @return a representation of the report.
+	 */
 	public ViolationReportRepresentation getReportRepresentation() {
 		return new ViolationReportRepresentation(this);
 	}
@@ -124,18 +157,19 @@ public class ViolationReport {
 	@Override
 	public String toString() {
 		return "ViolationReport[" + '\n' +
-				"userUid: " + userUid + '\n' +
-				"licensePlate: " + licensePlate + '\n' +
-				"description: " + description + '\n' +
-				"latitude: " + latitude + '\n' +
-				"longitude: " + longitude + '\n' +
-				"municipality: " + municipality + '\n' +
-				"pictures: " + pictures + '\n' +
-				"picturesIDOnServer: " + picturesIDOnServer + '\n' +
-				"uploadTimestamp: " + uploadTimestamp + '\n' +
-				"typeOfViolation: " + typeOfViolation + '\n' +
-				"reportStatus: " + reportStatus + '\n' +
-				"statusMotivation: " + statusMotivation + ']';
+				"\tuserUid: " + userUid + '\n' +
+				"\tlicensePlate: " + licensePlate + '\n' +
+				"\tdescription: " + description + '\n' +
+				"\tlatitude: " + latitude + '\n' +
+				"\tlongitude: " + longitude + '\n' +
+				"\tmunicipality: " + municipality + '\n' +
+				"\tpictures: " + pictures + '\n' +
+				"\tpicturesIDOnServer: " + picturesIDOnServer + '\n' +
+				"\tuploadTimestamp: " + uploadTimestamp + '\n' +
+				"\ttypeOfViolation: " + typeOfViolation + '\n' +
+				"\treportStatus: " + reportStatus + '\n' +
+				"\tstatusMotivation: " + statusMotivation + ']';
 	}
+	//endregion
 }
 

@@ -4,20 +4,61 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
-import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Handles the image recognition.
+ */
 public class ImageRecognition {
 	private static final String TAG = "ImageRecognition";
 
+	/**
+	 * Analyzes the specified image and retrieves the text in it. Once the procedure has terminate
+	 * the caller is notified and the list of string is communicated.
+	 *
+	 * @param context   the context of the application.
+	 * @param photoPath the photo's path of the photo to be analyzed.
+	 * @param caller    the class that called the procedure and needs to be notified.
+	 */
+	static public void retrieveText(Context context, Uri photoPath, ImageRecognitionUser caller) {
+		FirebaseVisionImage image = null;
+		try {
+			image = FirebaseVisionImage.fromFilePath(context, photoPath);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance().getOnDeviceTextRecognizer();
+
+		assert image != null;
+		detector.processImage(image)
+				.addOnSuccessListener(
+						//On success
+						firebaseVisionText -> {
+							caller.onTextRecognized(firebaseVisionText.getText()
+									.split(System.getProperty("line.separator")));
+						})
+				.addOnFailureListener(
+						//On exception
+						e -> {
+							Log.e(TAG, "Failed to recognize text", e);
+							caller.onTextRecognized(null);
+						});
+	}
+
+	/**
+	 * Analyzes the specified image and retrieves the license plates in it. Once the procedure
+	 * has terminate the caller is notified and the list of licence plates is communicated.
+	 *
+	 * @param context   the context of the application.
+	 * @param photoPath the photo's path of the photo to be analyzed.
+	 * @param caller    the class that called the procedure and needs to be notified.
+	 */
 	static public void retrievePlateFromPhoto(Context context, Uri photoPath, ImageRecognitionUser caller) {
 		FirebaseVisionImage image = null;
 		try {
@@ -25,45 +66,45 @@ public class ImageRecognition {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance()
-				.getOnDeviceTextRecognizer();
+		FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance().getOnDeviceTextRecognizer();
 
+		assert image != null;
 		detector.processImage(image)
-				.addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
-					@Override
-					public void onSuccess(FirebaseVisionText firebaseVisionText) {
-						// Task completed successfully
-						String resultText = firebaseVisionText.getText();
-						String resultPlate = findFirstPlate(resultText);
-						Log.d(TAG, "Image recognition result: " + resultPlate);
-						caller.onTextRecognized(resultPlate);
-					}
-				})
+				.addOnSuccessListener(
+						//On success
+						firebaseVisionText -> {
+							String textFound = firebaseVisionText.getText();
+							caller.onTextRecognized(findFirstPlate(textFound));
+						})
 				.addOnFailureListener(
-						new OnFailureListener() {
-							@Override
-							public void onFailure(@NonNull Exception e) {
-								// Task failed with an exception
-								// ...
-								Log.e(TAG, "Failed to find text", e);
-								caller.onTextRecognized(null);
-							}
+						//On exception
+						e -> {
+							Log.e(TAG, "Failed to find text", e);
+							caller.onTextRecognized(null);
 						});
 	}
 
-	static private String findFirstPlate(String text) {
-		boolean found = false;
-		String[] lines;
-		int i = 0;
-		lines = text.split(System.getProperty("line.separator"));
+	/**
+	 * Searches in the text and returns all the strings that match a license plate.
+	 *
+	 * @param text the text where to search the plates.
+	 * @return all the strings that match a license plate.
+	 */
+	static private String[] findFirstPlate(String text) {
+		String[] lines = text.split(System.getProperty("line.separator"));
+		List<String> licencePlatesFound = new ArrayList<>();
 
-		while (!found && i < lines.length) {
+		Log.d(TAG, "Text found:\n" + text);
+
+		for (int i = 0; i < lines.length; i++) {
 			lines[i] = lines[i].replace('-', ' ').replace(".", "").replace(" ", "");
-			Log.d(TAG, lines[i]);
-			found = lines[i].matches("[A-Z][A-Z][0-9][0-9][0-9][A-Z][A-Z](.)*");
-			i++;
+			//If the current string matches a license plate it is added to the license plates found
+			if (lines[i].matches("[A-Z][A-Z][0-9][0-9][0-9][A-Z][A-Z](.)*"))
+				licencePlatesFound.add(lines[i].substring(0, 7));
 		}
 
-		return found ? lines[i - 1].substring(0, 7) : null;
+		Log.d(TAG, "Plates found: " + licencePlatesFound);
+
+		return licencePlatesFound.toArray(new String[0]);
 	}
 }

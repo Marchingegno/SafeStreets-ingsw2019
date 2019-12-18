@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import it.polimi.marcermarchiscianamotta.safestreets.util.ViolationEnum;
-
+/**
+ * Represents a representation of a violation report. This class contains only the relevant attributes
+ * that need to be sent or retrieved from the database.
+ */
 public class ViolationReportRepresentation {
 	private static final String TAG = "ViolationReportRep";
 
@@ -25,11 +27,12 @@ public class ViolationReportRepresentation {
 	private Date uploadTimestamp;
 	private ViolationEnum typeOfViolation;
 	private List<String> pictures;
-	private ReportStatus reportStatus = ReportStatus.SUBMITTED;
+	private ReportStatusEnum reportStatus = ReportStatusEnum.SUBMITTED;
+	private String statusMotivation = null;
 
 	public ViolationReportRepresentation(ViolationReport report) {
 		this.userUid = report.getUserUid();
-		this.licensePlate = report.getlicensePlate();
+		this.licensePlate = report.getLicensePlate();
 		this.description = report.getDescription();
 		this.latitude = report.getLatitude();
 		this.longitude = report.getLongitude();
@@ -37,20 +40,22 @@ public class ViolationReportRepresentation {
 		this.typeOfViolation = report.getTypeOfViolation();
 
 		List<String> pictureIDs = report.getPicturesIDOnServer();
-		if (pictureIDs == null || pictureIDs.size() == 0)
-			Log.e(TAG, "Report should have at least one picture in server");
-		else {
+		if (pictureIDs == null || pictureIDs.size() == 0) {
+			Log.e(TAG, "Report should have at least one picture in order to be uploaded");
+			throw new NullPointerException("Report should have at least one picture in order to be uploaded");
+		} else
 			pictures = new ArrayList<>(pictureIDs);
-		}
 	}
 
+	//region Getter methods
+	//================================================================================
 	@NonNull
 	public String getUserUid() {
 		return userUid;
 	}
 
 	@NonNull
-	public String getlicensePlate() {
+	public String getLicensePlate() {
 		return licensePlate;
 	}
 
@@ -89,4 +94,15 @@ public class ViolationReportRepresentation {
 	public List<String> getPictures() {
 		return pictures;
 	}
+
+	@NonNull
+	public ReportStatusEnum getReportStatus() {
+		return reportStatus;
+	}
+
+	@Nullable
+	public String getStatusMotivation() {
+		return statusMotivation;
+	}
+	//endregion
 }
