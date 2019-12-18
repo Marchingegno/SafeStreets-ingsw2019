@@ -12,7 +12,7 @@ const generalUtils = require('./utils/generalUtils');
 const db = admin.firestore();
 
 // Constant properties
-const DISTANCE_OFFSET = 0.00001 * 5; // this is 5 meters more or less
+const DISTANCE_OFFSET = 0.0001; // this is 10 meters more or less
 const TIME_OFFSET_IN_HOURS = 6;
 
 /**
