@@ -40,7 +40,8 @@ public class ImageRecognition {
 				.addOnSuccessListener(
 						//On success
 						firebaseVisionText -> {
-							caller.onTextRecognized(firebaseVisionText.getText().split(System.getProperty("line.separator")));
+							caller.onTextRecognized(firebaseVisionText.getText()
+									.split(System.getProperty("line.separator")));
 						})
 				.addOnFailureListener(
 						//On exception

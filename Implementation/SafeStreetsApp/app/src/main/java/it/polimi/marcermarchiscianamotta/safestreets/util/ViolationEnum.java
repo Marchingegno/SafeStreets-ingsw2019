@@ -20,7 +20,7 @@ public enum ViolationEnum {
 
 	private String text;
 
-	ViolationEnum(String string){
+	ViolationEnum(String string) {
 		text = string;
 	}
 

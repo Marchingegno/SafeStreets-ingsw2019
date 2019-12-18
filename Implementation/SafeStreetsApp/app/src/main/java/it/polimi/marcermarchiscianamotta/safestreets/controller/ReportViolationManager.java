@@ -223,6 +223,7 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 				//On success
 				input -> {
 					GeneralUtils.showSnackbar(rootView, "Violation report sent successfully!");
+					//Close the reporting activity
 					reportViolationActivity.finish();
 				},
 				//On exception

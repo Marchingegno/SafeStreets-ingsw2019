@@ -57,6 +57,7 @@ public class ViolationReport {
 	public void setPicturesIDOnServer(List<String> picturesIDOnServer) {
 		this.picturesIDOnServer = picturesIDOnServer;
 	}
+	//endregion
 
 	//region Getter methods
 	//================================================================================
@@ -122,6 +123,7 @@ public class ViolationReport {
 
 	/**
 	 * Returns true if and only if the license plate is not null.
+	 *
 	 * @return true if and only if the license plate is not null.
 	 */
 	public boolean hasPlate() {
@@ -130,6 +132,7 @@ public class ViolationReport {
 
 	/**
 	 * Returns true id and only if all the mandatory fields hare specified.
+	 *
 	 * @return true id and only if all the mandatory fields hare specified.
 	 */
 	public boolean isReadyToSend() {
@@ -146,6 +149,7 @@ public class ViolationReport {
 
 	/**
 	 * Returns a representation of the report so that it can be sent to the database.
+	 *
 	 * @return a representation of the report.
 	 */
 	public ViolationReportRepresentation getReportRepresentation() {
