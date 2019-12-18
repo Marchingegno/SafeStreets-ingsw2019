@@ -11,7 +11,7 @@ import com.google.firebase.firestore.Transaction;
 
 import java.util.UUID;
 
-import it.polimi.marcermarchiscianamotta.safestreets.model.User;
+import it.polimi.marcermarchiscianamotta.safestreets.model.UserRepresentation;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReportRepresentation;
 
 /**
@@ -47,13 +47,13 @@ public class DatabaseConnection {
 					DocumentSnapshot userDocSnap = transaction.get(userDocRef);
 
 					// Modify user document by adding the new id of the violation report.
-					User newUser = addViolationReportIdToUser(userDocSnap, violationReportId);
+					UserRepresentation newUserRepresentation = addViolationReportIdToUser(userDocSnap, violationReportId);
 
 					// Upload violation report.
 					transaction.set(violationReportDocRef, violationReportRep);
 
 					// Update user document.
-					transaction.set(userDocRef, newUser);
+					transaction.set(userDocRef, newUserRepresentation);
 
 					// Success.
 					return null;
@@ -73,13 +73,15 @@ public class DatabaseConnection {
 	 * @param violationReportId
 	 * @return
 	 */
-	private static User addViolationReportIdToUser(DocumentSnapshot userDocSnap, String violationReportId) {
-		User user = userDocSnap.toObject(User.class);
-		if (user == null) // If user does not have a user document.
-			user = new User(violationReportId);
-		else
-			user.addReference(violationReportId);
-		return user;
+	private static UserRepresentation addViolationReportIdToUser(DocumentSnapshot userDocSnap, String violationReportId) {
+		UserRepresentation userRepresentation = userDocSnap.toObject(UserRepresentation.class);
+		if (userRepresentation == null) { // If userRepresentation does not have a userRepresentation document.
+			userRepresentation = new UserRepresentation();
+			userRepresentation.addReport(violationReportId);
+		} else {
+			userRepresentation.addReport(violationReportId);
+		}
+		return userRepresentation;
 	}
 	//endregion
 
