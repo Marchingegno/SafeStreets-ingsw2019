@@ -226,11 +226,11 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	}
 
 	public void setPlateText(String plate) {
-		plateTextView.setText("license plate: " + plate);
+		plateTextView.setText("License plate: " + plate);
 	}
 
 	public void setMunicipalityText(String municipality) {
-		municipalityTextView.setText("Municipality:" + municipality);
+		municipalityTextView.setText("Municipality: " + municipality);
 	}
 
 	@Override

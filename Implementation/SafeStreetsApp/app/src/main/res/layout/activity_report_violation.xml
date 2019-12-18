@@ -51,7 +51,7 @@
                 android:id="@+id/plate_text_view"
                 style="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+				android:layout_height="38dp"
                 android:text="License plate:" />
 
             <TextView
@@ -60,22 +60,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="41dp"
                 android:text="Municipality: " />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/description"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="32dp"
-                    android:gravity="top|left"
-                    android:hint="Optional description..."
-                    android:inputType="textLongMessage|textMultiLine"
-                    android:maxLength="512"
-                    android:minHeight="128dp" />
-            </com.google.android.material.textfield.TextInputLayout>
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -99,8 +83,24 @@
             <TextView
                 android:id="@+id/report_violation_number_of_photos_added"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+				android:layout_height="44dp"
                 android:text="Number of photos added: 0" />
+
+			<com.google.android.material.textfield.TextInputLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content">
+
+				<com.google.android.material.textfield.TextInputEditText
+					android:id="@+id/description"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginBottom="32dp"
+					android:gravity="top|left"
+					android:hint="Optional description..."
+					android:inputType="textLongMessage|textMultiLine"
+					android:maxLength="512"
+					android:minHeight="128dp" />
+			</com.google.android.material.textfield.TextInputLayout>
 
 
         </LinearLayout>

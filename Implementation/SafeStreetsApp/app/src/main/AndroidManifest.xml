@@ -40,7 +40,8 @@
             android:label="@string/app_name" />
         <activity
             android:name=".view.ReportViolationActivity"
-            android:label="Report Violation" />
+            android:label="Report Violation"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".view.SafeStreetsDataActivity"
             android:label="Violations on the territory" />
