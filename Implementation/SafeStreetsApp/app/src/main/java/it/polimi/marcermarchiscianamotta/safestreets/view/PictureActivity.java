@@ -2,12 +2,14 @@ package it.polimi.marcermarchiscianamotta.safestreets.view;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,8 +17,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
+import it.polimi.marcermarchiscianamotta.safestreets.util.Interfaces.ResizeUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.LoadResizedBitmapTask;
 
-public class PictureActivity extends AppCompatActivity {
+public class PictureActivity extends AppCompatActivity implements ResizeUser {
+
+	private static final int FULL_SIZE_MAX_DIMENSION = 480;
 
 	private static final String TAG = "PictureActivity";
 
@@ -43,7 +49,13 @@ public class PictureActivity extends AppCompatActivity {
 		mPicturePath = Uri.parse(getIntent().getStringExtra("Picture to display"));
 		mViewIndex = Integer.parseInt(getIntent().getStringExtra("Index of the view associated with the picture"));
 
-		pictureImageView.setImageURI(mPicturePath);
+		resizeBitmap(mPicturePath, FULL_SIZE_MAX_DIMENSION);
+	}
+
+	public void resizeBitmap(Uri uri, int maxDimension) {
+		Log.d(TAG, "Resizing picture at: " + uri.toString());
+		LoadResizedBitmapTask task = new LoadResizedBitmapTask(maxDimension, this, this);
+		task.execute(uri);
 	}
 
 	//region UI methods
@@ -68,6 +80,19 @@ public class PictureActivity extends AppCompatActivity {
 		returnIntent.putExtra("Want to delete", "false");
 		setResult(Activity.RESULT_OK, returnIntent);
 		finish();
+	}
+
+	@Override
+	public void onBitmapResized(Bitmap resizedBitmap, int mMaxDimension) {
+		if (resizedBitmap == null) {
+			Log.e(TAG, "Couldn't resize bitmap in background task.");
+			Toast.makeText(getApplicationContext(), "Couldn't resize bitmap.",
+					Toast.LENGTH_SHORT).show();
+			return;
+		}
+		if (mMaxDimension == FULL_SIZE_MAX_DIMENSION) {
+			pictureImageView.setImageBitmap(resizedBitmap);
+		}
 	}
 	//endregion
 }

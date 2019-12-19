@@ -12,13 +12,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import it.polimi.marcermarchiscianamotta.safestreets.util.Interfaces.ResizeUser;
+
 public class LoadResizedBitmapTask extends AsyncTask<Uri, Void, Bitmap> {
 	private static final String TAG = "LoadResizedBitmapTask";
 	private int mMaxDimension;
 	private Context mApplicationContext;
-	private ResizerUser userToCallBack;
+	private ResizeUser userToCallBack;
 
-	public LoadResizedBitmapTask(int maxDimension, Context context, ResizerUser userToCallBack) {
+	public LoadResizedBitmapTask(int maxDimension, Context context, ResizeUser userToCallBack) {
 		mMaxDimension = maxDimension;
 		this.mApplicationContext = context;
 		this.userToCallBack = userToCallBack;

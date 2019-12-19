@@ -25,10 +25,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.File;
 import java.net.URI;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -38,20 +36,23 @@ import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.ReportViolationManager;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
+import it.polimi.marcermarchiscianamotta.safestreets.util.Interfaces.ResizeUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.Interfaces.SaveUser;
 import it.polimi.marcermarchiscianamotta.safestreets.util.LoadResizedBitmapTask;
-import it.polimi.marcermarchiscianamotta.safestreets.util.ResizerUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.SavePictureTask;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, AdapterView.OnItemSelectedListener, ResizerUser {
+public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, AdapterView.OnItemSelectedListener, ResizeUser, SaveUser {
 
 	private static final String TAG = "ReportViolationActivity";
 
-	private static final int THUMBNAIL_MAX_DIMENSION = 640;
-	private static final int FULL_SIZE_MAX_DIMENSION = 1280;
+	private static final int THUMBNAIL_MAX_DIMENSION = 480;
 
-	//directory where all files are saved
-	private static final String mainDirectoryPath = Environment.getExternalStorageDirectory() + "/SafeStreets/";
+	//fullSizePictureDirectory where all files are saved
+	private static String mainDirectoryPath;
+	private static File fullSizePictureDirectory;
+	private static File thumbnailPictureDirectory;
 
 	//Request codes
 	private static final int RC_CAMERA_PERMISSION = 201;
@@ -66,7 +67,6 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	private static final String WRITE_EXT_STORAGE_PERMS = Manifest.permission.WRITE_EXTERNAL_STORAGE;
 	private static final String LOCATION_PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
 	private static final String CAMERA_PERMS = Manifest.permission.CAMERA;
-	File directory = new File(mainDirectoryPath);
 
 	private ReportViolationManager reportViolationManager;
 	Uri currentPicturePath;
@@ -140,8 +140,15 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			EasyPermissions.requestPermissions(this, "Camera permission", RC_WRITE_EXT_STORAGE_PERMS, WRITE_EXT_STORAGE_PERMS);
 		}
 
-		if (!directory.exists()) {
-			directory.mkdirs();
+		mainDirectoryPath = Environment.getExternalStorageDirectory() + "/SafeStreets/";
+		fullSizePictureDirectory = new File(mainDirectoryPath + "/Pictures/");
+		thumbnailPictureDirectory = new File(mainDirectoryPath + "/Thumbnails/");
+
+		if (!fullSizePictureDirectory.exists()) {
+			fullSizePictureDirectory.mkdirs();
+		}
+		if (!thumbnailPictureDirectory.exists()) {
+			thumbnailPictureDirectory.mkdirs();
 		}
 	}
 
@@ -153,10 +160,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			case (RC_IMAGE_TAKEN):
 				if (resultCode == RESULT_OK) {
 					if (new File(URI.create(currentPicturePath.toString())).exists()) {
-						reportViolationManager.addPhotoToReport(currentPicturePath);
-						displayPhoto();
-						String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPictures() + "/" + reportViolationManager.getMaxNumOfPictures();
-						numberOfPhotosAddedTextView.setText(textToDisplay);
+						updateView();
+						createThumbnail();
 					} else {
 						GeneralUtils.showSnackbar(rootView, "Photo not found.");
 						Log.e(TAG, "Photo not found at " + currentPicturePath.toString());
@@ -210,14 +215,12 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			ImageView imageView = createImageView(resizedBitmap);
 			pictureViewArray.add(imageView);
 			pictureLinearLayout.addView(imageView);
-		} /*else if (mMaxDimension == FULL_SIZE_MAX_DIMENSION) {
-			mResizedBitmap = resizedBitmap;
-			mImageView.setImageBitmap(mResizedBitmap);
 		}
+	}
 
-		if (mThumbnail != null && mResizedBitmap != null) {
-			mSubmitButton.setEnabled(true);
-		}*/
+	@Override
+	public void onPictureSaved(Uri thumbnailCreated) {
+		reportViolationManager.addPhotoToReport(thumbnailCreated);
 	}
 
 	@Override
@@ -245,8 +248,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		}
 		if (requestCode == RC_WRITE_EXT_STORAGE_PERMS) {
 			//Initializes the directories
-			if (!directory.exists()) {
-				boolean created = directory.mkdirs();
+			if (!fullSizePictureDirectory.exists()) {
+				boolean created = fullSizePictureDirectory.mkdirs();
 				if (!created)
 					Log.e(TAG, "Folders not created");
 			}
@@ -277,14 +280,15 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	@OnClick(R.id.report_violation_add_photo_temporary)
 	public void onClickAddPhoto(View v) {
 		if (reportViolationManager.canTakeAnotherPicture()) {
-			String fileName = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss").format(new Date());
-			File destination = new File(mainDirectoryPath, fileName + ".jpg");
+			String fileName = String.valueOf(System.currentTimeMillis());
+			File destination = new File(fullSizePictureDirectory, fileName + ".jpg");
 			currentPicturePath = Uri.parse(destination.toURI().toString());
 
 			StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
 			StrictMode.setVmPolicy(builder.build());
 			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 			intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(destination));
+			Log.d(TAG, "Calling the camera and saving at: " + destination.toString());
 			startActivityForResult(intent, RC_IMAGE_TAKEN);
 		} else
 			GeneralUtils.showSnackbar(rootView, "Maximum number of pictures reached.");
@@ -323,9 +327,18 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 
 	//region Private methods
 	//================================================================================
+	private void updateView() {
+		displayPhoto();
+		String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPictures() + "/" + reportViolationManager.getMaxNumOfPictures();
+		numberOfPhotosAddedTextView.setText(textToDisplay);
+	}
+
+	private void createThumbnail() {
+		new SavePictureTask(currentPicturePath, thumbnailPictureDirectory, this, this).execute();
+	}
+
 	private void displayPhoto() {
 		resizeBitmap(currentPicturePath, THUMBNAIL_MAX_DIMENSION);
-		//resizeBitmap(currentPicturePath, FULL_SIZE_MAX_DIMENSION);
 	}
 
 	private ImageView createImageView(Bitmap bitmap) {
@@ -338,10 +351,10 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		imageView.setImageBitmap(bitmap);
 
 		imageView.setOnClickListener(v -> {
-			Log.d(TAG, currentPicturePath.toString());
 
 			int indexOfTheClickedView = pictureViewArray.indexOf(v);
 			Uri pathOfThePictureSelected = reportViolationManager.getPicture(indexOfTheClickedView);
+			Log.d(TAG, "Opening :" + pathOfThePictureSelected.toString());
 			Log.d(TAG, "Index of the view clicked: " + indexOfTheClickedView);
 
 			Intent i = new Intent(ReportViolationActivity.this, PictureActivity.class);

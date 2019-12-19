@@ -1,4 +1,4 @@
-package it.polimi.marcermarchiscianamotta.safestreets.util;
+package it.polimi.marcermarchiscianamotta.safestreets.util.Interfaces;
 
 /**
  * This interface must be implemented by the classes that wish to retrieve the results of the MapManager.
