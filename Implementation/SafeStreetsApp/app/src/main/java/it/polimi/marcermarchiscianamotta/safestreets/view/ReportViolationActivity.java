@@ -3,6 +3,7 @@ package it.polimi.marcermarchiscianamotta.safestreets.view;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,12 +38,17 @@ import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.ReportViolationManager;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
+import it.polimi.marcermarchiscianamotta.safestreets.util.LoadResizedBitmapTask;
+import it.polimi.marcermarchiscianamotta.safestreets.util.ResizerUser;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, AdapterView.OnItemSelectedListener {
+public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, AdapterView.OnItemSelectedListener, ResizerUser {
 
 	private static final String TAG = "ReportViolationActivity";
+
+	private static final int THUMBNAIL_MAX_DIMENSION = 640;
+	private static final int FULL_SIZE_MAX_DIMENSION = 1280;
 
 	//directory where all files are saved
 	private static final String mainDirectoryPath = Environment.getExternalStorageDirectory() + "/SafeStreets/";
@@ -132,6 +139,10 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		if (!EasyPermissions.hasPermissions(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 			EasyPermissions.requestPermissions(this, "Camera permission", RC_WRITE_EXT_STORAGE_PERMS, WRITE_EXT_STORAGE_PERMS);
 		}
+
+		if (!directory.exists()) {
+			directory.mkdirs();
+		}
 	}
 
 	@Override
@@ -179,6 +190,34 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 				break;
 			default:
 		}
+	}
+
+	public void resizeBitmap(Uri uri, int maxDimension) {
+		Log.d(TAG, "Resizing picture at: " + uri.toString());
+		LoadResizedBitmapTask task = new LoadResizedBitmapTask(maxDimension, this, this);
+		task.execute(uri);
+	}
+
+	@Override
+	public void onBitmapResized(Bitmap resizedBitmap, int mMaxDimension) {
+		if (resizedBitmap == null) {
+			Log.e(TAG, "Couldn't resize bitmap in background task.");
+			Toast.makeText(getApplicationContext(), "Couldn't resize bitmap.",
+					Toast.LENGTH_SHORT).show();
+			return;
+		}
+		if (mMaxDimension == THUMBNAIL_MAX_DIMENSION) {
+			ImageView imageView = createImageView(resizedBitmap);
+			pictureViewArray.add(imageView);
+			pictureLinearLayout.addView(imageView);
+		} /*else if (mMaxDimension == FULL_SIZE_MAX_DIMENSION) {
+			mResizedBitmap = resizedBitmap;
+			mImageView.setImageBitmap(mResizedBitmap);
+		}
+
+		if (mThumbnail != null && mResizedBitmap != null) {
+			mSubmitButton.setEnabled(true);
+		}*/
 	}
 
 	@Override
@@ -285,19 +324,18 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	//region Private methods
 	//================================================================================
 	private void displayPhoto() {
-		ImageView imageView = createImageView();
-		pictureViewArray.add(imageView);
-		pictureLinearLayout.addView(imageView);
+		resizeBitmap(currentPicturePath, THUMBNAIL_MAX_DIMENSION);
+		//resizeBitmap(currentPicturePath, FULL_SIZE_MAX_DIMENSION);
 	}
 
-	private ImageView createImageView() {
+	private ImageView createImageView(Bitmap bitmap) {
 		ImageView imageView = new ImageView(this);
 
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(300, 300);
 		imageView.setLayoutParams(params);
 
 		imageView.setClickable(true);
-		imageView.setImageURI(currentPicturePath);
+		imageView.setImageBitmap(bitmap);
 
 		imageView.setOnClickListener(v -> {
 			Log.d(TAG, currentPicturePath.toString());
