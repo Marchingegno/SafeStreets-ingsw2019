@@ -85,6 +85,10 @@ public class ViolationReport {
 		return pictures;
 	}
 
+	public Uri getPicture(int index) {
+		return pictures.get(index);
+	}
+
 	public ViolationEnum getTypeOfViolation() {
 		return typeOfViolation;
 	}
@@ -117,6 +121,15 @@ public class ViolationReport {
 	public void addPhoto(Uri photoPath) {
 		pictures.add(photoPath);
 		Log.d(TAG, "Photo added: " + photoPath);
+	}
+
+	/**
+	 * Removes the picture at the specified index.
+	 *
+	 * @param index index of the picture to delete.
+	 */
+	public void removePhoto(int index) {
+		pictures.remove(index);
 	}
 
 	/**

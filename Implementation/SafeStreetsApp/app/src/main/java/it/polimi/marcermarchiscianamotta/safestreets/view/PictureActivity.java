@@ -29,6 +29,9 @@ public class PictureActivity extends AppCompatActivity {
 	@BindView(R.id.picture_view)
 	ImageView pictureImageView;
 
+	int mViewIndex;
+	Uri mPicturePath;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -37,29 +40,34 @@ public class PictureActivity extends AppCompatActivity {
 		// Needed for @BindView attributes.
 		ButterKnife.bind(this);
 
-		Uri picturePath = Uri.parse(getIntent().getStringExtra("Picture to display"));
-		pictureImageView.setImageURI(picturePath);
+		mPicturePath = Uri.parse(getIntent().getStringExtra("Picture to display"));
+		mViewIndex = Integer.parseInt(getIntent().getStringExtra("Index of the view associated with the picture"));
+
+		pictureImageView.setImageURI(mPicturePath);
 	}
 
 	//region UI methods
 	//================================================================================
 	@OnClick(R.id.delete_button)
 	public void onClickDeleteButton(View v) {
+		Log.d(TAG, "User selected picture #" + mViewIndex + " at " + mPicturePath + " to be deleted");
+
 		Intent returnIntent = new Intent();
 		returnIntent.putExtra("Want to delete", "true");
-		Log.d(TAG, "View index: " + getIntent().getStringExtra("Index of the view associated with the picture"));
-		returnIntent.putExtra("View index", getIntent().getStringExtra("Index of the view associated with the picture"));
+		returnIntent.putExtra("View index", String.valueOf(mViewIndex));
+		returnIntent.putExtra("Picture path", mPicturePath.toString());
 		setResult(Activity.RESULT_OK, returnIntent);
 		finish();
 	}
 
 	@OnClick(R.id.return_button)
 	public void onClickReturnButton(View v) {
+		Log.d(TAG, "User chose to return");
+
 		Intent returnIntent = new Intent();
 		returnIntent.putExtra("Want to delete", "false");
 		setResult(Activity.RESULT_OK, returnIntent);
 		finish();
-		PictureActivity.this.finish();
 	}
 	//endregion
 }

@@ -17,7 +17,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -63,7 +62,6 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	File directory = new File(mainDirectoryPath);
 
 	private ReportViolationManager reportViolationManager;
-	List<Uri> picturePathsArray = new ArrayList<>();
 	Uri currentPicturePath;
 
 	@BindView(R.id.municipality_text_view)
@@ -146,9 +144,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 					if (new File(URI.create(currentPicturePath.toString())).exists()) {
 						reportViolationManager.addPhotoToReport(currentPicturePath);
 						displayPhoto();
-						String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPhotos() + "/" + reportViolationManager.getMaxNumOfPhotos();
+						String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPictures() + "/" + reportViolationManager.getMaxNumOfPictures();
 						numberOfPhotosAddedTextView.setText(textToDisplay);
-						picturePathsArray.add(currentPicturePath);
 					} else {
 						GeneralUtils.showSnackbar(rootView, "Photo not found.");
 						Log.e(TAG, "Photo not found at " + currentPicturePath.toString());
@@ -158,15 +155,26 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			case (RC_IMAGE_DELETION):
 				if (resultCode == RESULT_OK) {
 					if (Boolean.parseBoolean(data.getStringExtra("Want to delete"))) {
-						Toast.makeText(this, "DELETE", Toast.LENGTH_SHORT).show();
-						ImageView imageViewToRemove = pictureViewArray.remove(Integer.parseInt(data.getStringExtra("View index")));
-						pictureLinearLayout.removeView(imageViewToRemove);
-						picturePathsArray.remove(Integer.parseInt(data.getStringExtra("View index")));
-						String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPhotos() + "/" + reportViolationManager.getMaxNumOfPhotos();
-						numberOfPhotosAddedTextView.setText(textToDisplay);
-						Log.d(TAG, "Num of image views: " + pictureViewArray.size());
-					} else
-						Toast.makeText(this, "RETURN", Toast.LENGTH_SHORT).show();
+						int indexOfThePictureToDelete = Integer.parseInt(data.getStringExtra("View index"));
+
+						URI pathOfThePictureToDelete = URI.create(data.getStringExtra("Picture path"));
+						File pictureToDelete = new File(pathOfThePictureToDelete);
+
+						if (pictureToDelete.exists() &&
+								indexOfThePictureToDelete < reportViolationManager.numberOfPictures() &&
+								Uri.parse(data.getStringExtra("Picture path")).equals(reportViolationManager.getPicture(indexOfThePictureToDelete))) {
+							ImageView imageViewToRemove = pictureViewArray.remove(indexOfThePictureToDelete);
+
+							pictureLinearLayout.removeView(imageViewToRemove);
+							reportViolationManager.removePicture(indexOfThePictureToDelete);
+
+							String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPictures() + "/" + reportViolationManager.getMaxNumOfPictures();
+							numberOfPhotosAddedTextView.setText(textToDisplay);
+
+							Log.d(TAG, "Num of image views: " + pictureViewArray.size());
+						} else
+							Log.e(TAG, "File: " + pathOfThePictureToDelete + " not found");
+					}
 				}
 				break;
 			default:
@@ -277,27 +285,33 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	//region Private methods
 	//================================================================================
 	private void displayPhoto() {
+		ImageView imageView = createImageView();
+		pictureViewArray.add(imageView);
+		pictureLinearLayout.addView(imageView);
+	}
+
+	private ImageView createImageView() {
 		ImageView imageView = new ImageView(this);
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(300,
-				300);
+
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(300, 300);
 		imageView.setLayoutParams(params);
+
 		imageView.setClickable(true);
 		imageView.setImageURI(currentPicturePath);
+
 		imageView.setOnClickListener(v -> {
-			//On click
-			Toast.makeText(ReportViolationActivity.this, "ImageButton is clicked!", Toast.LENGTH_SHORT).show();
 			Log.d(TAG, currentPicturePath.toString());
 
 			int indexOfTheClickedView = pictureViewArray.indexOf(v);
+			Uri pathOfThePictureSelected = reportViolationManager.getPicture(indexOfTheClickedView);
+			Log.d(TAG, "Index of the view clicked: " + indexOfTheClickedView);
+
 			Intent i = new Intent(ReportViolationActivity.this, PictureActivity.class);
-			i.putExtra("Picture to display", picturePathsArray.get(indexOfTheClickedView).toString());
+			i.putExtra("Picture to display", pathOfThePictureSelected.toString());
 			i.putExtra("Index of the view associated with the picture", String.valueOf(indexOfTheClickedView));
-			Log.d(TAG, "Index of the view clicked" + indexOfTheClickedView);
 			startActivityForResult(i, RC_IMAGE_DELETION);
 		});
-
-		pictureViewArray.add(imageView);
-		pictureLinearLayout.addView(imageView);
+		return imageView;
 	}
 	//endregion
 
