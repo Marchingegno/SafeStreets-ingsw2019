@@ -16,13 +16,14 @@
 	div.orderBy {
 		display: inline-block;
 		height: 50%;
-		margin-left: 5px;
+		margin-left: 15%;
 		padding-top: 20px;
 	}
 
 	h1 {
 		display: block;
-		text-align: center;
+		font-size: xx-large;
+		padding-left: 50%;
 		height: auto;
 	}
 
@@ -30,15 +31,11 @@
 		width: 100%;
 	}
 
-	ul {
-		margin-top: 0;
-		margin-bottom: 0;
-		list-style-type: none;
-		padding-left: 0;
-	}
 
 	div.report {
 		display: block;
+		margin-left: 92px;
+		padding-left: 5px;
 		list-style-type: none;
 		background-color: white;
 		font-size: large;
@@ -113,38 +110,34 @@
 	<li><a href="ShowStatistics.html">Show Statistics</a></li>
 	<lg id="logout">Logout</lg>
 </ul>
-<div class="content">
 
-	<div class="orderBy">
-		Order by
-		<menu style="display: inline">number of reports</menu>
-		<br>
-		<div class="dropdown">
-			<button class="dropbtn">Municipality</button>
-			<div class="dropdown-content" id="dropdown-content">
-			</div>
+<div class="orderBy">
+	Order by
+	<menu style="display: inline">number of reports</menu>
+	<br>
+	<div class="dropdown">
+		<button class="dropbtn">Municipality</button>
+		<div class="dropdown-content" id="dropdown-content">
 		</div>
 	</div>
+</div>
 
-	<h1>
-		Violations
-	</h1>
+<h1>
+	Violations
+</h1>
 
-	<div>
-		<button onclick="createReport()">Create report</button>
-		<button onclick="retrieveReports()">Retrieve reports</button>
-		<button onclick="retrieveMunicipalityReports()">Retrieve municipality reports</button>
-	</div>
+<div>
+	<button onclick="createReport()">Create report</button>
+	<button onclick="retrieveReports()">Retrieve reports</button>
+	<button onclick="retrieveMunicipalityReports()">Retrieve municipality reports</button>
+</div>
 
-	<div class="reports" id="reports">
-		<div class="report">
-			<ul>
-				<li>License plate: XXX</li>
-				<li>Location: ZZZ</li>
-				<li>Violation type: CCC</li>
-				<li>Number of reports: 99</li>
-			</ul>
-		</div>
+<div class="reports" id="reports">
+	<div class="report">
+		<li>License plate: XXX</li>
+		<li>Location: ZZZ</li>
+		<li>Violation type: CCC</li>
+		<li>Number of reports: 99</li>
 	</div>
 </div>
 
@@ -213,7 +206,6 @@
 </script>
 
 <script async>
-    //retrieve municipality names
     var municipalities = firebase.firestore().collection("municipalities");
 
     municipalities.get().then(function (querySnapshot) {
