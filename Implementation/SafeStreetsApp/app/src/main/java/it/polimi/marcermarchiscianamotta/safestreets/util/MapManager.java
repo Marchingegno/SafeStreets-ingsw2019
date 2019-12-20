@@ -10,7 +10,7 @@ import com.google.android.gms.location.LocationServices;
 
 import java.io.IOException;
 
-import it.polimi.marcermarchiscianamotta.safestreets.util.Interfaces.MapUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.MapUser;
 
 public class MapManager {
 

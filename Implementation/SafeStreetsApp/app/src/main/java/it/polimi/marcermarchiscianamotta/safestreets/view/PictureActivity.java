@@ -17,7 +17,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
-import it.polimi.marcermarchiscianamotta.safestreets.util.Interfaces.LoadUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadUser;
 import it.polimi.marcermarchiscianamotta.safestreets.util.LoadPictureTask;
 
 public class PictureActivity extends AppCompatActivity implements LoadUser {

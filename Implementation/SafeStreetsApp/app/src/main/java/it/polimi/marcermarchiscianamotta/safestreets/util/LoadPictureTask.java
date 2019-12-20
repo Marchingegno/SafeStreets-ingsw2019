@@ -9,7 +9,7 @@ import android.util.Log;
 
 import java.io.InputStream;
 
-import it.polimi.marcermarchiscianamotta.safestreets.util.Interfaces.LoadUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadUser;
 
 /**
  * Loads a bitmap from the local storage and returns it.

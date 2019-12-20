@@ -1,4 +1,4 @@
-package it.polimi.marcermarchiscianamotta.safestreets.util.Interfaces;
+package it.polimi.marcermarchiscianamotta.safestreets.util.interfaces;
 
 import android.net.Uri;
 
