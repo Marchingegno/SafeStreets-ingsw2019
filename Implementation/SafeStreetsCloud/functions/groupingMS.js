@@ -1,26 +1,34 @@
 'use strict';
 
 // Dependencies
+const generalUtils = require('./utils/generalUtils');
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 try {
     admin.initializeApp();
 } catch (e) { /* App already initialized */ }
-const generalUtils = require('./utils/generalUtils');
 
 // Global variables
 const db = admin.firestore();
 
 // Constant properties
-const DISTANCE_OFFSET = 0.0001; // this is 10 meters more or less
+const DISTANCE_OFFSET_IN_DEGREE = 0.0001; // more or less 10 meters but depends on position
 const TIME_OFFSET_IN_HOURS = 6;
 
 /**
- * Triggers when a new violation report is added.
+ * Triggers when a violation report is updated, and starts only if the report has been approved.
+ * The changes made by this function may trigger the clusteringMS.
  */
 exports.groupingMS = functions.firestore.document('/violationReports/{reportId}').onUpdate(async (change, context) => {
     console.log(`groupingMS started.`);
 
+    await doGroupingIfReportIsApproved(change);
+
+    console.log(`groupingMS ended.`);
+    return null;
+});
+
+async function doGroupingIfReportIsApproved(change) {
     const reportStatusBefore = change.before.get("reportStatus");
     const reportStatusAfter = change.after.get("reportStatus");
 
@@ -30,9 +38,7 @@ exports.groupingMS = functions.firestore.document('/violationReports/{reportId}'
     } else {
         console.log('Not a report approval.');
     }
-    console.log(`groupingMS ended.`);
-    return null;
-});
+}
 
 async function doGrouping(violationReportSnap) {
     // Get data of the new report.
@@ -56,13 +62,13 @@ async function doGrouping(violationReportSnap) {
 }
 
 async function getGroupOfReport(municipality, licensePlate, typeOfViolation, latitude, longitude, uploadTimestamp) {
-    // Make query on database for getting the group (similar location and timestamp).
+    // Make query on database for getting the group (same licensePlate, same typeOfViolation, similar location and similar timestamp).
     // Note: Queries with range filters on different fields are not supported by Firestore.
     const querySnapshot = await db.collection("municipalities").doc(municipality).collection("groups")
         .where("licensePlate", "==", licensePlate)
         .where("typeOfViolation", "==", typeOfViolation)
-        .where("latitude", ">=", latitude - DISTANCE_OFFSET)
-        .where("latitude", "<=", latitude + DISTANCE_OFFSET)
+        .where("latitude", ">=", latitude - DISTANCE_OFFSET_IN_DEGREE)
+        .where("latitude", "<=", latitude + DISTANCE_OFFSET_IN_DEGREE)
         .get();
 
     // Since Firestore is limited on queries we need to check separately longitude and timestamp.
@@ -76,7 +82,7 @@ function alsoCheckForLongitudeAndTimestampForQuery(querySnapshot, newLongitude, 
         const groupLastDate = groupDocSnap.data().lastTimestamp.toDate();
 
         // Range filter also on longitude and date.
-        if(groupLongitude >= newLongitude - DISTANCE_OFFSET && groupLongitude <= newLongitude + DISTANCE_OFFSET) {
+        if(groupLongitude >= newLongitude - DISTANCE_OFFSET_IN_DEGREE && groupLongitude <= newLongitude + DISTANCE_OFFSET_IN_DEGREE) {
             if(newUploadDate >= generalUtils.getNewDateWithAddedHours(groupFirstDate, -TIME_OFFSET_IN_HOURS) && newUploadDate <= generalUtils.getNewDateWithAddedHours(groupLastDate, TIME_OFFSET_IN_HOURS))
                 return groupDocSnap; // Found the group.
         }
