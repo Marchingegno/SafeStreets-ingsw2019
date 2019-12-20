@@ -3,6 +3,7 @@
 // Dependencies
 const chai = require('chai');
 const assert = chai.assert;
+const sinon = require('sinon');
 const admin = require('firebase-admin');
 try {
     admin.initializeApp();
@@ -180,7 +181,7 @@ describe('Cloud Functions Tests', () => {
         it('Passes new group, should create a new cluster.', () => {
             // Create fictional data to pass to the function.
             const groupData = createExampleGroup();
-            const snap = test.firestore.makeDocumentSnapshot(groupData, 'municipalities/testMunicip/groups/group-1');
+            const snap = test.firestore.makeDocumentSnapshot(groupData, 'municipalities/testMunicip/groups/test-group-1');
 
             // Wrap the function.
             const wrapped = test.wrap(clusteringMS.clusteringMS);
@@ -190,7 +191,7 @@ describe('Cloud Functions Tests', () => {
                 return db.collection("municipalities").doc("testMunicip").collection("clusters").get().then(querySnapshot => {
                     assert.equal(querySnapshot.docs.length, 1);
                     for (let clusterDocSnap of querySnapshot.docs) {
-                        assert.deepEqual(clusterDocSnap.data().groups, ["group-1"]);
+                        assert.deepEqual(clusterDocSnap.data().groups, ["test-group-1"]);
                         assert.equal(clusterDocSnap.data().latitude, groupData.latitude);
                         assert.equal(clusterDocSnap.data().longitude, groupData.longitude);
                         assert.equal(clusterDocSnap.data().typeOfViolation, groupData.typeOfViolation);
@@ -203,9 +204,9 @@ describe('Cloud Functions Tests', () => {
         it('Passes two consecutive changes of an approved report, should create a new group and then add report to it.', () => {
             // Create fictional data to pass to the function.
             const groupData1 = createExampleGroup();
-            const snap1 = test.firestore.makeDocumentSnapshot(groupData1, 'municipalities/testMunicip/groups/group-1');
+            const snap1 = test.firestore.makeDocumentSnapshot(groupData1, 'municipalities/testMunicip/groups/test-group-1');
             const groupData2 = createExampleGroupThatShouldCluster();
-            const snap2 = test.firestore.makeDocumentSnapshot(groupData2, 'municipalities/testMunicip/groups/group-2');
+            const snap2 = test.firestore.makeDocumentSnapshot(groupData2, 'municipalities/testMunicip/groups/test-group-2');
 
             // Wrap the function.
             const wrapped = test.wrap(clusteringMS.clusteringMS);
@@ -216,7 +217,7 @@ describe('Cloud Functions Tests', () => {
                     return db.collection("municipalities").doc("testMunicip").collection("clusters").get().then(querySnapshot => {
                         assert.equal(querySnapshot.docs.length, 1);
                         for (let clusterDocSnap of querySnapshot.docs) {
-                            assert.deepEqual(clusterDocSnap.data().groups, ["group-1", "group-2"]);
+                            assert.deepEqual(clusterDocSnap.data().groups, ["test-group-1", "test-group-2"]);
                             assert.equal(clusterDocSnap.data().latitude, groupData1.latitude);
                             assert.equal(clusterDocSnap.data().longitude, groupData1.longitude);
                             assert.equal(clusterDocSnap.data().typeOfViolation, groupData1.typeOfViolation);
@@ -228,6 +229,81 @@ describe('Cloud Functions Tests', () => {
 
 
     });
+
+
+    describe('approvingMS', () => {
+
+        let visionStub;
+        let approvingMS;
+        before(() => {
+            const vision = require('@google-cloud/vision');
+            visionStub = sinon.stub(vision, 'ImageAnnotatorClient');
+            const positiveLabelsFoundStub = [{description: "Other1", score: 1.0}, {description: "Vehicle", score: 0.6}];
+            const positiveResultStub = [{ labelAnnotations: positiveLabelsFoundStub}];
+            const negativeLabelsFoundStub = [{description: "Other1", score: 1.0}, {description: "Other2", score: 0.6}];
+            const negativeResultStub = [{ labelAnnotations: negativeLabelsFoundStub}];
+            visionStub.returns({labelDetection: (pictureUri) => {
+                if(pictureUri.toString().includes("vehicle"))
+                    return positiveResultStub;
+                else
+                     return negativeResultStub;
+            }});
+            approvingMS = require('../approvingMS');
+        });
+
+
+        after(() => {
+            // Restore stubbed method to their original status.
+            visionStub.restore();
+        });
+
+
+        it('Passes new report and stubs image recognition methods with a vehicle in them, should approve the report.', () => {
+            // Create fictional data to pass to the function.
+            const violationReport = createExampleViolationReport();
+            const snap = test.firestore.makeDocumentSnapshot(violationReport, 'violationReports/test-violation-1');
+
+            // Wrap the function.
+            const wrapped = test.wrap(approvingMS.approvingMS);
+
+            // Launch function and check its changes.
+            return db.collection("violationReports").doc("test-violation-1").create(violationReport).then(() => {
+                return wrapped(snap).then(() => {
+                    return db.collection("violationReports").where("licensePlate", "==", violationReport.licensePlate).get().then(querySnapshot => {
+                        assert.equal(querySnapshot.docs.length, 1);
+                        for (let reportDocSnap of querySnapshot.docs) {
+                            assert.equal(reportDocSnap.data().reportStatus, "APPROVED");
+                        }
+                    });
+                });
+            });
+        });
+
+
+        it('Passes new report and stubs image recognition methods without any vehicle in them, should reject the report.', () => {
+            // Create fictional data to pass to the function.
+            const violationReport = createExampleViolationReport();
+            violationReport.pictures[1] = "other-thing";
+            const snap = test.firestore.makeDocumentSnapshot(violationReport, 'violationReports/test-violation-1');
+
+            // Wrap the function.
+            const wrapped = test.wrap(approvingMS.approvingMS);
+
+            // Launch function and check its changes.
+            return db.collection("violationReports").doc("test-violation-1").create(violationReport).then(() => {
+                return wrapped(snap).then(() => {
+                    return db.collection("violationReports").where("licensePlate", "==", violationReport.licensePlate).get().then(querySnapshot => {
+                        assert.equal(querySnapshot.docs.length, 1);
+                        for (let reportDocSnap of querySnapshot.docs) {
+                            assert.equal(reportDocSnap.data().reportStatus, "REJECTED");
+                        }
+                    });
+                });
+            });
+        });
+
+    });
+
 });
 
 
@@ -255,7 +331,7 @@ function createExampleGroupThatShouldCluster() {
 //endregion
 
 
-//region Methods for groupingMS testing.
+//region Methods for groupingMS adn approvingMS testing.
 //================================================================================
 function createExampleViolationReport() {
     return {
@@ -264,7 +340,7 @@ function createExampleViolationReport() {
         licensePlate: "TE333ST",
         longitude: 1.0,
         municipality: "testMunicip",
-        pictures: ["picture1", "picture2"],
+        pictures: ["other-thing", "vehicle"],
         reportStatus: "SUBMITTED",
         statusMotivation: null,
         typeOfViolation: "DOUBLE_PARKING",
@@ -288,7 +364,8 @@ function createExampleViolationReportThatShouldGroup(uploadTimestamp) {
 function getPromiseOfDatabaseResetting() {
     let groupDeletionPromise = db.collection("municipalities").doc("testMunicip").collection("groups").listDocuments().then(getPromisesOfDeletionOfAllDocuments);
     let clusterDeletionPromise = db.collection("municipalities").doc("testMunicip").collection("clusters").listDocuments().then(getPromisesOfDeletionOfAllDocuments);
-    return Promise.all([groupDeletionPromise, clusterDeletionPromise]);
+    let reportsDeletionPromise = db.collection("violationReports").listDocuments().then(getPromisesOfDeletionOfAllDocuments);
+    return Promise.all([groupDeletionPromise, clusterDeletionPromise, reportsDeletionPromise]);
 }
 
 function getPromisesOfDeletionOfAllDocuments(documentRefs) {

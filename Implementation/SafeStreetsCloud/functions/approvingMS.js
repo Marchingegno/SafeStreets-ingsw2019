@@ -9,9 +9,6 @@ try {
 const vision = require('@google-cloud/vision');
 
 // Global variables
-const db = admin.firestore();
-const storage = admin.storage();
-const bucket = storage.bucket();
 const client = new vision.ImageAnnotatorClient();
 
 // Constant properties
@@ -67,7 +64,6 @@ async function isAVehiclePresentInOneOfThePictures(picturesUris) {
         // suppressed the warning since we should do sequentially these awaits for avoiding useless calls to Vision API (that cost money)
         // eslint-disable-next-line no-await-in-loop
         const booleanResult = await isAVehiclePresentInPicture(picturesUris[i]);
-        console.log(booleanResult);
         if(booleanResult) {
             return true;
         }
