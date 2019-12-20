@@ -18,7 +18,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,18 +35,18 @@ import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.ReportViolationManager;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
-import it.polimi.marcermarchiscianamotta.safestreets.util.Interfaces.ResizeUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.Interfaces.LoadUser;
 import it.polimi.marcermarchiscianamotta.safestreets.util.Interfaces.SaveUser;
-import it.polimi.marcermarchiscianamotta.safestreets.util.LoadResizedBitmapTask;
+import it.polimi.marcermarchiscianamotta.safestreets.util.LoadPictureTask;
 import it.polimi.marcermarchiscianamotta.safestreets.util.SavePictureTask;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, AdapterView.OnItemSelectedListener, ResizeUser, SaveUser {
+public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, AdapterView.OnItemSelectedListener, SaveUser, LoadUser {
 
 	private static final String TAG = "ReportViolationActivity";
 
-	private static final int THUMBNAIL_MAX_DIMENSION = 480;
+	private static final int PICTURE_DESIRED_SIZE = 680;
 
 	//fullSizePictureDirectory where all files are saved
 	private static String mainDirectoryPath;
@@ -109,8 +108,6 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	}
 	//endregion
 
-	//region Overridden methods
-	//================================================================================
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -152,6 +149,9 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		}
 	}
 
+
+	//region Callback methods
+	//================================================================================
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -160,8 +160,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			case (RC_IMAGE_TAKEN):
 				if (resultCode == RESULT_OK) {
 					if (new File(URI.create(currentPicturePath.toString())).exists()) {
-						updateView();
-						createThumbnail();
+						createThumbnailAndDisplay();
 					} else {
 						GeneralUtils.showSnackbar(rootView, "Photo not found.");
 						Log.e(TAG, "Photo not found at " + currentPicturePath.toString());
@@ -197,30 +196,24 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		}
 	}
 
-	public void resizeBitmap(Uri uri, int maxDimension) {
-		Log.d(TAG, "Resizing picture at: " + uri.toString());
-		LoadResizedBitmapTask task = new LoadResizedBitmapTask(maxDimension, this, this);
-		task.execute(uri);
-	}
-
-	@Override
-	public void onBitmapResized(Bitmap resizedBitmap, int mMaxDimension) {
-		if (resizedBitmap == null) {
-			Log.e(TAG, "Couldn't resize bitmap in background task.");
-			Toast.makeText(getApplicationContext(), "Couldn't resize bitmap.",
-					Toast.LENGTH_SHORT).show();
-			return;
-		}
-		if (mMaxDimension == THUMBNAIL_MAX_DIMENSION) {
-			ImageView imageView = createImageView(resizedBitmap);
-			pictureViewArray.add(imageView);
-			pictureLinearLayout.addView(imageView);
-		}
-	}
-
 	@Override
 	public void onPictureSaved(Uri thumbnailCreated) {
+		ImageView imageView = createImageView(thumbnailCreated);
+		pictureViewArray.add(imageView);
+		pictureLinearLayout.addView(imageView);
 		reportViolationManager.addPhotoToReport(thumbnailCreated);
+		String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPictures() + "/" + reportViolationManager.getMaxNumOfPictures();
+		numberOfPhotosAddedTextView.setText(textToDisplay);
+	}
+
+	@Override
+	public void onPictureLoaded(Bitmap bitmap) {
+		SavePictureTask saver = new SavePictureTask(this);
+		saver.setQuality(50);
+		String thumbnailDirectory = thumbnailPictureDirectory.toURI().toString();
+		Uri pathWhereToSave = Uri.parse(thumbnailDirectory + currentPicturePath.getLastPathSegment());
+		saver.setPathWhereToSave(pathWhereToSave);
+		saver.execute(bitmap);
 	}
 
 	@Override
@@ -274,7 +267,6 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	}
 	//endregion
 
-
 	//region UI methods
 	//================================================================================
 	@OnClick(R.id.report_violation_add_photo_temporary)
@@ -324,31 +316,22 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	}
 	//endregion
 
-
 	//region Private methods
 	//================================================================================
-	private void updateView() {
-		displayPhoto();
-		String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPictures() + "/" + reportViolationManager.getMaxNumOfPictures();
-		numberOfPhotosAddedTextView.setText(textToDisplay);
+	private void createThumbnailAndDisplay() {
+		LoadPictureTask loader = new LoadPictureTask(this);
+		loader.setMaxDimension(PICTURE_DESIRED_SIZE);
+		loader.execute(currentPicturePath);
 	}
 
-	private void createThumbnail() {
-		new SavePictureTask(currentPicturePath, thumbnailPictureDirectory, this, this).execute();
-	}
-
-	private void displayPhoto() {
-		resizeBitmap(currentPicturePath, THUMBNAIL_MAX_DIMENSION);
-	}
-
-	private ImageView createImageView(Bitmap bitmap) {
+	private ImageView createImageView(Uri uri) {
 		ImageView imageView = new ImageView(this);
 
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(300, 300);
 		imageView.setLayoutParams(params);
 
 		imageView.setClickable(true);
-		imageView.setImageBitmap(bitmap);
+		imageView.setImageURI(uri);
 
 		imageView.setOnClickListener(v -> {
 
@@ -365,5 +348,4 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		return imageView;
 	}
 	//endregion
-
 }
