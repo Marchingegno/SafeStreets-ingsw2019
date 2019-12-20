@@ -70,6 +70,7 @@ describe('Cloud Functions Tests', () => {
                         assert.deepEqual(groupDocSnap.data().reports, ["test-violation-1"]);
                         assert.equal(groupDocSnap.data().typeOfViolation, violationReportAfter.typeOfViolation);
                     }
+                    return null;
                 });
             });
         });
@@ -129,6 +130,7 @@ describe('Cloud Functions Tests', () => {
                             assert.deepEqual(groupDocSnap.data().reports, ["test-violation-1", "test-violation-2"]);
                             assert.equal(groupDocSnap.data().typeOfViolation, violationReportAfter1.typeOfViolation);
                         }
+                        return null;
                     });
                 });
             });
@@ -168,6 +170,7 @@ describe('Cloud Functions Tests', () => {
                             assert.deepEqual(groupDocSnap.data().reports, ["test-violation-1", "test-violation-2"]);
                             assert.equal(groupDocSnap.data().typeOfViolation, violationReportAfter1.typeOfViolation);
                         }
+                        return null;
                     });
                 });
             });
@@ -196,6 +199,7 @@ describe('Cloud Functions Tests', () => {
                         assert.equal(clusterDocSnap.data().longitude, groupData.longitude);
                         assert.equal(clusterDocSnap.data().typeOfViolation, groupData.typeOfViolation);
                     }
+                    return null;
                 });
             });
         });
@@ -222,6 +226,7 @@ describe('Cloud Functions Tests', () => {
                             assert.equal(clusterDocSnap.data().longitude, groupData1.longitude);
                             assert.equal(clusterDocSnap.data().typeOfViolation, groupData1.typeOfViolation);
                         }
+                        return null;
                     });
                 });
             });
@@ -274,6 +279,7 @@ describe('Cloud Functions Tests', () => {
                         for (let reportDocSnap of querySnapshot.docs) {
                             assert.equal(reportDocSnap.data().reportStatus, "APPROVED");
                         }
+                        return null;
                     });
                 });
             });
@@ -297,6 +303,7 @@ describe('Cloud Functions Tests', () => {
                         for (let reportDocSnap of querySnapshot.docs) {
                             assert.equal(reportDocSnap.data().reportStatus, "REJECTED");
                         }
+                        return null;
                     });
                 });
             });

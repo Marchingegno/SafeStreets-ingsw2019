@@ -48,9 +48,9 @@ if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'onReportStatusC
 /**
  * Hello world.
  */
-if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'helloWorld') {
+/*if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'helloWorld') {
   exports.helloWorld = require('./helloWorld').helloWorldFunction;
-}
+}*/
 
 
 /**
