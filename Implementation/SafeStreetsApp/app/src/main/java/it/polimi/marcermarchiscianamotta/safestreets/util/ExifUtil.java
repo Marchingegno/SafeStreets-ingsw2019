@@ -6,6 +6,10 @@ import android.media.ExifInterface;
 
 import java.io.IOException;
 
+/**
+ * Exif util class https://gist.github.com/9re/1990019
+ * @author 9re
+ */
 public class ExifUtil {
 	/**
 	 * More about ExifInformation can be found here http://sylvana.net/jpegcrop/exif_orientation.html
