@@ -22,7 +22,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="q">
-		<activity android:name=".view.PictureActivity"></activity>
+        <activity android:name=".view.PictureActivity" />
 
         <meta-data
             android:name="com.google.android.gms.version"

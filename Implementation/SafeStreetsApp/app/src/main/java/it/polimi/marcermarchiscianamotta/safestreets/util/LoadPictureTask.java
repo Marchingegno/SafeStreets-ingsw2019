@@ -3,6 +3,8 @@ package it.polimi.marcermarchiscianamotta.safestreets.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -59,8 +61,9 @@ public class LoadPictureTask extends AsyncTask<Uri, Void, Bitmap> {
 		bitmapOptions.inSampleSize = getPowerOfTwoForSampleRatio(ratio);
 		input = openInputStream(pathOfThePictureToLoad);
 		Bitmap bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
+		Bitmap orientedBitmap = ExifUtil.rotateBitmap(pathOfThePictureToLoad.getPath(), bitmap);
 		closeInputStream(input);
-		return bitmap;
+		return orientedBitmap;
 	}
 
 	/**
