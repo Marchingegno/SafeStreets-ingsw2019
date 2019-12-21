@@ -9,9 +9,6 @@ try {
 const vision = require('@google-cloud/vision');
 
 // Global variables
-const db = admin.firestore();
-const storage = admin.storage();
-const bucket = storage.bucket();
 const client = new vision.ImageAnnotatorClient();
 
 // Constant properties
@@ -19,11 +16,19 @@ const MINIMUM_SCORE = 0.5;
 const DEBUG_LABELS = true;
 
 /**
- * Triggers when a new violation report is added.
+ * Triggers when a new violation report is created.
+ * The changes made by this function may trigger the groupingMS.
  */
 exports.approvingMS = functions.firestore.document('/violationReports/{reportId}').onCreate(async (snap, context) => {
     console.log(`approvingMS started.`);
 
+    await doApproving(snap);
+
+    console.log(`approvingMS ended.`);
+    return null;
+});
+
+async function doApproving(snap) {
     // Get uris of pictures in the violation report.
     const picturesUris = await getPicturesUrisOfReport(snap);
 
@@ -39,10 +44,7 @@ exports.approvingMS = functions.firestore.document('/violationReports/{reportId}
         await snap.ref.update("reportStatus", "REJECTED");
         await snap.ref.update("statusMotivation", "No vehicles have been found in the pictures.");
     }
-
-    console.log(`approvingMS ended.`);
-    return null;
-});
+}
 
 function getPicturesUrisOfReport(snap) {
     // Get array of pictures in the violation report object.
@@ -62,7 +64,6 @@ async function isAVehiclePresentInOneOfThePictures(picturesUris) {
         // suppressed the warning since we should do sequentially these awaits for avoiding useless calls to Vision API (that cost money)
         // eslint-disable-next-line no-await-in-loop
         const booleanResult = await isAVehiclePresentInPicture(picturesUris[i]);
-        console.log(booleanResult);
         if(booleanResult) {
             return true;
         }
