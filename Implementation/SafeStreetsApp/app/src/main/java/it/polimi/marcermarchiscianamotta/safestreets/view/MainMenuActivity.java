@@ -81,6 +81,11 @@ public class MainMenuActivity extends AppCompatActivity {
         startActivity(SafeStreetsDataActivity.createIntent(v.getContext()));
     }
 
+    @OnClick(R.id.signed_in_my_reports)
+    public void onClickMyReports(View v) {
+        startActivity(SafeStreetsDataActivity.createIntent(v.getContext()));
+    }
+
     @OnClick(R.id.signed_in_sign_out)
     public void onClickSignOut(View v) {
         AuthenticationManager.signOut(this, task -> {

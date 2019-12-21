@@ -47,6 +47,15 @@
             android:text="See Violations" />
 
         <Button
+            android:id="@+id/signed_in_my_reports"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="16dp"
+            android:text="My reports" />
+
+        <Button
             android:id="@+id/signed_in_sign_out"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
