@@ -7,16 +7,16 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReport;
-import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.AuthenticationManager;
-import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.DatabaseConnection;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 import it.polimi.marcermarchiscianamotta.safestreets.util.ImageRecognition;
-import it.polimi.marcermarchiscianamotta.safestreets.util.ImageRecognitionUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.ImageRecognitionUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.MapUser;
 import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
-import it.polimi.marcermarchiscianamotta.safestreets.util.MapUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.AuthenticationManager;
+import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.DatabaseConnection;
 import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.StorageConnection;
-import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.view.ReportViolationActivity;
 
 /**
@@ -117,21 +117,40 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	}
 
 	/**
-	 * Returns the maximum number of photos that can be taken.
+	 * Returns the maximum number of pictures that can be taken.
 	 *
-	 * @return the maximum number of photos that can be taken.
+	 * @return the maximum number of pictures that can be taken.
 	 */
-	public int getMaxNumOfPhotos() {
+	public int getMaxNumOfPictures() {
 		return MAX_NUM_OF_PHOTOS;
 	}
 
 	/**
-	 * Returns the current number of photos taken.
+	 * Returns the current number of pictures taken.
 	 *
-	 * @return the current number of photos taken.
+	 * @return the current number of pictures taken.
 	 */
-	public int numberOfPhotos() {
+	public int numberOfPictures() {
 		return report.getPictures().size();
+	}
+
+	/**
+	 * Returns the picture's path in the specified position.
+	 *
+	 * @param index index of the picture.
+	 * @return the picture's path in the specified position.
+	 */
+	public Uri getPicture(int index) {
+		return report.getPicture(index);
+	}
+
+	/**
+	 * Removes the picture at the specified index.
+	 *
+	 * @param index index of the picture to remove.
+	 */
+	public void removePicture(int index) {
+		report.removePhoto(index);
 	}
 
 	/**

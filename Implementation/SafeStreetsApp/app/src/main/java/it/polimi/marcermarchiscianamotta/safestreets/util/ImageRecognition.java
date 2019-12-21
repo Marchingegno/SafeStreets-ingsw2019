@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.ImageRecognitionUser;
+
 /**
  * Handles the image recognition.
  */

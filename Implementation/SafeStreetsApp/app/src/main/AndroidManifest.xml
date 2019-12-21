@@ -9,19 +9,20 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <uses-feature android:name="android.hardware.camera2.full"/>
+	<uses-feature android:name="android.hardware.camera2.full" />
 
     <application
         android:name="androidx.multidex.MultiDexApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+		android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
-        android:requestLegacyExternalStorage="true"
         tools:targetApi="q">
+        <activity android:name=".view.PictureActivity" />
 
         <meta-data
             android:name="com.google.android.gms.version"
