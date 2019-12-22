@@ -3,10 +3,12 @@ package it.polimi.marcermarchiscianamotta.safestreets.controller;
 import android.net.Uri;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.util.List;
 
+import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReport;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
@@ -217,15 +219,18 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	 * Uploads the photos to the Cloud Storage.
 	 */
 	private void uploadPhotosToCloudStorage() {
-		Toast.makeText(reportViolationActivity, "Uploading photos...", Toast.LENGTH_SHORT).show();
+		((ProgressBar) rootView.findViewById(R.id.uploading_progress_bar)).setMax(numberOfPictures());
 
+		Log.d(TAG, "Uploading photos...");
+
+		reportViolationActivity.onPictureUploaded(0, numberOfPictures());
 		//In picturesIDOnServer are saved the identifiers of the pictures on the cloud storage so that they can bi linked by the report.
 		picturesIDOnServer = StorageConnection.uploadPicturesToCloudStorage(report.getPictures(), reportViolationActivity,
 				//Called each time a photo has been uploaded correctly
 				taskSnapshot -> {
 					checkIfAllUploadsEnded();
-					String toastText = "Image " + numberOfUploadedPhotos + "/" + ((picturesIDOnServer != null) ? picturesIDOnServer.size() : "?") + " uploaded successfully";
-					Toast.makeText(reportViolationActivity, toastText, Toast.LENGTH_SHORT).show();
+					Log.d(TAG, "Uploaded " + numberOfUploadedPhotos + " out of " + numberOfPictures());
+					reportViolationActivity.onPictureUploaded(numberOfUploadedPhotos, numberOfPictures());//TODO create interface
 				},
 				//Called if the upload throws an exception
 				e -> {

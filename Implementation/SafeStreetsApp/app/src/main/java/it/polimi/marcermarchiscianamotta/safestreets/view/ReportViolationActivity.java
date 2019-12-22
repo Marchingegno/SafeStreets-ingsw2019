@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -90,6 +91,12 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 
 	@BindView(R.id.plate_text_view)
 	EditText plateEditText;
+
+	@BindView(R.id.uploading_text_view)
+	TextView uploadingTextView;
+
+	@BindView(R.id.uploading_progress_bar)
+	ProgressBar uploadingProgressBar;
 
 	@BindView(R.id.photo_linear_layout)
 	LinearLayout pictureLinearLayout;
@@ -206,6 +213,11 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		}
 	}
 
+	public void onPictureUploaded(int pictureUploaded, int totalNumberOfPicture) {
+		uploadingProgressBar.setProgress(pictureUploaded);
+		uploadingTextView.setText("Uploaded " + pictureUploaded + " out of" + totalNumberOfPicture);
+	}
+
 	@Override
 	public void onPictureSaved(Uri thumbnailCreated) {
 		ImageView imageView = createImageView(thumbnailCreated);
@@ -299,8 +311,13 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 
 	@OnClick(R.id.report_violation_floating_send_button)
 	public void onClickSendViolation(View v) {
-		if (reportViolationManager.isReadyToSend())
+		reportViolationManager.setPlate(plateEditText.getText().toString());
+		if (reportViolationManager.isReadyToSend()) {
+			findViewById(R.id.scroll_view).setVisibility(View.GONE);
+			findViewById(R.id.uploading_panel).setVisibility(View.VISIBLE);
+			findViewById(R.id.report_violation_floating_send_button).setVisibility(View.GONE);
 			reportViolationManager.sendViolationReport(descriptionText.getText().toString());
+		}
 		else
 			GeneralUtils.showSnackbar(rootView, "Before reporting, please complete all mandatory fields.");
 	}
