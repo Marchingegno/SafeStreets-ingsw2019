@@ -48,6 +48,9 @@
         <activity
             android:name=".view.SafeStreetsDataActivity"
             android:label="Violations on the territory" />
+        <activity
+            android:name=".view.MyReportsActivity"
+            android:label="My reports" />
     </application>
 
 </manifest>
