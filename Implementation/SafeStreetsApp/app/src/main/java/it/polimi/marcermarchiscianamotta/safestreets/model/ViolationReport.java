@@ -78,7 +78,7 @@ public class ViolationReport {
 
 	public void setLicensePlate(String licensePlate) {
 		this.licensePlate = licensePlate;
-		Log.d(TAG, "license plate: " + licensePlate);
+		Log.d(TAG, "License plate set to: " + licensePlate);
 	}
 
 	public List<Uri> getPictures() {

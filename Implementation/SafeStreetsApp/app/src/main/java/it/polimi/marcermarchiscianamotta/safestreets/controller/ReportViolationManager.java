@@ -154,6 +154,21 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	}
 
 	/**
+	 * Sets the license plate number to the specified one.
+	 *
+	 * @param plate license plate number to set.
+	 */
+	public boolean setPlate(String plate) {
+		boolean changed = false;
+		if (plate.matches("[A-Z][A-Z][0-9][0-9][0-9][A-Z][A-Z]")) {
+			changed = true;
+			report.setLicensePlate(plate);
+		} else
+			GeneralUtils.showSnackbar(rootView, "Please insert a valid licence plate format.");
+		return changed;
+	}
+
+	/**
 	 * If the text recognition process has found a license plate, the report is updated with this new information.
 	 * Moreover the view is updated to show the plate found.
 	 *

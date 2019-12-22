@@ -19,14 +19,15 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -72,7 +73,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	@BindView(R.id.municipality_text_view)
 	TextView municipalityTextView;
 
-	@BindView(R.id.plate_text_view)
+	@BindView(R.id.plate_text)
 	TextView plateTextView;
 
 	@BindView(R.id.report_violation_root)
@@ -86,6 +87,9 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 
 	@BindView(R.id.report_violation_spinner)
 	Spinner violationTypeSpinner;
+
+	@BindView(R.id.plate_text_view)
+	EditText plateEditText;
 
 	@BindView(R.id.photo_linear_layout)
 	LinearLayout pictureLinearLayout;
@@ -121,6 +125,13 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		ArrayAdapter<ViolationEnum> langAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ViolationEnum.values());
 		langAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		violationTypeSpinner.setAdapter(langAdapter);
+
+		plateEditText.setOnClickListener(v -> {
+			boolean plateChanged;
+			plateChanged = reportViolationManager.setPlate(((EditText) v).getText().toString());
+			if (plateChanged)
+				v.clearFocus();
+		});
 
 		//Ask permissions
 		if (!EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -295,7 +306,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	}
 
 	public void setPlateText(String plate) {
-		plateTextView.setText("License plate: " + plate);
+		plateEditText.setTextColor(getResources().getColor(R.color.black));
+		plateEditText.setText(plate);
 	}
 
 	public void setMunicipalityText(String municipality) {
