@@ -239,13 +239,13 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	private void insertViolationReportInDatabase() {
 		// Upload object to database.
 		DatabaseConnection.uploadViolationReport(report.getReportRepresentation(), reportViolationActivity,
-				//On success
-				input -> {
+				// On success.
+				voidObj -> {
 					GeneralUtils.showSnackbar(rootView, "Violation report sent successfully!");
 					//Close the reporting activity
 					reportViolationActivity.finish();
 				},
-				//On exception
+				// On failure.
 				e -> {
 					GeneralUtils.showSnackbar(rootView, "Failed to send the violation report. Please try again.");
 					Log.e(TAG, "Failed to write message", e);

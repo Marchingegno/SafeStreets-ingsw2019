@@ -30,6 +30,10 @@ public class ViolationReportRepresentation {
 	private ReportStatusEnum reportStatus = ReportStatusEnum.SUBMITTED;
 	private String statusMotivation = null;
 
+	public ViolationReportRepresentation() {
+		// Needed for deserializing the object
+	}
+
 	public ViolationReportRepresentation(ViolationReport report) {
 		if (report.isReadyToSend()) {
 			this.userUid = report.getUserUid();

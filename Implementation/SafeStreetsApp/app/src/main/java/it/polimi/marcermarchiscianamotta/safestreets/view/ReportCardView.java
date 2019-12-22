@@ -1,0 +1,45 @@
+package it.polimi.marcermarchiscianamotta.safestreets.view;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import java.util.Date;
+
+import androidx.annotation.Nullable;
+import it.polimi.marcermarchiscianamotta.safestreets.R;
+import it.polimi.marcermarchiscianamotta.safestreets.model.ReportStatusEnum;
+import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
+
+public class ReportCardView {
+
+	private Context context;
+	private View parentView;
+
+	public ReportCardView(Context context, LayoutInflater layoutInflater, Date timestamp, String municipality, ReportStatusEnum status, @Nullable String statusMotivation) {
+		this.context = context;
+
+		// Create card.
+		parentView = layoutInflater.inflate(R.layout.view_card_report, null); // this fixes the "Calling startActivity() from outside of an Activity context requires the FLAG_ACTIVITY_NEW_TASK flag" error when clicking links
+
+		// Set card content.
+		((TextView) parentView.findViewById(R.id.card_report_timestamp)).setText("🗓 " + timestamp.toLocaleString());
+		((TextView) parentView.findViewById(R.id.card_report_municipality)).setText("📍 " + municipality);
+		((TextView) parentView.findViewById(R.id.card_report_status)).setText("Status: " + status.toString());
+		if(statusMotivation != null)
+			((TextView) parentView.findViewById(R.id.card_report_status_motivation)).setText("Motivation: " + statusMotivation);
+		else
+			parentView.findViewById(R.id.card_report_status_motivation).setVisibility(View.GONE);
+	}
+
+	public View getParentView() {
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+		params.setMargins(context.getResources().getDimensionPixelSize(R.dimen.card_margin_horizontal), context.getResources().getDimensionPixelSize(R.dimen.card_margin_horizontal), context.getResources().getDimensionPixelSize(R.dimen.card_margin_horizontal), context.getResources().getDimensionPixelSize(R.dimen.card_margin_horizontal) + GeneralUtils.convertDpToPixel(2, context));
+		parentView.setLayoutParams(params);
+		return parentView;
+	}
+
+}
