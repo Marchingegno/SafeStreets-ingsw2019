@@ -7,7 +7,7 @@ service cloud.firestore {
         // Allows only creation of new violation reports, doesn't allow updating and deleting.
         match /violationReports/{violationReportId} {
             allow read; // TODO normal users shouldn't be able to read license plates
-            allow create;
+            allow create: if isOwnerFieldCorrect();
         }
 
         // User documents
@@ -40,6 +40,11 @@ service cloud.firestore {
 
 function prefix() {
     return /databases/{db}/documents;
+}
+
+// Returns true iff the document that is currently created or modified has the userUid field that corresponds to the user.
+function isOwnerFieldCorrect() {
+    return request.auth.uid == request.resource.data.userUid;
 }
 
 // Returns true if the user is the owner of the file.
