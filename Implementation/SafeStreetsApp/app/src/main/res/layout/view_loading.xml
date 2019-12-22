@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         tools:ignore="HardcodedText" />
 
-    <it.polimi.marcermarchiscianamotta.safestreets.view.loadingview.ShapeLoadingView
+    <it.polimi.marcermarchiscianamotta.safestreets.external.loadingview.ShapeLoadingView
         android:id="@+id/shapeLoadingView"
         android:layout_width="27dp"
         android:layout_marginTop="2dp"

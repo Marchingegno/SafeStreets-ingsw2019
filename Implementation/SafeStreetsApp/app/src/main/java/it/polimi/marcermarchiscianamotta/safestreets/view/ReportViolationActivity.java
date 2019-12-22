@@ -19,15 +19,14 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -35,10 +34,10 @@ import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.ReportViolationManager;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadUser;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.SaveUser;
 import it.polimi.marcermarchiscianamotta.safestreets.util.LoadPictureTask;
 import it.polimi.marcermarchiscianamotta.safestreets.util.SavePictureTask;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.SaveUser;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 

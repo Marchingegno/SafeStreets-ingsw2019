@@ -3,14 +3,13 @@ package it.polimi.marcermarchiscianamotta.safestreets.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.InputStream;
 
+import it.polimi.marcermarchiscianamotta.safestreets.external.ExifUtil;
 import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadUser;
 
 /**

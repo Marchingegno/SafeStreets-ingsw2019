@@ -32,7 +32,7 @@
             android:visibility="gone" />
 
 
-        <it.polimi.marcermarchiscianamotta.safestreets.view.loadingview.LoadingView
+        <it.polimi.marcermarchiscianamotta.safestreets.external.loadingview.LoadingView
             android:id="@+id/my_reports_loading_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
