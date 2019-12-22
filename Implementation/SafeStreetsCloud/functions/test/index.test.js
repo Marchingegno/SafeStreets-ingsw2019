@@ -24,16 +24,18 @@ describe('Cloud Functions Tests', () => {
 
     let groupingMS;
     let clusteringMS;
+    let onReportStatusChange;
     before(() => {
         groupingMS = require('../groupingMS');
         clusteringMS = require('../clusteringMS');
+        onReportStatusChange = require('../onReportStatusChangeMS');
 
-        // Reset the database.
+        // Reset the database before any test is started so any test starts clean.
         return getPromiseOfDatabaseResetting();
     });
 
     afterEach(() => {
-        // Reset the database.
+        // Reset the database after each test so any test starts clean.
         return getPromiseOfDatabaseResetting();
     });
 
@@ -135,6 +137,68 @@ describe('Cloud Functions Tests', () => {
         });
 
 
+        it('Passes two consecutive changes of an approved report but in very different locations, should create two new groups.', () => {
+            // Create fictional data to pass to the function.
+            const violationReportBefore1 = createExampleViolationReport();
+            const violationReportAfter1 = createExampleViolationReport();
+            violationReportAfter1.reportStatus = "APPROVED";
+            const beforeSnap1 = test.firestore.makeDocumentSnapshot(violationReportBefore1, 'violationReports/test-violation-1');
+            const afterSnap1 = test.firestore.makeDocumentSnapshot(violationReportAfter1, 'violationReports/test-violation-1');
+            const change1 = test.makeChange(beforeSnap1, afterSnap1);
+            const violationReportBefore2 = createExampleViolationReport();
+            const violationReportAfter2 = createExampleViolationReport();
+            violationReportAfter2.reportStatus = "APPROVED";
+            violationReportBefore2.longitude += 1.0;
+            violationReportAfter2.longitude += 1.0;
+            const beforeSnap2 = test.firestore.makeDocumentSnapshot(violationReportBefore2, 'violationReports/test-violation-2');
+            const afterSnap2 = test.firestore.makeDocumentSnapshot(violationReportAfter2, 'violationReports/test-violation-2');
+            const change2 = test.makeChange(beforeSnap2, afterSnap2);
+
+            // Wrap the function.
+            const wrapped = test.wrap(groupingMS.groupingMS);
+
+            // Launch function and check its changes.
+            return wrapped(change1).then(() => {
+                return wrapped(change2).then(() => {
+                    return db.collection("municipalities").doc("testMunicip").collection("groups").where("licensePlate", "==", violationReportAfter1.licensePlate).get().then(querySnapshot => {
+                        return assert.equal(querySnapshot.docs.length, 2);
+                    });
+                });
+            });
+        });
+
+
+        it('Passes two consecutive changes of an approved report but with very different dates, should create two new groups.', () => {
+            // Create fictional data to pass to the function.
+            const violationReportBefore1 = createExampleViolationReport();
+            const violationReportAfter1 = createExampleViolationReport();
+            violationReportAfter1.reportStatus = "APPROVED";
+            const beforeSnap1 = test.firestore.makeDocumentSnapshot(violationReportBefore1, 'violationReports/test-violation-1');
+            const afterSnap1 = test.firestore.makeDocumentSnapshot(violationReportAfter1, 'violationReports/test-violation-1');
+            const change1 = test.makeChange(beforeSnap1, afterSnap1);
+            const violationReportBefore2 = createExampleViolationReport();
+            const violationReportAfter2 = createExampleViolationReport();
+            violationReportAfter2.reportStatus = "APPROVED";
+            violationReportBefore2.uploadTimestamp = new Date('December 19, 2029 04:51:00');
+            violationReportAfter2.uploadTimestamp = new Date('December 19, 2029 04:51:00');
+            const beforeSnap2 = test.firestore.makeDocumentSnapshot(violationReportBefore2, 'violationReports/test-violation-2');
+            const afterSnap2 = test.firestore.makeDocumentSnapshot(violationReportAfter2, 'violationReports/test-violation-2');
+            const change2 = test.makeChange(beforeSnap2, afterSnap2);
+
+            // Wrap the function.
+            const wrapped = test.wrap(groupingMS.groupingMS);
+
+            // Launch function and check its changes.
+            return wrapped(change1).then(() => {
+                return wrapped(change2).then(() => {
+                    return db.collection("municipalities").doc("testMunicip").collection("groups").where("licensePlate", "==", violationReportAfter1.licensePlate).get().then(querySnapshot => {
+                        return assert.equal(querySnapshot.docs.length, 2);
+                    });
+                });
+            });
+        });
+
+
         it('Passes two consecutive changes of an approved report (but with earlier date), should create a new group and then add report to it.', () => {
             // Create fictional data to pass to the function.
             const violationReportBefore1 = createExampleViolationReport();
@@ -201,7 +265,7 @@ describe('Cloud Functions Tests', () => {
         });
 
 
-        it('Passes two consecutive changes of an approved report, should create a new group and then add report to it.', () => {
+        it('Passes two consecutive new groups, should create a new cluster and then add group to it.', () => {
             // Create fictional data to pass to the function.
             const groupData1 = createExampleGroup();
             const snap1 = test.firestore.makeDocumentSnapshot(groupData1, 'municipalities/testMunicip/groups/test-group-1');
@@ -222,6 +286,28 @@ describe('Cloud Functions Tests', () => {
                             assert.equal(clusterDocSnap.data().longitude, groupData1.longitude);
                             assert.equal(clusterDocSnap.data().typeOfViolation, groupData1.typeOfViolation);
                         }
+                    });
+                });
+            });
+        });
+
+
+        it('Passes two consecutive new groups but with very different locations, should create two clusters.', () => {
+            // Create fictional data to pass to the function.
+            const groupData1 = createExampleGroup();
+            const snap1 = test.firestore.makeDocumentSnapshot(groupData1, 'municipalities/testMunicip/groups/test-group-1');
+            const groupData2 = createExampleGroup();
+            groupData2.longitude += 1.0;
+            const snap2 = test.firestore.makeDocumentSnapshot(groupData2, 'municipalities/testMunicip/groups/test-group-2');
+
+            // Wrap the function.
+            const wrapped = test.wrap(clusteringMS.clusteringMS);
+
+            // Launch function and check its changes.
+            return wrapped(snap1, {params: {municipality: "testMunicip"}}).then(() => {
+                return wrapped(snap2, {params: {municipality: "testMunicip"}}).then(() => {
+                    return db.collection("municipalities").doc("testMunicip").collection("clusters").get().then(querySnapshot => {
+                        assert.equal(querySnapshot.docs.length, 2);
                     });
                 });
             });
@@ -283,7 +369,7 @@ describe('Cloud Functions Tests', () => {
         it('Passes new report and stubs image recognition methods without any vehicle in them, should reject the report.', () => {
             // Create fictional data to pass to the function.
             const violationReport = createExampleViolationReport();
-            violationReport.pictures[1] = "other-thing";
+            violationReport.pictures = ["other-thing-1", "other-thing-2"];
             const snap = test.firestore.makeDocumentSnapshot(violationReport, 'violationReports/test-violation-1');
 
             // Wrap the function.
@@ -296,6 +382,71 @@ describe('Cloud Functions Tests', () => {
                         assert.equal(querySnapshot.docs.length, 1);
                         for (let reportDocSnap of querySnapshot.docs) {
                             assert.equal(reportDocSnap.data().reportStatus, "REJECTED");
+                        }
+                    });
+                });
+            });
+        });
+
+    });
+
+
+    describe('onReportStatusChangeMS', () => {
+
+        it('Passes a group change where the group is considered correct, should update the status of all its reports.', () => {
+            // Create fictional data to pass to the function.
+            const violationReport1 = createExampleViolationReport();
+            const violationReport2 = createExampleViolationReportThatShouldGroup(new Date('December 19, 2019 06:51:00'));
+            const promisesOfReportsCreation = [];
+            promisesOfReportsCreation.push(db.collection("violationReports").doc("test-violation-1").create(violationReport1));
+            promisesOfReportsCreation.push(db.collection("violationReports").doc("test-violation-2").create(violationReport2));
+            const groupBefore = createExampleGroup();
+            const groupAfter = createExampleGroup();
+            groupAfter.groupStatus = "CORRECT";
+            const beforeSnap = test.firestore.makeDocumentSnapshot(groupBefore, 'municipalities/testMunicip/groups/test-group-1');
+            const afterSnap = test.firestore.makeDocumentSnapshot(groupAfter, 'municipalities/testMunicip/groups/test-group-1');
+            const change = test.makeChange(beforeSnap, afterSnap);
+
+            // Wrap the function.
+            const wrapped = test.wrap(onReportStatusChange.onReportStatusChangeMS);
+
+            // Launch function and check its changes.
+            return Promise.all(promisesOfReportsCreation).then(() => {
+                return wrapped(change).then(() => {
+                    return db.collection("violationReports").where("licensePlate", "==", violationReport1.licensePlate).get().then(querySnapshot => {
+                        assert.equal(querySnapshot.docs.length, 2);
+                        for (let reportDocSnap of querySnapshot.docs) {
+                            assert.equal(reportDocSnap.data().reportStatus, groupAfter.groupStatus);
+                        }
+                    });
+                });
+            });
+        });
+
+        it('Passes a change that is not a municipality status change, should not update any reports.', () => {
+            // Create fictional data to pass to the function.
+            const violationReport1 = createExampleViolationReport();
+            const violationReport2 = createExampleViolationReportThatShouldGroup(new Date('December 19, 2019 06:51:00'));
+            const promisesOfReportsCreation = [];
+            promisesOfReportsCreation.push(db.collection("violationReports").doc("test-violation-1").create(violationReport1));
+            promisesOfReportsCreation.push(db.collection("violationReports").doc("test-violation-2").create(violationReport2));
+            const groupBefore = createExampleGroup();
+            const groupAfter = createExampleGroup();
+            groupAfter.firstTimestamp = new Date('December 19, 2019 02:51:00');
+            const beforeSnap = test.firestore.makeDocumentSnapshot(groupBefore, 'municipalities/testMunicip/groups/test-group-1');
+            const afterSnap = test.firestore.makeDocumentSnapshot(groupAfter, 'municipalities/testMunicip/groups/test-group-1');
+            const change = test.makeChange(beforeSnap, afterSnap);
+
+            // Wrap the function.
+            const wrapped = test.wrap(onReportStatusChange.onReportStatusChangeMS);
+
+            // Launch function and check its changes.
+            return Promise.all(promisesOfReportsCreation).then(() => {
+                return wrapped(change).then(() => {
+                    return db.collection("violationReports").where("licensePlate", "==", violationReport1.licensePlate).get().then(querySnapshot => {
+                        assert.equal(querySnapshot.docs.length, 2);
+                        for (let reportDocSnap of querySnapshot.docs) {
+                            assert.equal(reportDocSnap.data().reportStatus, violationReport1.reportStatus);
                         }
                     });
                 });
@@ -317,7 +468,7 @@ function createExampleGroup() {
         latitude: 1.0,
         licensePlate: "TE333ST",
         longitude: 1.0,
-        reports: ["test-violation-1", "test_violation-2"],
+        reports: ["test-violation-1", "test-violation-2"],
         typeOfViolation: "DOUBLE_PARKING"
     };
 }
@@ -331,7 +482,7 @@ function createExampleGroupThatShouldCluster() {
 //endregion
 
 
-//region Methods for groupingMS adn approvingMS testing.
+//region Methods for groupingMS and approvingMS testing.
 //================================================================================
 function createExampleViolationReport() {
     return {
