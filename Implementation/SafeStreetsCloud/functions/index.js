@@ -38,16 +38,3 @@ if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'onReportStatusC
 /*if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'municipalityDataRetrieverMS') {
   exports.municipalityDataRetrieverMS = require('./municipalityDataRetrieverMS').municipalityDataRetrieverMS;
 }*/
-
-
-
-
-
-// TODO delete
-
-/**
- * Triggers when a new violation report is added.
- */
-/*if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'checkViolationReports') {
-  exports.checkViolationReports = require('./checkViolationReports').checkViolationReportsTrigger;
-}*/
