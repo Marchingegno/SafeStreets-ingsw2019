@@ -6,7 +6,7 @@ service cloud.firestore {
         // Allows reading
         // Allows only creation of new violation reports, doesn't allow updating and deleting.
         match /violationReports/{violationReportId} {
-            allow read; // TODO normal users shouldn't be able to read license plates
+            allow read; // TODO normal users shouldn't be able to read license plates (and maybe also not userUids)
             allow create: if isOwnerFieldCorrect();
         }
 
