@@ -26,9 +26,9 @@ describe('Cloud Functions Tests', () => {
     let clusteringMS;
     let onReportStatusChange;
     before(() => {
-        groupingMS = require('../groupingMS');
-        clusteringMS = require('../clusteringMS');
-        onReportStatusChange = require('../onReportStatusChangeMS');
+        groupingMS = require('../main/groupingMS');
+        clusteringMS = require('../main/clusteringMS');
+        onReportStatusChange = require('../main/onReportStatusChangeMS');
 
         // Reset the database before any test is started so any test starts clean.
         return getPromiseOfDatabaseResetting();
@@ -334,7 +334,7 @@ describe('Cloud Functions Tests', () => {
                 else
                      return negativeResultStub;
             }});
-            approvingMS = require('../approvingMS');
+            approvingMS = require('../main/approvingMS');
         });
 
 

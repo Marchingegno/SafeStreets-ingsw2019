@@ -1,7 +1,7 @@
 'use strict';
 
 // Dependencies
-const generalUtils = require('./utils/generalUtils');
+const generalUtils = require('../utils/generalUtils');
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 try {
