@@ -1,3 +1,4 @@
+/* eslint-disable promise/no-nesting */
 'use strict';
 
 // Dependencies
@@ -73,6 +74,7 @@ describe('Cloud Functions Tests', () => {
                         assert.deepEqual(groupDocSnap.data().reports, ["test-violation-1"]);
                         assert.equal(groupDocSnap.data().typeOfViolation, violationReportAfter.typeOfViolation);
                     }
+                    return null;
                 });
             });
         });
@@ -132,6 +134,7 @@ describe('Cloud Functions Tests', () => {
                             assert.deepEqual(groupDocSnap.data().reports, ["test-violation-1", "test-violation-2"]);
                             assert.equal(groupDocSnap.data().typeOfViolation, violationReportAfter1.typeOfViolation);
                         }
+                        return null;
                     });
                 });
             });
@@ -233,6 +236,7 @@ describe('Cloud Functions Tests', () => {
                             assert.deepEqual(groupDocSnap.data().reports, ["test-violation-1", "test-violation-2"]);
                             assert.equal(groupDocSnap.data().typeOfViolation, violationReportAfter1.typeOfViolation);
                         }
+                        return null;
                     });
                 });
             });
@@ -261,6 +265,7 @@ describe('Cloud Functions Tests', () => {
                         assert.equal(clusterDocSnap.data().longitude, groupData.longitude);
                         assert.equal(clusterDocSnap.data().typeOfViolation, groupData.typeOfViolation);
                     }
+                    return null;
                 });
             });
         });
@@ -287,6 +292,7 @@ describe('Cloud Functions Tests', () => {
                             assert.equal(clusterDocSnap.data().longitude, groupData1.longitude);
                             assert.equal(clusterDocSnap.data().typeOfViolation, groupData1.typeOfViolation);
                         }
+                        return null;
                     });
                 });
             });
@@ -309,6 +315,7 @@ describe('Cloud Functions Tests', () => {
                 return wrapped(snap2, {params: {municipality: "testMunicip"}}).then(() => {
                     return db.collection("municipalities").doc("testMunicip").collection("clusters").get().then(querySnapshot => {
                         assert.equal(querySnapshot.docs.length, 2);
+                        return null;
                     });
                 });
             });
@@ -361,6 +368,7 @@ describe('Cloud Functions Tests', () => {
                         for (let reportDocSnap of querySnapshot.docs) {
                             assert.equal(reportDocSnap.data().reportStatus, model.ReportStatusEnum.APPROVED);
                         }
+                        return null;
                     });
                 });
             });
@@ -384,6 +392,7 @@ describe('Cloud Functions Tests', () => {
                         for (let reportDocSnap of querySnapshot.docs) {
                             assert.equal(reportDocSnap.data().reportStatus, model.ReportStatusEnum.REJECTED);
                         }
+                        return null;
                     });
                 });
             });
@@ -419,6 +428,7 @@ describe('Cloud Functions Tests', () => {
                         for (let reportDocSnap of querySnapshot.docs) {
                             assert.equal(reportDocSnap.data().reportStatus, groupAfter.groupStatus);
                         }
+                        return null;
                     });
                 });
             });
@@ -449,6 +459,7 @@ describe('Cloud Functions Tests', () => {
                         for (let reportDocSnap of querySnapshot.docs) {
                             assert.equal(reportDocSnap.data().reportStatus, violationReport1.reportStatus);
                         }
+                        return null;
                     });
                 });
             });
