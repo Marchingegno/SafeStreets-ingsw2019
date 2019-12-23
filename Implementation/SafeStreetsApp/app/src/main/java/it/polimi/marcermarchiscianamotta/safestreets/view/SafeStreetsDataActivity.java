@@ -1,8 +1,10 @@
 package it.polimi.marcermarchiscianamotta.safestreets.view;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -15,25 +17,45 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.RetrieveViolationsManager;
+import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
 
-public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapReadyCallback, EasyPermissions.PermissionCallbacks {
 
 	private static final String TAG = "SafeStreetsDataActivity";
+
+	private static final float DEFAULT_ZOOM = 20.0f;//TODO check zoom
+	private static final float DEFAULT_LATITUDE = 45.478130f;//TODO check zoom
+	private static final float DEFAULT_LONGITUDE = 9.225788f;//TODO check zoom
+
+	private static final int RC_LOCATION_PERMS = 301;
+
+	private static final String LOCATION_PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
+
+	private GoogleMap mMap = null;
+
+	private Location lastKnownLocation;
+	private LatLng defaultLocation = new LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE);
 
 	DatePickerDialog picker;
 	long startDate = 0;
 	long endDate = 0;
+
 	@BindView(R.id.start_date_view)
 	TextView startDateTextView;
 	@BindView(R.id.end_date_view)
@@ -66,16 +88,42 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.map);
 		mapFragment.getMapAsync(this);
+
+		if (!EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+			EasyPermissions.requestPermissions(this, "Location permission", RC_LOCATION_PERMS, LOCATION_PERMS);
+		}
 	}
 
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
-		// Add a marker in Sydney, Australia,
-		// and move the map's camera to the same location.
-		LatLng sydney = new LatLng(-33.852, 151.211);
-		googleMap.addMarker(new MarkerOptions().position(sydney)
-				.title("Marker in Sydney"));
-		googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+		mMap = googleMap;
+
+		// Do other setup activities here too, as described elsewhere in this tutorial.
+
+		// Turn on the My Location layer and the related control on the map.
+		updateLocationUI();
+
+		// Get the current location of the device and set the position of the map.
+		getDeviceLocation();
+	}
+
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+	}
+
+	@Override
+	public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+	}
+
+	@Override
+	public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+		if (EasyPermissions.somePermissionPermanentlyDenied(this, Collections.singletonList(LOCATION_PERMS))) {
+			new AppSettingsDialog.Builder(this).build().show();
+			finish();
+		}
 	}
 	//endregion
 
@@ -121,6 +169,56 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 			picker.getDatePicker().setMaxDate(calendar.getTimeInMillis());
 			picker.show();
 		});
+	}
+
+	private void getDeviceLocation() {
+		/*
+		 * Get the best and most recent location of the device, which may be null in rare
+		 * cases when a location is not available.
+		 */
+		try {
+			if (EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+				Task locationResult = MapManager.getLastLocationTask(this);
+				locationResult.addOnCompleteListener(this, new OnCompleteListener() {
+					@Override
+					public void onComplete(@NonNull Task task) {
+						if (task.isSuccessful()) {
+							// Set the map's camera position to the current location of the device.
+							lastKnownLocation = (Location) task.getResult();
+							mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+									new LatLng(lastKnownLocation.getLatitude(),
+											lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+						} else {
+							Log.d(TAG, "Current location is null. Using defaults.");
+							Log.e(TAG, "Exception: %s", task.getException());
+							mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, DEFAULT_ZOOM));
+							mMap.getUiSettings().setMyLocationButtonEnabled(false);
+						}
+					}
+				});
+			}
+		} catch (SecurityException e) {
+			Log.e("Exception: %s", e.getMessage());
+		}
+	}
+
+	private void updateLocationUI() {
+		if (mMap == null) {
+			return;
+		}
+		try {
+			if (EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+				mMap.setMyLocationEnabled(true);
+				mMap.getUiSettings().setMyLocationButtonEnabled(true);
+			} else {
+				mMap.setMyLocationEnabled(false);
+				mMap.getUiSettings().setMyLocationButtonEnabled(false);
+				lastKnownLocation = null;
+				EasyPermissions.requestPermissions(this, "Location permission", RC_LOCATION_PERMS, LOCATION_PERMS);
+			}
+		} catch (SecurityException e) {
+			Log.e("Exception: %s", e.getMessage());
+		}
 	}
 
 	private long convertDateToLong(String dateString) {

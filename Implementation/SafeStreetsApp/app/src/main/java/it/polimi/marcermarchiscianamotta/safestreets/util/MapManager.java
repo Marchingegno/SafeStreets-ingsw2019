@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
 
@@ -44,5 +45,10 @@ public class MapManager {
 					}
 				})
 				.addOnFailureListener(location -> Log.e(TAG, "Failed to retrieve the location"));
+	}
+
+	static public Task getLastLocationTask(Context context) {
+		FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
+		return fusedLocationProviderClient.getLastLocation();
 	}
 }
