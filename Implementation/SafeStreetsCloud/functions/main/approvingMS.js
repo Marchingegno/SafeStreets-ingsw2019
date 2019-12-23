@@ -1,6 +1,7 @@
 'use strict';
 
 // Dependencies
+const model = require('./model/model');
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 try {
@@ -38,10 +39,10 @@ async function doApproving(snap) {
     // Approve or reject the report.
     if(vehiclePresent) {
         console.log(`Report has been approved.`);
-        await snap.ref.update("reportStatus", "APPROVED");
+        await snap.ref.update("reportStatus", model.ReportStatusEnum.APPROVED);
     } else {
         console.log(`Report has been rejected.`);
-        await snap.ref.update("reportStatus", "REJECTED");
+        await snap.ref.update("reportStatus", model.ReportStatusEnum.REJECTED);
         await snap.ref.update("statusMotivation", "No vehicles have been found in the pictures.");
     }
 }

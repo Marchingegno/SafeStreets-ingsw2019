@@ -1,6 +1,7 @@
 'use strict';
 
 // Dependencies
+const model = require('./model/model');
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 try {
@@ -70,12 +71,12 @@ function alsoCheckForLongitudeForQuery(querySnapshot, newLongitude) {
 
 async function createNewCluster(typeOfViolation, latitude, longitude, groupId, municipality) {
     // Create cluster data.
-    const newCluster = {
-        typeOfViolation: typeOfViolation,
-        latitude: latitude,
-        longitude: longitude,
-        groups: new Array(groupId)
-    };
+    const newCluster = model.newCluster(
+        new Array(groupId),
+        latitude,
+        longitude,
+        typeOfViolation
+    );
 
     // Add cluster to database in path: /municipalities/{municipality}/clusters/{cluster}
     await db.collection("municipalities").doc(municipality).collection("clusters").add(newCluster);

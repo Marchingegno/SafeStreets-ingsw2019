@@ -1,6 +1,7 @@
 'use strict';
 
 // Dependencies
+const model = require('./model/model');
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 try {
@@ -26,7 +27,7 @@ async function doStatusChangeIfItIsAStatusChange(change) {
     const groupStatusBefore = change.before.get("groupStatus");
     const groupStatusAfter = change.after.get("groupStatus");
 
-    if(groupStatusBefore === "APPROVED" && (groupStatusAfter === "CORRECT" || groupStatusAfter === "REJECTED")) {
+    if(groupStatusBefore === model.ReportStatusEnum.APPROVED && (groupStatusAfter === model.ReportStatusEnum.CORRECT || groupStatusAfter === model.ReportStatusEnum.REJECTED)) {
         console.log(`Recognized group status change.`);
         await doStatusChange(change.after);
     } else {

@@ -1,6 +1,7 @@
 'use strict';
 
 // Dependencies
+const model = require('../main/model/model');
 const chai = require('chai');
 const assert = chai.assert;
 const sinon = require('sinon');
@@ -50,7 +51,7 @@ describe('Cloud Functions Tests', () => {
             // Create fictional data to pass to the function.
             const violationReportBefore = createExampleViolationReport();
             const violationReportAfter = createExampleViolationReport();
-            violationReportAfter.reportStatus = "APPROVED";
+            violationReportAfter.reportStatus = model.ReportStatusEnum.APPROVED;
             const beforeSnap = test.firestore.makeDocumentSnapshot(violationReportBefore, 'violationReports/test-violation-1');
             const afterSnap = test.firestore.makeDocumentSnapshot(violationReportAfter, 'violationReports/test-violation-1');
             const change = test.makeChange(beforeSnap, afterSnap);
@@ -64,7 +65,7 @@ describe('Cloud Functions Tests', () => {
                     assert.equal(querySnapshot.docs.length, 1);
                     for (let groupDocSnap of querySnapshot.docs) {
                         assert.equal(groupDocSnap.data().firstTimestamp.toDate().getSeconds(), violationReportAfter.uploadTimestamp.getSeconds());
-                        assert.equal(groupDocSnap.data().groupStatus, "APPROVED");
+                        assert.equal(groupDocSnap.data().groupStatus, model.ReportStatusEnum.APPROVED);
                         assert.equal(groupDocSnap.data().lastTimestamp.toDate().getSeconds(), violationReportAfter.uploadTimestamp.getSeconds());
                         assert.equal(groupDocSnap.data().latitude, violationReportAfter.latitude);
                         assert.equal(groupDocSnap.data().licensePlate, violationReportAfter.licensePlate);
@@ -81,7 +82,7 @@ describe('Cloud Functions Tests', () => {
             // Create fictional data to pass to the function.
             const violationReportBefore = createExampleViolationReport();
             const violationReportAfter = createExampleViolationReport();
-            violationReportAfter.reportStatus = "REJECTED";
+            violationReportAfter.reportStatus = model.ReportStatusEnum.REJECTED;
             const beforeSnap = test.firestore.makeDocumentSnapshot(violationReportBefore, 'violationReports/test-violation-1');
             const afterSnap = test.firestore.makeDocumentSnapshot(violationReportAfter, 'violationReports/test-violation-1');
             const change = test.makeChange(beforeSnap, afterSnap);
@@ -102,13 +103,13 @@ describe('Cloud Functions Tests', () => {
             // Create fictional data to pass to the function.
             const violationReportBefore1 = createExampleViolationReport();
             const violationReportAfter1 = createExampleViolationReport();
-            violationReportAfter1.reportStatus = "APPROVED";
+            violationReportAfter1.reportStatus = model.ReportStatusEnum.APPROVED;
             const beforeSnap1 = test.firestore.makeDocumentSnapshot(violationReportBefore1, 'violationReports/test-violation-1');
             const afterSnap1 = test.firestore.makeDocumentSnapshot(violationReportAfter1, 'violationReports/test-violation-1');
             const change1 = test.makeChange(beforeSnap1, afterSnap1);
             const violationReportBefore2 = createExampleViolationReportThatShouldGroup(new Date('December 19, 2019 06:51:00'));
             const violationReportAfter2 = createExampleViolationReportThatShouldGroup(new Date('December 19, 2019 06:51:00'));
-            violationReportAfter2.reportStatus = "APPROVED";
+            violationReportAfter2.reportStatus = model.ReportStatusEnum.APPROVED;
             const beforeSnap2 = test.firestore.makeDocumentSnapshot(violationReportBefore2, 'violationReports/test-violation-2');
             const afterSnap2 = test.firestore.makeDocumentSnapshot(violationReportAfter2, 'violationReports/test-violation-2');
             const change2 = test.makeChange(beforeSnap2, afterSnap2);
@@ -123,7 +124,7 @@ describe('Cloud Functions Tests', () => {
                         assert.equal(querySnapshot.docs.length, 1);
                         for (let groupDocSnap of querySnapshot.docs) {
                             assert.equal(groupDocSnap.data().firstTimestamp.toDate().getSeconds(), violationReportAfter1.uploadTimestamp.getSeconds());
-                            assert.equal(groupDocSnap.data().groupStatus, "APPROVED");
+                            assert.equal(groupDocSnap.data().groupStatus, model.ReportStatusEnum.APPROVED);
                             assert.equal(groupDocSnap.data().lastTimestamp.toDate().getSeconds(), violationReportAfter2.uploadTimestamp.getSeconds());
                             assert.equal(groupDocSnap.data().latitude, violationReportAfter1.latitude);
                             assert.equal(groupDocSnap.data().licensePlate, violationReportAfter1.licensePlate);
@@ -141,13 +142,13 @@ describe('Cloud Functions Tests', () => {
             // Create fictional data to pass to the function.
             const violationReportBefore1 = createExampleViolationReport();
             const violationReportAfter1 = createExampleViolationReport();
-            violationReportAfter1.reportStatus = "APPROVED";
+            violationReportAfter1.reportStatus = model.ReportStatusEnum.APPROVED;
             const beforeSnap1 = test.firestore.makeDocumentSnapshot(violationReportBefore1, 'violationReports/test-violation-1');
             const afterSnap1 = test.firestore.makeDocumentSnapshot(violationReportAfter1, 'violationReports/test-violation-1');
             const change1 = test.makeChange(beforeSnap1, afterSnap1);
             const violationReportBefore2 = createExampleViolationReport();
             const violationReportAfter2 = createExampleViolationReport();
-            violationReportAfter2.reportStatus = "APPROVED";
+            violationReportAfter2.reportStatus = model.ReportStatusEnum.APPROVED;
             violationReportBefore2.longitude += 1.0;
             violationReportAfter2.longitude += 1.0;
             const beforeSnap2 = test.firestore.makeDocumentSnapshot(violationReportBefore2, 'violationReports/test-violation-2');
@@ -172,13 +173,13 @@ describe('Cloud Functions Tests', () => {
             // Create fictional data to pass to the function.
             const violationReportBefore1 = createExampleViolationReport();
             const violationReportAfter1 = createExampleViolationReport();
-            violationReportAfter1.reportStatus = "APPROVED";
+            violationReportAfter1.reportStatus = model.ReportStatusEnum.APPROVED;
             const beforeSnap1 = test.firestore.makeDocumentSnapshot(violationReportBefore1, 'violationReports/test-violation-1');
             const afterSnap1 = test.firestore.makeDocumentSnapshot(violationReportAfter1, 'violationReports/test-violation-1');
             const change1 = test.makeChange(beforeSnap1, afterSnap1);
             const violationReportBefore2 = createExampleViolationReport();
             const violationReportAfter2 = createExampleViolationReport();
-            violationReportAfter2.reportStatus = "APPROVED";
+            violationReportAfter2.reportStatus = model.ReportStatusEnum.APPROVED;
             violationReportBefore2.uploadTimestamp = new Date('December 19, 2029 04:51:00');
             violationReportAfter2.uploadTimestamp = new Date('December 19, 2029 04:51:00');
             const beforeSnap2 = test.firestore.makeDocumentSnapshot(violationReportBefore2, 'violationReports/test-violation-2');
@@ -203,13 +204,13 @@ describe('Cloud Functions Tests', () => {
             // Create fictional data to pass to the function.
             const violationReportBefore1 = createExampleViolationReport();
             const violationReportAfter1 = createExampleViolationReport();
-            violationReportAfter1.reportStatus = "APPROVED";
+            violationReportAfter1.reportStatus = model.ReportStatusEnum.APPROVED;
             const beforeSnap1 = test.firestore.makeDocumentSnapshot(violationReportBefore1, 'violationReports/test-violation-1');
             const afterSnap1 = test.firestore.makeDocumentSnapshot(violationReportAfter1, 'violationReports/test-violation-1');
             const change1 = test.makeChange(beforeSnap1, afterSnap1);
             const violationReportBefore2 = createExampleViolationReportThatShouldGroup(new Date('December 19, 2019 02:51:00'));
             const violationReportAfter2 = createExampleViolationReportThatShouldGroup(new Date('December 19, 2019 02:51:00'));
-            violationReportAfter2.reportStatus = "APPROVED";
+            violationReportAfter2.reportStatus = model.ReportStatusEnum.APPROVED;
             const beforeSnap2 = test.firestore.makeDocumentSnapshot(violationReportBefore2, 'violationReports/test-violation-2');
             const afterSnap2 = test.firestore.makeDocumentSnapshot(violationReportAfter2, 'violationReports/test-violation-2');
             const change2 = test.makeChange(beforeSnap2, afterSnap2);
@@ -224,7 +225,7 @@ describe('Cloud Functions Tests', () => {
                         assert.equal(querySnapshot.docs.length, 1);
                         for (let groupDocSnap of querySnapshot.docs) {
                             assert.equal(groupDocSnap.data().firstTimestamp.toDate().getSeconds(), violationReportAfter2.uploadTimestamp.getSeconds());
-                            assert.equal(groupDocSnap.data().groupStatus, "APPROVED");
+                            assert.equal(groupDocSnap.data().groupStatus, model.ReportStatusEnum.APPROVED);
                             assert.equal(groupDocSnap.data().lastTimestamp.toDate().getSeconds(), violationReportAfter1.uploadTimestamp.getSeconds());
                             assert.equal(groupDocSnap.data().latitude, violationReportAfter1.latitude);
                             assert.equal(groupDocSnap.data().licensePlate, violationReportAfter1.licensePlate);
@@ -358,7 +359,7 @@ describe('Cloud Functions Tests', () => {
                     return db.collection("violationReports").where("licensePlate", "==", violationReport.licensePlate).get().then(querySnapshot => {
                         assert.equal(querySnapshot.docs.length, 1);
                         for (let reportDocSnap of querySnapshot.docs) {
-                            assert.equal(reportDocSnap.data().reportStatus, "APPROVED");
+                            assert.equal(reportDocSnap.data().reportStatus, model.ReportStatusEnum.APPROVED);
                         }
                     });
                 });
@@ -381,7 +382,7 @@ describe('Cloud Functions Tests', () => {
                     return db.collection("violationReports").where("licensePlate", "==", violationReport.licensePlate).get().then(querySnapshot => {
                         assert.equal(querySnapshot.docs.length, 1);
                         for (let reportDocSnap of querySnapshot.docs) {
-                            assert.equal(reportDocSnap.data().reportStatus, "REJECTED");
+                            assert.equal(reportDocSnap.data().reportStatus, model.ReportStatusEnum.REJECTED);
                         }
                     });
                 });
@@ -402,7 +403,7 @@ describe('Cloud Functions Tests', () => {
             promisesOfReportsCreation.push(db.collection("violationReports").doc("test-violation-2").create(violationReport2));
             const groupBefore = createExampleGroup();
             const groupAfter = createExampleGroup();
-            groupAfter.groupStatus = "CORRECT";
+            groupAfter.groupStatus = model.ReportStatusEnum.CORRECT;
             const beforeSnap = test.firestore.makeDocumentSnapshot(groupBefore, 'municipalities/testMunicip/groups/test-group-1');
             const afterSnap = test.firestore.makeDocumentSnapshot(groupAfter, 'municipalities/testMunicip/groups/test-group-1');
             const change = test.makeChange(beforeSnap, afterSnap);
@@ -461,16 +462,16 @@ describe('Cloud Functions Tests', () => {
 //region Methods for clusteringMS testing.
 //================================================================================
 function createExampleGroup() {
-    return {
-        firstTimestamp: new Date('December 19, 2019 04:51:00'),
-        groupStatus: "APPROVED",
-        lastTimestamp: new Date('December 19, 2019 04:51:00'),
-        latitude: 1.0,
-        licensePlate: "TE333ST",
-        longitude: 1.0,
-        reports: ["test-violation-1", "test-violation-2"],
-        typeOfViolation: "DOUBLE_PARKING"
-    };
+    return model.newGroup(
+        new Date('December 19, 2019 04:51:00'),
+        model.ReportStatusEnum.APPROVED,
+        new Date('December 19, 2019 04:51:00'),
+        1.0,
+        "TE333ST",
+        1.0,
+        ["test-violation-1", "test-violation-2"],
+        "DOUBLE_PARKING"
+    );
 }
 
 function createExampleGroupThatShouldCluster() {
@@ -485,19 +486,19 @@ function createExampleGroupThatShouldCluster() {
 //region Methods for groupingMS and approvingMS testing.
 //================================================================================
 function createExampleViolationReport() {
-    return {
-        description: "FUNCTION_UNIT_TEST_DATA",
-        latitude: 1.0,
-        licensePlate: "TE333ST",
-        longitude: 1.0,
-        municipality: "testMunicip",
-        pictures: ["other-thing", "vehicle"],
-        reportStatus: "SUBMITTED",
-        statusMotivation: null,
-        typeOfViolation: "DOUBLE_PARKING",
-        uploadTimestamp: new Date('December 19, 2019 04:51:00'),
-        userUid: "testUser"
-    };
+    return model.newViolationReport(
+        "FUNCTION_UNIT_TEST_DATA",
+        1.0,
+        "TE333ST",
+        1.0,
+        "testMunicip",
+        ["other-thing", "vehicle"],
+        model.ReportStatusEnum.SUBMITTED,
+        null,
+        "DOUBLE_PARKING",
+        new Date('December 19, 2019 04:51:00'),
+        "testUser"
+    );
 }
 
 function createExampleViolationReportThatShouldGroup(uploadTimestamp) {

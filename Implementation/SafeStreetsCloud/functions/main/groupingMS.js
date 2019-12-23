@@ -2,6 +2,7 @@
 
 // Dependencies
 const generalUtils = require('./utils/generalUtils');
+const model = require('./model/model');
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 try {
@@ -32,7 +33,7 @@ async function doGroupingIfReportIsApproved(change) {
     const reportStatusBefore = change.before.get("reportStatus");
     const reportStatusAfter = change.after.get("reportStatus");
 
-    if(reportStatusBefore === "SUBMITTED" && reportStatusAfter === "APPROVED") {
+    if(reportStatusBefore === model.ReportStatusEnum.SUBMITTED && reportStatusAfter === model.ReportStatusEnum.APPROVED) {
         console.log(`Recognized report approval.`);
         await doGrouping(change.after);
     } else {
@@ -92,16 +93,16 @@ function alsoCheckForLongitudeAndTimestampForQuery(querySnapshot, newLongitude, 
 
 async function createNewGroup(licensePlate, typeOfViolation, uploadTimestamp, latitude, longitude, violationReportId, municipality) {
     // Create group data.
-    const newGroup = {
-        licensePlate: licensePlate,
-        typeOfViolation: typeOfViolation,
-        groupStatus: "APPROVED",
-        firstTimestamp: uploadTimestamp,
-        lastTimestamp: uploadTimestamp,
-        latitude: latitude,
-        longitude: longitude,
-        reports: new Array(violationReportId)
-    };
+    const newGroup = model.newGroup(
+        uploadTimestamp,
+        model.ReportStatusEnum.APPROVED,
+        uploadTimestamp,
+        latitude,
+        licensePlate,
+        longitude,
+        new Array(violationReportId),
+        typeOfViolation
+    );
 
     // Add group to database in path: /municipalities/{municipality}/groups/{group}
     await db.collection("municipalities").doc(municipality).collection("groups").add(newGroup);
