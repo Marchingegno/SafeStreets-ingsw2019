@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.List;
 
 import it.polimi.marcermarchiscianamotta.safestreets.R;
@@ -196,19 +198,18 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	 * Once the location has been found retrieves the municipality and updates the report.
 	 * Moreover the view is updated to show the municipality.
 	 *
-	 * @param latitude  the current latitude of the device.
-	 * @param longitude the current longitude of the device.
+	 * @param location The current location.
 	 */
 	@Override
-	public void onLocationFound(double latitude, double longitude) {
-		report.setLocation(latitude, longitude);
+	public void onLocationFound(LatLng location) {
+		report.setLocation(location);
 
-		Address address = MapManager.getMunicipalityFromLocation(reportViolationActivity.getApplicationContext(), latitude, longitude);
+		Address address = MapManager.getMunicipalityFromLocation(reportViolationActivity.getApplicationContext(), location);
 		report.setMunicipality(address.getLocality());
 
 		reportViolationActivity.setAddressText(address.getAddressLine(0));
 
-		Log.d(TAG, "Location[" + latitude + ", " + longitude + "] and Address [" + address.getAddressLine(0) + "] set.");
+		Log.d(TAG, "Location[" + location.latitude + ", " + location.longitude + "] and Address [" + address.getAddressLine(0) + "] set.");
 	}
 	//endregion
 

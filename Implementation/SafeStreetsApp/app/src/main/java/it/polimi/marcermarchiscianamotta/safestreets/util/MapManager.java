@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
@@ -22,14 +23,13 @@ public class MapManager {
 	 * Returns the name of the city accordingly to the specified coordinates.
 	 *
 	 * @param context   the context of the application.
-	 * @param latitude  the latitude of the location.
-	 * @param longitude the longitude of the location.
+	 * @param location the current location.
 	 * @return the name of the city where the location belongs.
 	 */
-	public static Address getMunicipalityFromLocation(Context context, double latitude, double longitude) {
+	public static Address getMunicipalityFromLocation(Context context, LatLng location) {
 		Address result = null;
 		try {
-			result = new Geocoder(context).getFromLocation(latitude, longitude, 1).get(0);
+			result = new Geocoder(context).getFromLocation(location.latitude, location.longitude, 1).get(0);
 		} catch (IOException e) {
 			Log.e(TAG, TAG + "failed while retrieving the municipality ", e);
 		}
@@ -41,7 +41,8 @@ public class MapManager {
 		fusedLocationProviderClient.getLastLocation()
 				.addOnSuccessListener(location -> {
 					if (location != null) {
-						caller.onLocationFound(location.getLatitude(), location.getLongitude());
+						LatLng coordinates = new LatLng(location.getLatitude(), location.getLongitude());
+						caller.onLocationFound(coordinates);
 					}
 				})
 				.addOnFailureListener(location -> Log.e(TAG, "Failed to retrieve the location"));
