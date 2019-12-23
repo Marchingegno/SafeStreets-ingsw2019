@@ -17,6 +17,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
@@ -31,7 +32,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.RetrieveViolationsManager;
+import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReportRepresentation;
 import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
+import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.DatabaseConnection;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -105,6 +108,19 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 
 		// Get the current location of the device and set the position of the map.
 		getDeviceLocation();
+
+		DatabaseConnection.getUserViolationReports(this,
+				// On success.
+				reportsResult -> {
+					for (ViolationReportRepresentation rep : reportsResult) {
+						mMap.addMarker(new MarkerOptions().position(new LatLng(rep.getLatitude(), rep.getLongitude()))
+								.title("TEST"));
+					}
+				},
+				// On failure.
+				e -> {
+					Log.e(TAG, "Failed to retrieve reports", e);
+				});
 	}
 
 
