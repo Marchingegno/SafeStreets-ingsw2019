@@ -32,7 +32,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.RetrieveViolationsManager;
-import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReportRepresentation;
+import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
+import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.DatabaseConnection;
 import pub.devrel.easypermissions.AppSettingsDialog;
@@ -108,19 +109,6 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 
 		// Get the current location of the device and set the position of the map.
 		getDeviceLocation();
-
-		DatabaseConnection.getUserViolationReports(this,
-				// On success.
-				reportsResult -> {
-					for (ViolationReportRepresentation rep : reportsResult) {
-						mMap.addMarker(new MarkerOptions().position(new LatLng(rep.getLatitude(), rep.getLongitude()))
-								.title("TEST"));
-					}
-				},
-				// On failure.
-				e -> {
-					Log.e(TAG, "Failed to retrieve reports", e);
-				});
 	}
 
 
@@ -142,6 +130,21 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		}
 	}
 	//endregion
+	private void loadClusters() {
+		String municipality = MapManager.getAddressFromLocation(this, new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude())).getLocality();
+		DatabaseConnection.getClusters(this, municipality,
+				// On success.
+				reportsResult -> {
+					for (Cluster rep : reportsResult) {
+						mMap.addMarker(new MarkerOptions().position(new LatLng(rep.getLatitude(), rep.getLongitude()))
+								.title(ViolationEnum.valueOf(rep.getTypeOfViolation()).toString()));
+					}
+				},
+				// On failure.
+				e -> {
+					Log.e(TAG, "Failed to retrieve reports", e);
+				});
+	}
 
 	private void setupDatePickerDialogs() {
 		startDateTextView.setOnClickListener(v -> {
@@ -204,6 +207,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 							mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
 									new LatLng(lastKnownLocation.getLatitude(),
 											lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+							loadClusters();
 						} else {
 							Log.d(TAG, "Current location is null. Using defaults.");
 							Log.e(TAG, "Exception: %s", task.getException());

@@ -1,6 +1,7 @@
 package it.polimi.marcermarchiscianamotta.safestreets.util.cloud;
 
 import android.app.Activity;
+import android.util.Log;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
 import it.polimi.marcermarchiscianamotta.safestreets.model.UserRepresentation;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReportRepresentation;
 
@@ -21,6 +23,8 @@ import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReportRepres
  * Handles the connection with the database.
  */
 public class DatabaseConnection {
+
+	private static final String TAG = "DatabaseConnection";
 
 	//region Public methods
 	//================================================================================
@@ -82,6 +86,29 @@ public class DatabaseConnection {
 						reports.add(violationReportRepresentation);
 					}
 					onSuccessListener.onSuccess(reports);
+				})
+				.addOnFailureListener(listenerActivity, onFailureListener);
+	}
+
+	/**
+	 * Gets all the violation reports made by the current user.
+	 *
+	 * @param listenerActivity  the activity that will listen for success or failure events.
+	 * @param onSuccessListener the code to execute on success.
+	 * @param onFailureListener the code to execute on failure.
+	 */
+	public static void getClusters(Activity listenerActivity, String municipality, OnSuccessListener<List<Cluster>> onSuccessListener, OnFailureListener onFailureListener) {
+		FirebaseFirestore.getInstance().collection("municipalities").document("Pordenone").collection("clusters")
+				//.whereEqualTo("userUid", AuthenticationManager.getUserUid())
+				.get()
+				.addOnSuccessListener(listenerActivity, querySnapshot -> {
+					List<Cluster> clusters = new ArrayList<>();
+					Log.d(TAG, querySnapshot.toString());
+					for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
+						Cluster cluster = documentSnapshot.toObject(Cluster.class);
+						clusters.add(cluster);
+					}
+					onSuccessListener.onSuccess(clusters);
 				})
 				.addOnFailureListener(listenerActivity, onFailureListener);
 	}

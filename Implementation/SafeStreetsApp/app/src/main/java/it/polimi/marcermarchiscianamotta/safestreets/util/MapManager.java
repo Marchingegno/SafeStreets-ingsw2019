@@ -26,7 +26,7 @@ public class MapManager {
 	 * @param location the current location.
 	 * @return the name of the city where the location belongs.
 	 */
-	public static Address getMunicipalityFromLocation(Context context, LatLng location) {
+	public static Address getAddressFromLocation(Context context, LatLng location) {
 		Address result = null;
 		try {
 			result = new Geocoder(context).getFromLocation(location.latitude, location.longitude, 1).get(0);
