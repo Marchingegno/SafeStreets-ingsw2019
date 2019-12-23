@@ -23,6 +23,11 @@ exports.onReportStatusChangeMS = functions.firestore.document('/municipalities/{
     return null;
 });
 
+/**
+ * If the group has just been evaluated change the status to all the reports it contains.
+ *
+ * @param change the updated group.
+ */
 async function doStatusChangeIfItIsAStatusChange(change) {
     const groupStatusBefore = change.before.get("groupStatus");
     const groupStatusAfter = change.after.get("groupStatus");
@@ -35,6 +40,11 @@ async function doStatusChangeIfItIsAStatusChange(change) {
     }
 }
 
+/**
+ * Change the status to all the reports contained in the evaluated group.
+ *
+ * @param groupSnap the group that has been evaluated by the municipality.
+ */
 async function doStatusChange(groupSnap) {
     // Get data of the status change.
     const reportIds = groupSnap.get("reports");

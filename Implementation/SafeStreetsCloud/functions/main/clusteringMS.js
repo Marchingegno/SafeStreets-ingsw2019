@@ -26,6 +26,12 @@ exports.clusteringMS = functions.firestore.document('/municipalities/{municipali
     return null;
 });
 
+/**
+ * Add the new group to the correct cluster or create a new cluster if necessary.
+ *
+ * @param groupSnap the group to be clustered.
+ * @param municipality the municipality that contains the group.
+ */
 async function doClustering(groupSnap, municipality) {
     // Get data of the new group.
     const latitude = groupSnap.get("latitude");
@@ -39,11 +45,20 @@ async function doClustering(groupSnap, municipality) {
         console.log('No clusters found. Creating a new cluster...');
         await createNewCluster(typeOfViolation, latitude, longitude, groupSnap.ref.id, municipality);
     } else {
-        console.log('A cluster has been found. Adding report to the cluster...');
-        await addViolationReportToExistingCluster(clusterDocSnap, groupSnap.ref.id, municipality)
+        console.log('A cluster has been found. Adding group to the cluster...');
+        await addGroupToExistingCluster(clusterDocSnap, groupSnap.ref.id, municipality)
     }
 }
 
+/**
+ * Returns the DocumentSnapshot of the cluster that should contain the group or null if no existing cluster has been found.
+ *
+ * @param municipality the municipality that should contain both the group and the cluster.
+ * @param typeOfViolation type of the violation of the group.
+ * @param latitude latitude of the group.
+ * @param longitude longitude of the group.
+ * @returns {Promise<*>} the DocumentSnapshot of the cluster that should contain the group or null if no existing cluster has been found.
+ */
 async function getClusterOfReport(municipality, typeOfViolation, latitude, longitude) {
     // Make query on database for getting the cluster (same typeOfViolation, similar location).
     // Note: Queries with range filters on different fields are not supported by Firestore.
@@ -69,6 +84,15 @@ function alsoCheckForLongitudeForQuery(querySnapshot, newLongitude) {
     return null; // No cluster has been found.
 }
 
+/**
+ * Creates a new cluster in the database with the given group.
+ *
+ * @param typeOfViolation type of the violation of the cluster.
+ * @param latitude latitude of the cluster.
+ * @param longitude longitude of the cluster,
+ * @param groupId group to be added to the new cluster.
+ * @param municipality the municipality that should contain both the group and the cluster.
+ */
 async function createNewCluster(typeOfViolation, latitude, longitude, groupId, municipality) {
     // Create cluster data.
     const newCluster = model.newCluster(
@@ -82,7 +106,14 @@ async function createNewCluster(typeOfViolation, latitude, longitude, groupId, m
     await db.collection("municipalities").doc(municipality).collection("clusters").add(newCluster);
 }
 
-async function addViolationReportToExistingCluster(clusterDocSnap, groupId, municipality) {
+/**
+ * Add the group to an existing cluster in the database.
+ *
+ * @param clusterDocSnap the cluster on which to add the group.
+ * @param groupId the group to add.
+ * @param municipality the municipality that contains both the group and the cluster.
+ */
+async function addGroupToExistingCluster(clusterDocSnap, groupId, municipality) {
     // Modify existing cluster data.
     const clusterObject = clusterDocSnap.data();
     clusterObject.groups.push(groupId); // Add groupId to the groups array.

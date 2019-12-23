@@ -29,6 +29,11 @@ exports.groupingMS = functions.firestore.document('/violationReports/{reportId}'
     return null;
 });
 
+/**
+ * If the report has just been approved add the new report to the correct group or create a new group if necessary.
+ *
+ * @param change the updated report.
+ */
 async function doGroupingIfReportIsApproved(change) {
     const reportStatusBefore = change.before.get("reportStatus");
     const reportStatusAfter = change.after.get("reportStatus");
@@ -41,6 +46,11 @@ async function doGroupingIfReportIsApproved(change) {
     }
 }
 
+/**
+ * Add the new report to the correct group or create a new group if necessary.
+ *
+ * @param violationReportSnap the DocumentSnapshot of the report that has just been approved.
+ */
 async function doGrouping(violationReportSnap) {
     // Get data of the new report.
     const licensePlate = violationReportSnap.get("licensePlate");
@@ -62,6 +72,17 @@ async function doGrouping(violationReportSnap) {
     }
 }
 
+/**
+ * Returns the DocumentSnapshot of the group that should contain the report or null if no existing group has been found.
+ *
+ * @param municipality the municipality that should contain both the group and the cluster.
+ * @param licensePlate license plate of the report.
+ * @param typeOfViolation type of violation of the report.
+ * @param latitude latitude of the report.
+ * @param longitude longitude of the report.
+ * @param uploadTimestamp upload timestamp of the report.
+ * @returns {Promise<null>} the DocumentSnapshot of the group that should contain the report or null if no existing group has been found.
+ */
 async function getGroupOfReport(municipality, licensePlate, typeOfViolation, latitude, longitude, uploadTimestamp) {
     // Make query on database for getting the group (same licensePlate, same typeOfViolation, similar location and similar timestamp).
     // Note: Queries with range filters on different fields are not supported by Firestore.
@@ -91,6 +112,17 @@ function alsoCheckForLongitudeAndTimestampForQuery(querySnapshot, newLongitude, 
     return null; // No group has been found.
 }
 
+/**
+ * Creates a new group in the database with the given report.
+ *
+ * @param licensePlate license plate of the report.
+ * @param typeOfViolation type of violation of the report.
+ * @param latitude latitude of the report.
+ * @param longitude longitude of the report.
+ * @param uploadTimestamp upload timestamp of the report.
+ * @param violationReportId the report to be added to the group.
+ * @param municipality the municipality that should contain both the group and the cluster.
+ */
 async function createNewGroup(licensePlate, typeOfViolation, uploadTimestamp, latitude, longitude, violationReportId, municipality) {
     // Create group data.
     const newGroup = model.newGroup(
@@ -108,6 +140,21 @@ async function createNewGroup(licensePlate, typeOfViolation, uploadTimestamp, la
     await db.collection("municipalities").doc(municipality).collection("groups").add(newGroup);
 }
 
+/**
+ * Add a group to an existing cluster in the database.
+ *
+ * @param clusterDocSnap the cluster on which to add the group.
+ * @param groupId the group to add.
+ * @param municipality the municipality that contains both the group and the cluster.
+ */
+/**
+ * Add the report to an existing group in the database.
+ *
+ * @param groupDocSnap the group on which to add the group.
+ * @param violationReportId the report to add.
+ * @param uploadDate the upload date of the report.
+ * @param municipality the municipality that contains both the group and the cluster.
+ */
 async function addViolationReportToExistingGroup(groupDocSnap, violationReportId, uploadDate, municipality) {
     // Modify existing group data.
     const groupObject = groupDocSnap.data();
