@@ -1,5 +1,6 @@
 package it.polimi.marcermarchiscianamotta.safestreets.controller;
 
+import android.location.Address;
 import android.net.Uri;
 import android.util.Log;
 import android.view.View;
@@ -202,12 +203,12 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	public void onLocationFound(double latitude, double longitude) {
 		report.setLocation(latitude, longitude);
 
-		String municipality = MapManager.getMunicipalityFromLocation(reportViolationActivity.getApplicationContext(), latitude, longitude);
-		report.setMunicipality(municipality);
+		Address address = MapManager.getMunicipalityFromLocation(reportViolationActivity.getApplicationContext(), latitude, longitude);
+		report.setMunicipality(address.getLocality());
 
-		reportViolationActivity.setMunicipalityText(municipality);
+		reportViolationActivity.setAddressText(address.getAddressLine(0));
 
-		Log.d(TAG, "Location[" + latitude + ", " + longitude + "] and Municipality[" + municipality + "] set.");
+		Log.d(TAG, "Location[" + latitude + ", " + longitude + "] and Address [" + address.getAddressLine(0) + "] set.");
 	}
 	//endregion
 

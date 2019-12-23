@@ -327,7 +327,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		plateEditText.setText(plate);
 	}
 
-	public void setMunicipalityText(String municipality) {
+	public void setAddressText(String municipality) {
 		municipalityTextView.setText("Municipality: " + municipality);
 	}
 

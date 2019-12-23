@@ -25,14 +25,14 @@ public class MapManager {
 	 * @param longitude the longitude of the location.
 	 * @return the name of the city where the location belongs.
 	 */
-	public static String getMunicipalityFromLocation(Context context, double latitude, double longitude) {
+	public static Address getMunicipalityFromLocation(Context context, double latitude, double longitude) {
 		Address result = null;
 		try {
 			result = new Geocoder(context).getFromLocation(latitude, longitude, 1).get(0);
 		} catch (IOException e) {
 			Log.e(TAG, TAG + "failed while retrieving the municipality ", e);
 		}
-		return result.getLocality();
+		return result;
 	}
 
 	static public void retrieveLocation(Context context, MapUser caller) {
