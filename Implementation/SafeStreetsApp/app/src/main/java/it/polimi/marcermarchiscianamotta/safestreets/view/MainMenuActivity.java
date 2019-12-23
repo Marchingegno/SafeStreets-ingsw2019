@@ -20,8 +20,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
-import it.polimi.marcermarchiscianamotta.safestreets.util.AuthenticationManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
+import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.AuthenticationManager;
 
 public class MainMenuActivity extends AppCompatActivity {
 
@@ -79,6 +79,11 @@ public class MainMenuActivity extends AppCompatActivity {
     @OnClick(R.id.signed_in_see_violations)
     public void onClickSeeViolations(View v) {
         startActivity(SafeStreetsDataActivity.createIntent(v.getContext()));
+    }
+
+    @OnClick(R.id.signed_in_my_reports)
+    public void onClickMyReports(View v) {
+        startActivity(MyReportsActivity.createIntent(v.getContext()));
     }
 
     @OnClick(R.id.signed_in_sign_out)

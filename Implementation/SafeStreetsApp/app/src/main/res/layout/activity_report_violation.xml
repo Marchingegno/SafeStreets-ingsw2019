@@ -40,27 +40,37 @@
                 style="@style/Widget.AppCompat.Spinner.Underlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginBottom="32dp"
-                android:entries="@array/type_violations"
                 android:spinnerMode="dropdown" />
 
-            <com.google.android.material.textfield.TextInputLayout
+            <TextView
+                android:id="@+id/plate_text_view"
+                style="@style/Base.TextAppearance.AppCompat.Subhead"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+				android:layout_height="38dp"
+                android:text="License plate:" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/municipality_text_view"
+                style="@style/Base.TextAppearance.AppCompat.Subhead"
+                android:layout_width="match_parent"
+                android:layout_height="41dp"
+                android:text="Municipality: " />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+				android:layout_height="125dp">
+
+                <LinearLayout
+                    android:id="@+id/photo_linear_layout"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/description"
-                    android:layout_marginBottom="32dp"
-                    android:gravity="top|left"
-                    android:hint="Optional description..."
-                    android:inputType="textLongMessage|textMultiLine"
-                    android:maxLength="512"
-                    android:minHeight="128dp" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
 
             <Button
                 android:id="@+id/report_violation_add_photo_temporary"
@@ -69,11 +79,29 @@
                 android:layout_height="wrap_content"
                 android:text="Add photo" />
 
+
             <TextView
                 android:id="@+id/report_violation_number_of_photos_added"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+				android:layout_height="44dp"
                 android:text="Number of photos added: 0" />
+
+			<com.google.android.material.textfield.TextInputLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content">
+
+				<com.google.android.material.textfield.TextInputEditText
+					android:id="@+id/description"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginBottom="32dp"
+					android:gravity="top|left"
+					android:hint="Optional description..."
+					android:inputType="textLongMessage|textMultiLine"
+					android:maxLength="512"
+					android:minHeight="128dp" />
+			</com.google.android.material.textfield.TextInputLayout>
+
 
         </LinearLayout>
     </ScrollView>

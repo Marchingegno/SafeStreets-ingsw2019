@@ -1,93 +1,188 @@
 package it.polimi.marcermarchiscianamotta.safestreets.model;
 
-import com.google.firebase.firestore.ServerTimestamp;
+import android.net.Uri;
+import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
+/**
+ * Contains all the attributes of a report.
+ */
 public class ViolationReport {
+	private static final String TAG = "ViolationReport";
 
-    private String userUid;
-    private int violationType;
-    private String description;
-    private List<String> pictures;
-    private String licensePlate;
-    private Date uploadTimestamp;
-    private ReportStatus reportStatus = ReportStatus.SUBMITTED;
-    private String statusMotivation;
-
-    //Coordinates
-    private double latitude;
-    private double longitude;
-
-
-    public ViolationReport() {
-        // Needed for Firebase
-    }
-
-    public ViolationReport(@NonNull String userUid, int violationType, @Nullable String description, @NonNull List<String> pictures, @NonNull String licensePlate, double latitude, double longitude) {
-        this.userUid = userUid;
-        this.violationType = violationType;
-        this.description = description;
-        this.pictures = pictures;
-        this.licensePlate = licensePlate;
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
+	private String userUid;
+	private String licensePlate = null;
+	private String description;
+	private Double latitude;
+	private Double longitude;
+	private String municipality;
+	private List<Uri> pictures = new ArrayList<>();
+	private List<String> picturesIDOnServer;
+	private Date uploadTimestamp;
+	private ViolationEnum typeOfViolation;
+	private ReportStatusEnum reportStatus = ReportStatusEnum.SUBMITTED;
+	private String statusMotivation = null;
 
 
-    @NonNull
-    public String getUserUid() {
-        return userUid;
-    }
+	//Constructor
+	//================================================================================
+	public ViolationReport(String userUid) {
+		this.userUid = userUid;
+	}
 
-    public int getViolationType() {
-        return violationType;
-    }
+	//region Setter methods
+	//================================================================================
+	public void setLocation(double latitude, double longitude) {
+		this.latitude = latitude;
+		this.longitude = longitude;
+	}
 
-    @Nullable
-    public String getDescription() {
-        return description;
-    }
+	public void setMunicipality(String municipality) {
+		this.municipality = municipality;
+	}
 
-    @NonNull
-    public List<String> getPictures() {
-        return pictures;
-    }
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
-    @NonNull
-    public String getLicensePlate() {
-        return licensePlate;
-    }
+	public void setTypeOfViolation(ViolationEnum typeOfViolation) {
+		this.typeOfViolation = typeOfViolation;
+	}
 
-    public double getLatitude() {
-        return latitude;
-    }
+	public void setPicturesIDOnServer(List<String> picturesIDOnServer) {
+		this.picturesIDOnServer = picturesIDOnServer;
+	}
+	//endregion
 
-    public double getLongitude() {
-        return longitude;
-    }
+	//region Getter methods
+	//================================================================================
+	public String getMunicipality() {
+		return municipality;
+	}
+	//endregion
 
-    @ServerTimestamp
-    @NonNull
-    public Date getUploadTimestamp() {
-        return uploadTimestamp;
-    }
+	public String getLicensePlate() {
+		return licensePlate;
+	}
 
-    public void setUploadTimestamp(@NonNull Date uploadTimestamp) {
-        this.uploadTimestamp = uploadTimestamp;
-    }
+	public Double getLatitude() {
+		return latitude;
+	}
 
-    @NonNull
-    public ReportStatus getReportStatus() {
-        return reportStatus;
-    }
+	public Double getLongitude() {
+		return longitude;
+	}
 
-    @Nullable
-    public String getStatusMotivation() {
-        return statusMotivation;
-    }
+	public void setLicensePlate(String licensePlate) {
+		this.licensePlate = licensePlate;
+		Log.d(TAG, "license plate: " + licensePlate);
+	}
+
+	public List<Uri> getPictures() {
+		return pictures;
+	}
+
+	public Uri getPicture(int index) {
+		return pictures.get(index);
+	}
+
+	public ViolationEnum getTypeOfViolation() {
+		return typeOfViolation;
+	}
+
+	public Date getTimestamp() {
+		return uploadTimestamp;
+	}
+
+	public List<String> getPicturesIDOnServer() {
+		return picturesIDOnServer;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public String getUserUid() {
+		return userUid;
+	}
+	//endregion
+
+	//region Public methods
+	//================================================================================
+
+	/**
+	 * Adds a photo path to the report.
+	 *
+	 * @param photoPath photo's path to be added.
+	 */
+	public void addPhoto(Uri photoPath) {
+		pictures.add(photoPath);
+		Log.d(TAG, "Photo added: " + photoPath);
+	}
+
+	/**
+	 * Removes the picture at the specified index.
+	 *
+	 * @param index index of the picture to delete.
+	 */
+	public void removePhoto(int index) {
+		pictures.remove(index);
+	}
+
+	/**
+	 * Returns true if and only if the license plate is not null.
+	 *
+	 * @return true if and only if the license plate is not null.
+	 */
+	public boolean hasPlate() {
+		return licensePlate != null;
+	}
+
+	/**
+	 * Returns true id and only if all the mandatory fields hare specified.
+	 *
+	 * @return true id and only if all the mandatory fields hare specified.
+	 */
+	public boolean isReadyToSend() {
+		Log.d(TAG, this.toString());
+		return userUid != null &&
+				licensePlate != null &&
+				latitude != null &&
+				longitude != null &&
+				municipality != null &&
+				pictures.size() > 0 &&
+				typeOfViolation != null &&
+				reportStatus == ReportStatusEnum.SUBMITTED;
+	}
+
+	/**
+	 * Returns a representation of the report so that it can be sent to the database.
+	 *
+	 * @return a representation of the report.
+	 */
+	public ViolationReportRepresentation getReportRepresentation() {
+		return new ViolationReportRepresentation(this);
+	}
+
+	@Override
+	public String toString() {
+		return "ViolationReport[" + '\n' +
+				"\tuserUid: " + userUid + '\n' +
+				"\tlicensePlate: " + licensePlate + '\n' +
+				"\tdescription: " + description + '\n' +
+				"\tlatitude: " + latitude + '\n' +
+				"\tlongitude: " + longitude + '\n' +
+				"\tmunicipality: " + municipality + '\n' +
+				"\tpictures: " + pictures + '\n' +
+				"\tpicturesIDOnServer: " + picturesIDOnServer + '\n' +
+				"\tuploadTimestamp: " + uploadTimestamp + '\n' +
+				"\ttypeOfViolation: " + typeOfViolation + '\n' +
+				"\treportStatus: " + reportStatus + '\n' +
+				"\tstatusMotivation: " + statusMotivation + ']';
+	}
+	//endregion
 }
+
