@@ -110,6 +110,10 @@ public class ViolationReport {
 	public String getUserUid() {
 		return userUid;
 	}
+
+	public LatLng getLatLng() {
+		return new LatLng(latitude, longitude);
+	}
 	//endregion
 
 	//region Public methods
