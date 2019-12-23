@@ -71,8 +71,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	private ReportViolationManager reportViolationManager;
 	Uri currentPicturePath;
 
-	@BindView(R.id.municipality_text_view)
-	TextView municipalityTextView;
+	@BindView(R.id.address_text_view)
+	TextView addressTextView;
 
 	@BindView(R.id.plate_text)
 	TextView plateTextView;
@@ -327,8 +327,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		plateEditText.setText(plate);
 	}
 
-	public void setAddressText(String municipality) {
-		municipalityTextView.setText("Municipality: " + municipality);
+	public void setAddressText(String address) {
+		addressTextView.setText("Address: " + address);
 	}
 
 	@Override

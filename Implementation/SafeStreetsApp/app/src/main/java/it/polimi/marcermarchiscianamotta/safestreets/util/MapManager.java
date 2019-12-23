@@ -33,6 +33,7 @@ public class MapManager {
 		} catch (IOException e) {
 			Log.e(TAG, TAG + "failed while retrieving the municipality ", e);
 		}
+		Log.d(TAG, result.toString());
 		return result;
 	}
 

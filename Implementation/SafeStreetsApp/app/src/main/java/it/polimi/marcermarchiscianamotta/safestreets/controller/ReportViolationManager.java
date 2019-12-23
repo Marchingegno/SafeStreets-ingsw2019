@@ -207,7 +207,7 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 		Address address = MapManager.getMunicipalityFromLocation(reportViolationActivity.getApplicationContext(), location);
 		report.setMunicipality(address.getLocality());
 
-		reportViolationActivity.setAddressText(address.getAddressLine(0));
+		reportViolationActivity.setAddressText(address.getThoroughfare() + ", " + address.getLocality());
 
 		Log.d(TAG, "Location[" + location.latitude + ", " + location.longitude + "] and Address [" + address.getAddressLine(0) + "] set.");
 	}

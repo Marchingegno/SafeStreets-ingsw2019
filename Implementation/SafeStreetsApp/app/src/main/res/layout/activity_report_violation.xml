@@ -103,7 +103,7 @@
 			</LinearLayout>
 
 			<TextView
-				android:id="@+id/municipality_text_view"
+				android:id="@+id/address_text_view"
 				style="@style/Base.TextAppearance.AppCompat.Subhead"
 				android:layout_width="match_parent"
 				android:layout_height="41dp"
