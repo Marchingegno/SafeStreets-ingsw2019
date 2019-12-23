@@ -3,6 +3,7 @@ package it.polimi.marcermarchiscianamotta.safestreets.view;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -13,35 +14,43 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import java.io.File;
 import java.net.URI;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.ReportViolationManager;
-import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
+import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
+import it.polimi.marcermarchiscianamotta.safestreets.util.LoadPictureTask;
+import it.polimi.marcermarchiscianamotta.safestreets.util.SavePictureTask;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.SaveUser;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, AdapterView.OnItemSelectedListener {
+public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, AdapterView.OnItemSelectedListener, SaveUser, LoadUser {
 
 	private static final String TAG = "ReportViolationActivity";
 
-	//directory where all files are saved
-	private static final String mainDirectoryPath = Environment.getExternalStorageDirectory() + "/SafeStreets/";
+	private static final int PICTURE_DESIRED_SIZE = 680;
+
+	//fullSizePictureDirectory where all files are saved
+	private static String mainDirectoryPath;
+	private static File fullSizePictureDirectory;
+	private static File thumbnailPictureDirectory;
 
 	//Request codes
 	private static final int RC_CAMERA_PERMISSION = 201;
@@ -49,16 +58,16 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	private static final int RC_WRITE_EXT_STORAGE_PERMS = 203;
 	private static final int RC_LOCATION_PERMS = 204;
 	private static final int RC_IMAGE_TAKEN = 205;
+	private static final int RC_IMAGE_DELETION = 206;
 
 	//Permissions
 	private static final String READ_EXT_STORAGE_PERMS = Manifest.permission.READ_EXTERNAL_STORAGE;
 	private static final String WRITE_EXT_STORAGE_PERMS = Manifest.permission.WRITE_EXTERNAL_STORAGE;
 	private static final String LOCATION_PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
 	private static final String CAMERA_PERMS = Manifest.permission.CAMERA;
-	File directory = new File(mainDirectoryPath);
 
 	private ReportViolationManager reportViolationManager;
-	Uri currentPhotoPath;
+	Uri currentPicturePath;
 
 	@BindView(R.id.municipality_text_view)
 	TextView municipalityTextView;
@@ -78,6 +87,11 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	@BindView(R.id.report_violation_spinner)
 	Spinner violationTypeSpinner;
 
+	@BindView(R.id.photo_linear_layout)
+	LinearLayout pictureLinearLayout;
+	List<ImageView> pictureViewArray = new ArrayList<>();
+
+
 	//region Static methods
 	//================================================================================
 
@@ -93,14 +107,13 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	}
 	//endregion
 
-	//region Overridden methods
-	//================================================================================
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.activity_report_violation);
-		ButterKnife.bind(this); // Needed for @BindView attributes.
+
+		// Needed for @BindView attributes.
+		ButterKnife.bind(this);
 
 		reportViolationManager = new ReportViolationManager(this, rootView);
 
@@ -108,7 +121,6 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		ArrayAdapter<ViolationEnum> langAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ViolationEnum.values());
 		langAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		violationTypeSpinner.setAdapter(langAdapter);
-		//violationTypeSpinner.setAdapter(new ArrayAdapter<ViolationEnum>(this, R.layout.personal_spinner, ViolationEnum.values()));
 
 		//Ask permissions
 		if (!EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -123,8 +135,22 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		if (!EasyPermissions.hasPermissions(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 			EasyPermissions.requestPermissions(this, "Camera permission", RC_WRITE_EXT_STORAGE_PERMS, WRITE_EXT_STORAGE_PERMS);
 		}
+
+		mainDirectoryPath = Environment.getExternalStorageDirectory() + "/SafeStreets/";
+		fullSizePictureDirectory = new File(mainDirectoryPath + "/Pictures/");
+		thumbnailPictureDirectory = new File(mainDirectoryPath + "/Thumbnails/");
+
+		if (!fullSizePictureDirectory.exists()) {
+			fullSizePictureDirectory.mkdirs();
+		}
+		if (!thumbnailPictureDirectory.exists()) {
+			thumbnailPictureDirectory.mkdirs();
+		}
 	}
 
+
+	//region Callback methods
+	//================================================================================
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -132,18 +158,61 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		switch (requestCode) {
 			case (RC_IMAGE_TAKEN):
 				if (resultCode == RESULT_OK) {
-					if (new File(URI.create(currentPhotoPath.toString())).exists()) {
-						reportViolationManager.addPhotoToReport(currentPhotoPath);
-						String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPhotos() + "/" + reportViolationManager.getMaxNumOfPhotos();
-						numberOfPhotosAddedTextView.setText(textToDisplay);
+					if (new File(URI.create(currentPicturePath.toString())).exists()) {
+						createThumbnailAndDisplay();
 					} else {
 						GeneralUtils.showSnackbar(rootView, "Photo not found.");
-						Log.e(TAG, "Photo not found at " + currentPhotoPath.toString());
+						Log.e(TAG, "Photo not found at " + currentPicturePath.toString());
+					}
+				}
+				break;
+			case (RC_IMAGE_DELETION):
+				if (resultCode == RESULT_OK) {
+					if (Boolean.parseBoolean(data.getStringExtra("Want to delete"))) {
+						int indexOfThePictureToDelete = Integer.parseInt(data.getStringExtra("View index"));
+
+						URI pathOfThePictureToDelete = URI.create(data.getStringExtra("Picture path"));
+						File pictureToDelete = new File(pathOfThePictureToDelete);
+
+						if (pictureToDelete.exists() &&
+								indexOfThePictureToDelete < reportViolationManager.numberOfPictures() &&
+								Uri.parse(data.getStringExtra("Picture path")).equals(reportViolationManager.getPicture(indexOfThePictureToDelete))) {
+							ImageView imageViewToRemove = pictureViewArray.remove(indexOfThePictureToDelete);
+
+							pictureLinearLayout.removeView(imageViewToRemove);
+							reportViolationManager.removePicture(indexOfThePictureToDelete);
+
+							String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPictures() + "/" + reportViolationManager.getMaxNumOfPictures();
+							numberOfPhotosAddedTextView.setText(textToDisplay);
+
+							Log.d(TAG, "Num of image views: " + pictureViewArray.size());
+						} else
+							Log.e(TAG, "File: " + pathOfThePictureToDelete + " not found");
 					}
 				}
 				break;
 			default:
 		}
+	}
+
+	@Override
+	public void onPictureSaved(Uri thumbnailCreated) {
+		ImageView imageView = createImageView(thumbnailCreated);
+		pictureViewArray.add(imageView);
+		pictureLinearLayout.addView(imageView);
+		reportViolationManager.addPhotoToReport(thumbnailCreated);
+		String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPictures() + "/" + reportViolationManager.getMaxNumOfPictures();
+		numberOfPhotosAddedTextView.setText(textToDisplay);
+	}
+
+	@Override
+	public void onPictureLoaded(Bitmap bitmap) {
+		SavePictureTask saver = new SavePictureTask(this);
+		saver.setQuality(50);
+		String thumbnailDirectory = thumbnailPictureDirectory.toURI().toString();
+		Uri pathWhereToSave = Uri.parse(thumbnailDirectory + currentPicturePath.getLastPathSegment());
+		saver.setPathWhereToSave(pathWhereToSave);
+		saver.execute(bitmap);
 	}
 
 	@Override
@@ -171,8 +240,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		}
 		if (requestCode == RC_WRITE_EXT_STORAGE_PERMS) {
 			//Initializes the directories
-			if (!directory.exists()) {
-				boolean created = directory.mkdirs();
+			if (!fullSizePictureDirectory.exists()) {
+				boolean created = fullSizePictureDirectory.mkdirs();
 				if (!created)
 					Log.e(TAG, "Folders not created");
 			}
@@ -197,20 +266,20 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	}
 	//endregion
 
-
 	//region UI methods
 	//================================================================================
 	@OnClick(R.id.report_violation_add_photo_temporary)
 	public void onClickAddPhoto(View v) {
 		if (reportViolationManager.canTakeAnotherPicture()) {
-			String fileName = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss").format(new Date());
-			File destination = new File(mainDirectoryPath, fileName + ".jpg");
-			currentPhotoPath = Uri.parse(destination.toURI().toString());
+			String fileName = String.valueOf(System.currentTimeMillis());
+			File destination = new File(fullSizePictureDirectory, fileName + ".jpg");
+			currentPicturePath = Uri.parse(destination.toURI().toString());
 
 			StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
 			StrictMode.setVmPolicy(builder.build());
 			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 			intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(destination));
+			Log.d(TAG, "Calling the camera and saving at: " + destination.toString());
 			startActivityForResult(intent, RC_IMAGE_TAKEN);
 		} else
 			GeneralUtils.showSnackbar(rootView, "Maximum number of pictures reached.");
@@ -226,11 +295,11 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	}
 
 	public void setPlateText(String plate) {
-		plateTextView.setText("license plate: " + plate);
+		plateTextView.setText("License plate: " + plate);
 	}
 
 	public void setMunicipalityText(String municipality) {
-		municipalityTextView.setText("Municipality:" + municipality);
+		municipalityTextView.setText("Municipality: " + municipality);
 	}
 
 	@Override
@@ -246,9 +315,36 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	}
 	//endregion
 
-
 	//region Private methods
 	//================================================================================
-	//endregion
+	private void createThumbnailAndDisplay() {
+		LoadPictureTask loader = new LoadPictureTask(this);
+		loader.setMaxDimension(PICTURE_DESIRED_SIZE);
+		loader.execute(currentPicturePath);
+	}
 
+	private ImageView createImageView(Uri uri) {
+		ImageView imageView = new ImageView(this);
+
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(300, 300);
+		imageView.setLayoutParams(params);
+
+		imageView.setClickable(true);
+		imageView.setImageURI(uri);
+
+		imageView.setOnClickListener(v -> {
+
+			int indexOfTheClickedView = pictureViewArray.indexOf(v);
+			Uri pathOfThePictureSelected = reportViolationManager.getPicture(indexOfTheClickedView);
+			Log.d(TAG, "Opening :" + pathOfThePictureSelected.toString());
+			Log.d(TAG, "Index of the view clicked: " + indexOfTheClickedView);
+
+			Intent i = new Intent(ReportViolationActivity.this, PictureActivity.class);
+			i.putExtra("Picture to display", pathOfThePictureSelected.toString());
+			i.putExtra("Index of the view associated with the picture", String.valueOf(indexOfTheClickedView));
+			startActivityForResult(i, RC_IMAGE_DELETION);
+		});
+		return imageView;
+	}
+	//endregion
 }

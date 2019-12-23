@@ -2,14 +2,14 @@ package it.polimi.marcermarchiscianamotta.safestreets.model;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Represents a representation of a violation report. This class contains only the relevant attributes
@@ -30,21 +30,28 @@ public class ViolationReportRepresentation {
 	private ReportStatusEnum reportStatus = ReportStatusEnum.SUBMITTED;
 	private String statusMotivation = null;
 
-	public ViolationReportRepresentation(ViolationReport report) {
-		this.userUid = report.getUserUid();
-		this.licensePlate = report.getLicensePlate();
-		this.description = report.getDescription();
-		this.latitude = report.getLatitude();
-		this.longitude = report.getLongitude();
-		this.municipality = report.getMunicipality();
-		this.typeOfViolation = report.getTypeOfViolation();
+	public ViolationReportRepresentation() {
+		// Needed for deserializing the object
+	}
 
-		List<String> pictureIDs = report.getPicturesIDOnServer();
-		if (pictureIDs == null || pictureIDs.size() == 0) {
-			Log.e(TAG, "Report should have at least one picture in order to be uploaded");
-			throw new NullPointerException("Report should have at least one picture in order to be uploaded");
+	public ViolationReportRepresentation(ViolationReport report) {
+		if (report.isReadyToSend()) {
+			this.userUid = report.getUserUid();
+			this.licensePlate = report.getLicensePlate();
+			this.description = report.getDescription();
+			this.latitude = report.getLatitude();
+			this.longitude = report.getLongitude();
+			this.municipality = report.getMunicipality();
+			this.typeOfViolation = report.getTypeOfViolation();
+
+			List<String> pictureIDs = report.getPicturesIDOnServer();
+			if (pictureIDs == null || pictureIDs.size() == 0) {
+				Log.e(TAG, "Report should have at least one picture in order to be uploaded");
+				throw new NullPointerException("Report should have at least one picture in order to be uploaded");
+			} else
+				pictures = new ArrayList<>(pictureIDs);
 		} else
-			pictures = new ArrayList<>(pictureIDs);
+			throw new RuntimeException("Not all mandatory fields are specified");//TODO create a new type of exception
 	}
 
 	//region Getter methods

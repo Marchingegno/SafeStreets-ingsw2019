@@ -1,9 +1,9 @@
 package it.polimi.marcermarchiscianamotta.safestreets.model;
 
-import androidx.annotation.NonNull;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
 
 /**
  * Represents a representation of a user document in the database.

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	style="@style/CardViewStyle">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical"
+		android:padding="8dp">
+
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<TextView
+				android:id="@+id/card_report_timestamp"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentStart="true"
+				android:layout_centerVertical="true"
+				android:layout_marginEnd="5dp"
+				android:layout_marginStart="5dp"
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				android:textColor="@color/extracted_primary_text_default_material_light"
+				android:textStyle="normal"
+				android:text="DATE"/>
+
+		</RelativeLayout>
+
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<TextView
+				android:id="@+id/card_report_municipality"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentStart="true"
+				android:layout_centerVertical="true"
+				android:layout_marginEnd="5dp"
+				android:layout_marginStart="5dp"
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				android:textColor="@color/extracted_primary_text_default_material_light"
+				android:textStyle="normal"
+				android:text="Municipality: MUNICIP"/>
+
+		</RelativeLayout>
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_marginBottom="10dp"
+			android:layout_marginTop="5dp"
+			android:background="@color/black" />
+
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<TextView
+				android:id="@+id/card_report_status"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentStart="true"
+				android:layout_centerVertical="true"
+				android:layout_marginEnd="5dp"
+				android:layout_marginStart="5dp"
+				android:textAppearance="?android:attr/textAppearanceSmall"
+				android:textColor="@color/extracted_secondary_text_default_material_light"
+				android:textStyle="normal"
+				android:linksClickable="true"
+				android:text="Status: STATUS"/>
+
+		</RelativeLayout>
+
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<TextView
+				android:id="@+id/card_report_status_motivation"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentStart="true"
+				android:layout_centerVertical="true"
+				android:layout_marginEnd="5dp"
+				android:layout_marginStart="5dp"
+				android:textAppearance="?android:attr/textAppearanceSmall"
+				android:textColor="@color/extracted_secondary_text_default_material_light"
+				android:textStyle="normal"
+				android:linksClickable="true"
+				android:text="Motivation: motivation"/>
+
+		</RelativeLayout>
+
+	</LinearLayout>
+</androidx.cardview.widget.CardView>
