@@ -8,6 +8,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.Transaction;
 
@@ -78,6 +79,7 @@ public class DatabaseConnection {
 	public static void getUserViolationReports(Activity listenerActivity, OnSuccessListener<List<ViolationReportRepresentation>> onSuccessListener, OnFailureListener onFailureListener) {
 		FirebaseFirestore.getInstance().collection("violationReports")
 				.whereEqualTo("userUid", AuthenticationManager.getUserUid())
+				.orderBy("uploadTimestamp", Query.Direction.DESCENDING)
 				.get()
 				.addOnSuccessListener(listenerActivity, querySnapshot -> {
 					List<ViolationReportRepresentation> reports = new ArrayList<>();
