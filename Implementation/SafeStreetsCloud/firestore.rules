@@ -6,7 +6,7 @@ service cloud.firestore {
         // Allows reading
         // Allows only creation of new violation reports, doesn't allow updating and deleting.
         match /violationReports/{violationReportId} {
-            allow read; // TODO normal users shouldn't be able to read license plates (and maybe also not userUids)
+            allow read;
             allow create: if isOwnerFieldCorrect();
         }
 
@@ -19,9 +19,9 @@ service cloud.firestore {
         // Group documents
         // Allows reading by everyone (for queries)
         // Allows update only from the municipality, doesn't allow creating or deleting.
-        match /municipalities/{municipality}/groups/{groupId} {
+        match /municipalities/{municipalityId}/groups/{groupId} {
              allow read;
-             allow update: if isMunicipality(municipality);
+             allow update: if isSpecifiedMunicipality(municipalityId);
         }
 
         // Cluster documents
@@ -38,6 +38,7 @@ service cloud.firestore {
     }
 }
 
+
 function prefix() {
     return /databases/{db}/documents;
 }
@@ -52,8 +53,7 @@ function isOwner(uid) {
     return request.auth.uid == uid;
 }
 
-// Returns true if the user is the specified municipality
-// TODO
-function isMunicipality(municipality) {
-    return true;
+// Returns true if the user is the specified municipality.
+function isSpecifiedMunicipality(municipalityId) {
+    return request.auth.token != null && request.auth.token.isMunicipality == true && request.auth.token.municipalityId == municipalityId;
 }

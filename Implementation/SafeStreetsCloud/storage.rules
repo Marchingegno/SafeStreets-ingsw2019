@@ -24,8 +24,7 @@ function isOwner(uid) {
     return request.auth.uid == uid;
 }
 
-// Returns true if the user is a municipality
-// TODO
+// Returns true if the user is a municipality.
 function isMunicipality() {
-    return true;
+    return request.auth.token != null && request.auth.token.isMunicipality == true;
 }

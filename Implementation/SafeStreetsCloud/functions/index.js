@@ -32,6 +32,20 @@ if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'onReportStatusC
 }
 
 /**
+ * Triggers when a new municipality email authorization is added.
+ */
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'municipalityAuthorizerMS') {
+  exports.municipalityAuthorizerMS = require('./main/municipalityAuthorizerMS').municipalityAuthorizerMS;
+}
+
+/**
+ * Triggers when a new municipality email authorization is added.
+ */
+if (!process.env.FUNCTION_NAME || process.env.FUNCTION_NAME === 'municipalityDeuthorizerMS') {
+  exports.municipalityDeuthorizerMS = require('./main/municipalityDeauthorizerMS').municipalityDeauthorizerMS;
+}
+
+/**
  * Triggers on time.
  * WARNING: time triggers need the Firebase Blaze payment plan.
  */

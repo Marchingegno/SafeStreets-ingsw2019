@@ -1,3 +1,7 @@
+'use strict';
+
+//region Model for main features
+//================================================================================
 exports.newViolationReport = function(description, latitude, licensePlate, longitude, municipality, pictures, reportStatus, statusMotivation, typeOfViolation, uploadTimestamp, userUid) {
     return {
         description: description,
@@ -42,3 +46,31 @@ exports.ReportStatusEnum = {
     REJECTED: "REJECTED",
     CORRECT: "CORRECT"
 };
+//endregion
+
+
+//region Model for municipality authorization
+//================================================================================
+exports.newCustomToken = function(isMunicipality, municipalityId) {
+    return {
+        isMunicipality: isMunicipality,
+        municipalityId: municipalityId
+    }
+};
+
+exports.newOkAuthDocument = function(user, timestamp) {
+    return {
+        email: user.email || null,
+        uid: user.uid,
+        authStatus: 'OK',
+        timestamp: timestamp,
+    }
+};
+
+exports.newErrorAuthDocument = function(error) {
+    return {
+        error: error,
+        authStatus: 'ERROR',
+    }
+};
+//endregion
