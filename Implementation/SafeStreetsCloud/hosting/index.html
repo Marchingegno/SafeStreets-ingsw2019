@@ -145,11 +145,26 @@
 
     firebase.auth().onAuthStateChanged(function (user) {
         if (user) {
-            // User is signed in.
-            let uid = user.uid;
-            console.log("User logged in");
-            window.location.href = "AcceptViolations.html"
-            // ...
+			user.getIdTokenResult()
+					.then((idTokenResult) => {
+						// Signed in.
+						console.log(idTokenResult.toString());
+						if(idTokenResult.claims !== null && idTokenResult.claims.isMunicipality === true) {
+							// User is a municipality.
+							const municipalityId = idTokenResult.claims.municipalityId;
+							console.log("Municipality logged in, has authorization to access files of " + municipalityId + ".");
+							window.location.href = "AcceptViolations.html"
+						} else {
+							// User is not a municipality.
+							console.log("This user doesn't have authorization (not a municipality).");
+							alert("This service is reserved for municipalities only.\n" +
+									"You're account isn't authorized for municipality access.\n" +
+									"If you think this is an error contact us at safestreetspolimi@gmail.com");
+						}
+					})
+					.catch((error) => {
+						console.log(error);
+					});
         }
     });
 </script>
