@@ -427,6 +427,7 @@ describe('Cloud Functions Tests', () => {
                         assert.equal(querySnapshot.docs.length, 2);
                         for (let reportDocSnap of querySnapshot.docs) {
                             assert.equal(reportDocSnap.data().reportStatus, groupAfter.groupStatus);
+                            assert.notEqual(reportDocSnap.data().statusMotivation, violationReport1.statusMotivation);
                         }
                         return null;
                     });
@@ -458,6 +459,7 @@ describe('Cloud Functions Tests', () => {
                         assert.equal(querySnapshot.docs.length, 2);
                         for (let reportDocSnap of querySnapshot.docs) {
                             assert.equal(reportDocSnap.data().reportStatus, violationReport1.reportStatus);
+                            assert.equal(reportDocSnap.data().statusMotivation, violationReport1.statusMotivation);
                         }
                         return null;
                     });
