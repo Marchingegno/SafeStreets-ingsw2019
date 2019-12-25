@@ -26,11 +26,11 @@ describe('Cloud Functions Tests', () => {
 
     let groupingMS;
     let clusteringMS;
-    let onReportStatusChange;
+    let onReportStatusChangeMS;
     before(() => {
         groupingMS = require('../main/groupingMS');
         clusteringMS = require('../main/clusteringMS');
-        onReportStatusChange = require('../main/onReportStatusChangeMS');
+        onReportStatusChangeMS = require('../main/onReportStatusChangeMS');
 
         // Reset the database before any test is started so any test starts clean.
         return getPromiseOfDatabaseResetting();
@@ -418,7 +418,7 @@ describe('Cloud Functions Tests', () => {
             const change = test.makeChange(beforeSnap, afterSnap);
 
             // Wrap the function.
-            const wrapped = test.wrap(onReportStatusChange.onReportStatusChangeMS);
+            const wrapped = test.wrap(onReportStatusChangeMS.onReportStatusChangeMS);
 
             // Launch function and check its changes.
             return Promise.all(promisesOfReportsCreation).then(() => {
@@ -450,7 +450,7 @@ describe('Cloud Functions Tests', () => {
             const change = test.makeChange(beforeSnap, afterSnap);
 
             // Wrap the function.
-            const wrapped = test.wrap(onReportStatusChange.onReportStatusChangeMS);
+            const wrapped = test.wrap(onReportStatusChangeMS.onReportStatusChangeMS);
 
             // Launch function and check its changes.
             return Promise.all(promisesOfReportsCreation).then(() => {
