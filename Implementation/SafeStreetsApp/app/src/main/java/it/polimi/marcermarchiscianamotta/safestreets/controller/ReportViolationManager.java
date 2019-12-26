@@ -1,12 +1,17 @@
 package it.polimi.marcermarchiscianamotta.safestreets.controller;
 
+import android.location.Address;
 import android.net.Uri;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
+import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReport;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
@@ -154,6 +159,21 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	}
 
 	/**
+	 * Sets the license plate number to the specified one.
+	 *
+	 * @param plate license plate number to set.
+	 */
+	public boolean setPlate(String plate) {
+		boolean changed = false;
+		if (plate.matches("[A-Z][A-Z][0-9][0-9][0-9][A-Z][A-Z]")) {
+			changed = true;
+			report.setLicensePlate(plate);
+		} else
+			GeneralUtils.showSnackbar(rootView, "Please insert a valid licence plate format.");
+		return changed;
+	}
+
+	/**
 	 * If the text recognition process has found a license plate, the report is updated with this new information.
 	 * Moreover the view is updated to show the plate found.
 	 *
@@ -178,19 +198,18 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	 * Once the location has been found retrieves the municipality and updates the report.
 	 * Moreover the view is updated to show the municipality.
 	 *
-	 * @param latitude  the current latitude of the device.
-	 * @param longitude the current longitude of the device.
+	 * @param location The current location.
 	 */
 	@Override
-	public void onLocationFound(double latitude, double longitude) {
-		report.setLocation(latitude, longitude);
+	public void onLocationFound(LatLng location) {
+		report.setLocation(location);
 
-		String municipality = MapManager.getMunicipalityFromLocation(reportViolationActivity.getApplicationContext(), latitude, longitude);
-		report.setMunicipality(municipality);
+		Address address = MapManager.getAddressFromLocation(reportViolationActivity.getApplicationContext(), location);
+		report.setMunicipality(address.getLocality());
 
-		reportViolationActivity.setMunicipalityText(municipality);
+		reportViolationActivity.setAddressText(address.getThoroughfare() + ", " + address.getLocality());
 
-		Log.d(TAG, "Location[" + latitude + ", " + longitude + "] and Municipality[" + municipality + "] set.");
+		Log.d(TAG, "Location[" + location.latitude + ", " + location.longitude + "] and Address [" + address.getAddressLine(0) + "] set.");
 	}
 	//endregion
 
@@ -202,15 +221,18 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	 * Uploads the photos to the Cloud Storage.
 	 */
 	private void uploadPhotosToCloudStorage() {
-		Toast.makeText(reportViolationActivity, "Uploading photos...", Toast.LENGTH_SHORT).show();
+		((ProgressBar) rootView.findViewById(R.id.uploading_progress_bar)).setMax(numberOfPictures());
 
+		Log.d(TAG, "Uploading photos...");
+
+		reportViolationActivity.onPictureUploaded(0, numberOfPictures());
 		//In picturesIDOnServer are saved the identifiers of the pictures on the cloud storage so that they can bi linked by the report.
 		picturesIDOnServer = StorageConnection.uploadPicturesToCloudStorage(report.getPictures(), reportViolationActivity,
 				//Called each time a photo has been uploaded correctly
 				taskSnapshot -> {
 					checkIfAllUploadsEnded();
-					String toastText = "Image " + numberOfUploadedPhotos + "/" + ((picturesIDOnServer != null) ? picturesIDOnServer.size() : "?") + " uploaded successfully";
-					Toast.makeText(reportViolationActivity, toastText, Toast.LENGTH_SHORT).show();
+					Log.d(TAG, "Uploaded " + numberOfUploadedPhotos + " out of " + numberOfPictures());
+					reportViolationActivity.onPictureUploaded(numberOfUploadedPhotos, numberOfPictures());//TODO create interface
 				},
 				//Called if the upload throws an exception
 				e -> {

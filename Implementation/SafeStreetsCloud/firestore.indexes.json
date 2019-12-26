@@ -16,6 +16,14 @@
         { "fieldPath": "typeOfViolation", "order": "ASCENDING" },
         { "fieldPath": "latitude", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "violationReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userUid", "order": "ASCENDING" },
+        { "fieldPath": "uploadTimestamp", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

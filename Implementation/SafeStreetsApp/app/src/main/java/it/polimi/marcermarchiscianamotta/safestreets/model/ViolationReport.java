@@ -3,6 +3,8 @@ package it.polimi.marcermarchiscianamotta.safestreets.model;
 import android.net.Uri;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,9 +37,9 @@ public class ViolationReport {
 
 	//region Setter methods
 	//================================================================================
-	public void setLocation(double latitude, double longitude) {
-		this.latitude = latitude;
-		this.longitude = longitude;
+	public void setLocation(LatLng location) {
+		this.latitude = location.latitude;
+		this.longitude = location.longitude;
 	}
 
 	public void setMunicipality(String municipality) {
@@ -78,7 +80,7 @@ public class ViolationReport {
 
 	public void setLicensePlate(String licensePlate) {
 		this.licensePlate = licensePlate;
-		Log.d(TAG, "license plate: " + licensePlate);
+		Log.d(TAG, "License plate set to: " + licensePlate);
 	}
 
 	public List<Uri> getPictures() {
@@ -107,6 +109,10 @@ public class ViolationReport {
 
 	public String getUserUid() {
 		return userUid;
+	}
+
+	public LatLng getLatLng() {
+		return new LatLng(latitude, longitude);
 	}
 	//endregion
 
