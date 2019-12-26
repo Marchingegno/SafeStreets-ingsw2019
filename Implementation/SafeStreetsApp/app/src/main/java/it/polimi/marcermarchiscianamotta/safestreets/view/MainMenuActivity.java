@@ -47,13 +47,6 @@ public class MainMenuActivity extends AppCompatActivity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Close activity if user is not signed in (Android launchers can launch activities singularly)
-        if(!AuthenticationManager.isSignedIn()) {
-            startActivity(StartupActivity.createIntent(this));
-            finish();
-            return;
-        }
-
         setContentView(R.layout.activity_main_menu);
         ButterKnife.bind(this); // Needed for @BindView attributes.
 
