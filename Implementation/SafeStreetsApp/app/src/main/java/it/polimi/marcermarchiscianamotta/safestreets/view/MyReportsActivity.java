@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -56,7 +57,10 @@ public class MyReportsActivity extends AppCompatActivity {
 		startGettingReports();
 
 		// Add back button to action bar.
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
 	}
 
 	@Override
