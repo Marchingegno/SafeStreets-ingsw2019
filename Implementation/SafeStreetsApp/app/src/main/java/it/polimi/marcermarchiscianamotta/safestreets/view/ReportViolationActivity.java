@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -163,6 +164,19 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		}
 		if (!thumbnailPictureDirectory.exists()) {
 			thumbnailPictureDirectory.mkdirs();
+		}
+
+		// Add back button to action bar.
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == android.R.id.home) {
+			finish();
+			return true;
+		} else {
+			return super.onOptionsItemSelected(item);
 		}
 	}
 

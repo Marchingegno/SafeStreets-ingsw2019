@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -49,6 +50,19 @@ public class PictureActivity extends AppCompatActivity implements LoadUser {
 		mViewIndex = Integer.parseInt(getIntent().getStringExtra("Index of the view associated with the picture"));
 
 		loadAndDisplayPicture(mPicturePath);
+		
+		// Add back button to action bar.
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == android.R.id.home) {
+			finish();
+			return true;
+		} else {
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	/**
