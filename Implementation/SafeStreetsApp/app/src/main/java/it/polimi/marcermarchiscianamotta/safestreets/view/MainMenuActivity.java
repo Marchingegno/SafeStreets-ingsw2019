@@ -29,13 +29,7 @@ public class MainMenuActivity extends AppCompatActivity {
     private static final String TAG = "MainMenuActivity";
 
     @BindView(android.R.id.content) View rootView;
-
     @BindView(R.id.main_menu_welcome_text) TextView welcomeText;
-
-    @BindView(R.id.user_email) TextView mUserEmail;
-    @BindView(R.id.user_display_name) TextView mUserDisplayName;
-    @BindView(R.id.user_phone_number) TextView mUserPhoneNumber;
-    @BindView(R.id.user_is_new) TextView mIsNewUser;
 
 
     //region Static methods
@@ -63,9 +57,12 @@ public class MainMenuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main_menu);
         ButterKnife.bind(this); // Needed for @BindView attributes.
 
-        // Handle sign-in response.
+        // Display welcome text.
+        displayWelcomeText();
+
+        // Debug sign-in response.
         IdpResponse response = getIntent().getParcelableExtra(ExtraConstants.IDP_RESPONSE);
-        handleResponse(response);
+        debugSignInResponse(response);
     }
 
     @Override
@@ -127,30 +124,23 @@ public class MainMenuActivity extends AppCompatActivity {
         });
     }
 
-    private void handleResponse(@Nullable IdpResponse response) {
+    private void displayWelcomeText() {
         UserInfo user = AuthenticationManager.getUser();
-
         if(TextUtils.isEmpty(user.getEmail())) {
-            if(TextUtils.isEmpty(user.getPhoneNumber())) {
+            if(TextUtils.isEmpty(user.getPhoneNumber()))
                 welcomeText.setText("Welcome back");
-            } else {
+            else
                 welcomeText.setText("Welcome back " + user.getPhoneNumber());
-            }
         } else {
             welcomeText.setText("Welcome back " + user.getEmail());
         }
+    }
 
-        mUserEmail.setText(
-                TextUtils.isEmpty(user.getEmail()) ? "No email" : user.getEmail());
-        mUserPhoneNumber.setText(
-                TextUtils.isEmpty(user.getPhoneNumber()) ? "No phone number" : user.getPhoneNumber());
-        mUserDisplayName.setText(
-                TextUtils.isEmpty(user.getDisplayName()) ? "No display name" : user.getDisplayName());
-
+    private void debugSignInResponse(@Nullable IdpResponse response) {
         if (response == null)
-            mIsNewUser.setText("Existing user with a saved sign-in");
+            Log.i(TAG, "Existing user with a saved sign-in");
         else
-            mIsNewUser.setText(response.isNewUser() ? "New user" : "Existing user");
+            Log.i(TAG, response.isNewUser() ? "New user" : "Existing user");
     }
     //endregion
 
