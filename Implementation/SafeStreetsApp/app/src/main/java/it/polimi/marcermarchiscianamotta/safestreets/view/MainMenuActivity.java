@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -14,7 +16,6 @@ import com.google.firebase.auth.UserInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -66,6 +67,30 @@ public class MainMenuActivity extends AppCompatActivity {
         IdpResponse response = getIntent().getParcelableExtra(ExtraConstants.IDP_RESPONSE);
         handleResponse(response);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Add items to the action bar.
+        getMenuInflater().inflate(R.menu.menu_main_menu_activity, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            case R.id.main_menu_action_sign_out:
+                signOut();
+                return true;
+
+            case R.id.main_menu_action_settings:
+                startActivity(SettingsActivity.createIntent(this));
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
     //endregion
 
 
@@ -85,9 +110,12 @@ public class MainMenuActivity extends AppCompatActivity {
     public void onClickMyReports(View v) {
         startActivity(MyReportsActivity.createIntent(v.getContext()));
     }
+    //endregion
 
-    @OnClick(R.id.signed_in_sign_out)
-    public void onClickSignOut(View v) {
+
+    //region Private methods
+    //================================================================================
+    private void signOut() {
         AuthenticationManager.signOut(this, task -> {
             if (task.isSuccessful()) {
                 startActivity(StartupActivity.createIntent(this));
@@ -95,31 +123,6 @@ public class MainMenuActivity extends AppCompatActivity {
             } else {
                 Log.w(TAG, "onClickSignOut:failure", task.getException());
                 GeneralUtils.showSnackbar(rootView, "Sign out failed");
-            }
-        });
-    }
-
-    @OnClick(R.id.signed_in_delete_account)
-    public void onClickDeleteAccount(View v) {
-        new AlertDialog.Builder(this)
-                .setMessage("Are you sure you want to delete this account?")
-                .setPositiveButton("Yes, nuke it!", (dialogInterface, i) -> deleteAccount())
-                .setNegativeButton("No", null)
-                .show();
-    }
-    //endregion
-
-
-    //region Private methods
-    //================================================================================
-    private void deleteAccount() {
-        AuthenticationManager.deleteAccount(this, task -> {
-            if (task.isSuccessful()) {
-                startActivity(StartupActivity.createIntent(this));
-                finish();
-            } else {
-                Log.w(TAG, "deleteAccount:failure", task.getException());
-                GeneralUtils.showSnackbar(rootView, "Delete account failed");
             }
         });
     }
