@@ -51,7 +51,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 
 	private static final String TAG = "SafeStreetsDataActivity";
 
-	private static final float DEFAULT_ZOOM = 10.0f;//TODO check zoom
+	private static final float DEFAULT_ZOOM = 18.0f;//TODO check zoom
 	private static final float DEFAULT_LATITUDE = 45.478130f;//TODO check zoom
 	private static final float DEFAULT_LONGITUDE = 9.225788f;//TODO check zoom
 
@@ -112,22 +112,17 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 				getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
 
 		// Specify the types of place data to return.
-		autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+		autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS));
 
 		// Set up a PlaceSelectionListener to handle the response.
 		autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
 			@Override
 			public void onPlaceSelected(Place place) {
-				if (place != null && mMap != null) {
-
-					//mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-					//		new LatLng(requestedLocation.latitude,
-					//				requestedLocation.latitude), DEFAULT_ZOOM));
+				LatLng requestedLocation = place.getLatLng();
+				mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+						new LatLng(requestedLocation.latitude,
+								requestedLocation.longitude), DEFAULT_ZOOM));
 					Log.d(TAG, "Place: " + place.getName() + "\nID: " + place.getId() + " \nLatLng: " + place.getLatLng() + "\nAddress: " + place.getAddress());
-				} else {
-					Log.e(TAG, "place = " + place);
-					Log.e(TAG, "mMap = " + mMap);
-				}
 			}
 
 			@Override
