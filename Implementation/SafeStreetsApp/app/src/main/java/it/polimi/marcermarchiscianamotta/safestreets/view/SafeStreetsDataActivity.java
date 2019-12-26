@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +19,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
@@ -49,7 +51,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 
 	private static final String TAG = "SafeStreetsDataActivity";
 
-	private static final float DEFAULT_ZOOM = 20.0f;//TODO check zoom
+	private static final float DEFAULT_ZOOM = 10.0f;//TODO check zoom
 	private static final float DEFAULT_LATITUDE = 45.478130f;//TODO check zoom
 	private static final float DEFAULT_LONGITUDE = 9.225788f;//TODO check zoom
 
@@ -99,25 +101,33 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 				.findFragmentById(R.id.map);
 		mapFragment.getMapAsync(this);
 
-// Initialize the SDK
+		// Initialize the SDK
 		Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
 
-// Create a new Places client instance
+		// Create a new Places client instance
 		PlacesClient placesClient = Places.createClient(this);
 
-// Initialize the AutocompleteSupportFragment.
+		// Initialize the AutocompleteSupportFragment.
 		AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
 				getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
 
-// Specify the types of place data to return.
+		// Specify the types of place data to return.
 		autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
 
-// Set up a PlaceSelectionListener to handle the response.
+		// Set up a PlaceSelectionListener to handle the response.
 		autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
 			@Override
 			public void onPlaceSelected(Place place) {
-				// TODO: Get info about the selected place.
-				Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+				if (place != null && mMap != null) {
+
+					//mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+					//		new LatLng(requestedLocation.latitude,
+					//				requestedLocation.latitude), DEFAULT_ZOOM));
+					Log.d(TAG, "Place: " + place.getName() + "\nID: " + place.getId() + " \nLatLng: " + place.getLatLng() + "\nAddress: " + place.getAddress());
+				} else {
+					Log.e(TAG, "place = " + place);
+					Log.e(TAG, "mMap = " + mMap);
+				}
 			}
 
 			@Override
@@ -128,8 +138,6 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		});
 
 
-
-
 		if (!EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
 			EasyPermissions.requestPermissions(this, "Location permission", RC_LOCATION_PERMS, LOCATION_PERMS);
 		}
@@ -138,6 +146,20 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
 		mMap = googleMap;
+
+		try {
+			// Customise the styling of the base map using a JSON object defined
+			// in a raw resource file.
+			boolean success = googleMap.setMapStyle(
+					MapStyleOptions.loadRawResourceStyle(
+							this, R.raw.style_json));
+
+			if (!success) {
+				Log.e(TAG, "Style parsing failed.");
+			}
+		} catch (Resources.NotFoundException e) {
+			Log.e(TAG, "Can't find style. Error: ", e);
+		}
 
 		// Do other setup activities here too, as described elsewhere in this tutorial.
 
@@ -166,6 +188,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 			finish();
 		}
 	}
+
 	//endregion
 	private void loadClusters() {
 		String municipality = MapManager.getAddressFromLocation(this, new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude())).getLocality();
@@ -263,6 +286,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 			if (EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
 				mMap.setMyLocationEnabled(true);
 				mMap.getUiSettings().setMyLocationButtonEnabled(true);
+				mMap.getUiSettings().setMapToolbarEnabled(false);
 			} else {
 				mMap.setMyLocationEnabled(false);
 				mMap.getUiSettings().setMyLocationButtonEnabled(false);
