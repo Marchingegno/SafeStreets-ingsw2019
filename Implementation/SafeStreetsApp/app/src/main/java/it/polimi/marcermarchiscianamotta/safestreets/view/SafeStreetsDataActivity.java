@@ -12,17 +12,23 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -92,6 +98,37 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.map);
 		mapFragment.getMapAsync(this);
+
+// Initialize the SDK
+		Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
+
+// Create a new Places client instance
+		PlacesClient placesClient = Places.createClient(this);
+
+// Initialize the AutocompleteSupportFragment.
+		AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+				getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+
+// Specify the types of place data to return.
+		autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+
+// Set up a PlaceSelectionListener to handle the response.
+		autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+			@Override
+			public void onPlaceSelected(Place place) {
+				// TODO: Get info about the selected place.
+				Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+			}
+
+			@Override
+			public void onError(Status status) {
+				// TODO: Handle the error.
+				Log.i(TAG, "An error occurred: " + status);
+			}
+		});
+
+
+
 
 		if (!EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
 			EasyPermissions.requestPermissions(this, "Location permission", RC_LOCATION_PERMS, LOCATION_PERMS);
@@ -198,23 +235,19 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		try {
 			if (EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
 				Task locationResult = MapManager.getLastLocationTask(this);
-				locationResult.addOnCompleteListener(this, new OnCompleteListener() {
-					@Override
-					public void onComplete(@NonNull Task task) {
-						if (task.isSuccessful()) {
-							// Set the map's camera position to the current location of the device.
-							lastKnownLocation = (Location) task.getResult();
-							mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-									new LatLng(lastKnownLocation.getLatitude(),
-											lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-							loadClusters();
-						} else {
-							Log.d(TAG, "Current location is null. Using defaults.");
-							Log.e(TAG, "Exception: %s", task.getException());
-							mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, DEFAULT_ZOOM));
-							mMap.getUiSettings().setMyLocationButtonEnabled(false);
-						}
+				locationResult.addOnSuccessListener(location -> {
+					if (location != null) {
+						// Set the map's camera position to the current location of the device.
+						lastKnownLocation = (Location) location;
+						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+								new LatLng(lastKnownLocation.getLatitude(),
+										lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+						loadClusters();
 					}
+				}).addOnFailureListener(location -> {
+					Log.d(TAG, "Current location is null. Using defaults.");
+					mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, DEFAULT_ZOOM));
+					mMap.getUiSettings().setMyLocationButtonEnabled(false);
 				});
 			}
 		} catch (SecurityException e) {
