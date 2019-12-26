@@ -61,48 +61,6 @@
 		padding: 2%;
 		text-align: center;
 	}
-
-	.dropbtn {
-		background-color: #d3d3d3;
-		color: #000000;
-		padding: 10px;
-		font-size: 15px;
-		border: none;
-		cursor: pointer;
-	}
-
-	.dropdown {
-		display: inline-block;
-	}
-
-	.dropdown-content {
-		display: none;
-		position: absolute;
-		background-color: #f9f9f9;
-		min-width: 160px;
-		box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-	}
-
-	.dropdown-content a {
-		color: black;
-		padding: 8px 10px;
-		text-decoration: none;
-		display: block;
-	}
-
-	.dropdown-content a:hover {
-		background-color: #f1f1f1
-	}
-
-	.dropdown:hover .dropdown-content {
-		display: block;
-	}
-
-	.dropdown:hover .dropbtn {
-		background-color: #7a7a7a;
-	}
-
-
 </style>
 
 <div class="center">SafeStreets Municipality Interface</div>
@@ -119,11 +77,6 @@
 		Order by
 		<menu style="display: inline">number of reports</menu>
 		<br>
-		<div class="dropdown">
-			<button class="dropbtn">Municipality</button>
-			<div class="dropdown-content" id="dropdown-content">
-			</div>
-		</div>
 	</div>
 
 	<h1>
@@ -133,7 +86,7 @@
 	<div>
 		<button onclick="createReport()">Create report</button>
 		<button onclick="retrieveReports()">Retrieve reports</button>
-		<button onclick="retrieveMunicipalityReports()">Retrieve municipality reports</button>
+		<!--<button onclick="retrieveMunicipalityReports()">Retrieve municipality reports</button>-->
 	</div>
 
 	<div class="reports" id="reports">
@@ -193,7 +146,7 @@
 
 <!-- RETRIEVE REPORT SCRIPT -->
 <script>
-    function retrieveReports() {
+    /*function retrieveReports() {
         var reports = firebase.firestore().collection("violationReports");
         reports.get().then(function (querySnapshot) {
             querySnapshot.forEach(function (doc) {
@@ -209,10 +162,32 @@
                 createReportWithParameters(licensePlate, location, violationType, numOfReports, uid);
             })
         })
-    }
+    }*/
+
+	var db = firebase.firestore();
+
+    function retrieveReports() {
+		var groups = db.collection("municipalities").doc(sessionStorage.municip).collection("groups");
+		groups.get().then(function (querySnapshot) {
+			querySnapshot.forEach(function (doc) {
+				//console.log(doc.data());
+				let groupID = doc.id;
+				let licensePlate = doc.get("licensePlate");
+				let location = doc.get("latitude").toString() + "  |  " + doc.get("longitude").toString();
+				let violationType = doc.get("typeOfViolation");
+				var reports = doc.get("reports");
+				let numOfReports = 0;
+				reports.forEach(function (repo) {
+					numOfReports++;
+                });
+				createReportWithParameters(licensePlate, location, violationType, numOfReports, groupID);
+			})
+		})
+	}
+
 </script>
 
-<script async>
+<!-- <script async>
     //retrieve municipality names
     var municipalities = firebase.firestore().collection("municipalities");
 
@@ -253,7 +228,7 @@
 
     }
 </script>
-
+-->
 
 <script src="scripts/logout.js"></script>
 

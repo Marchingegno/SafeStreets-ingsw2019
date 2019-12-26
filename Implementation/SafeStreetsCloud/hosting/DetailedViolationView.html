@@ -65,6 +65,7 @@
 		margin-left: 20%;
 		width: 250px;
 		max-width: 400px;
+		height: fit-content;
 	}
 
 	img {
@@ -75,7 +76,8 @@
 		transform: rotate(90deg);*/
 		cursor: pointer;
 		padding-left: 15px;
-		padding-bottom: 30px;
+		padding-top: 10px;
+		padding-bottom: 15px;
 	}
 
 
@@ -93,12 +95,12 @@
 
 <div class="content">
 	<div class="details">
-		<txt id="id">Group id:</txt>
-		<txt id="num">Number of reports:</txt>
-		<txt id="loc">Location:</txt>
-		<txt id="licp">License plate:</txt>
-		<txt id="vtype">Violation type:</txt>
-		<txt id="time">Time:</txt>
+		<txt id="id">Group id:		</txt>
+		<txt id="num">Number of reports:		</txt>
+		<txt id="loc">Location:		</txt>
+		<txt id="licp">License plate:		</txt>
+		<txt id="vtype">Violation type:		</txt>
+		<txt id="time">Time:		</txt>
 	</div>
 
 	<div class="infos">
@@ -109,12 +111,11 @@
 
 		<div class="boxes">
 			<div class="box" id="descr">
-				robarobaaaaaaaaaaaaaaafdsfsdfsf
-				aaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
 			</div>
 
 			<div class="box" id="pic">
-				altrarobaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
 			</div>
 		</div>
 	</div>
@@ -140,26 +141,26 @@
         if (groupDocumentSnapshot.exists) {
             //Get location, licensePlate, time, violationType
             locationOnMap = groupDocumentSnapshot.get("latitude") + "  |  " + groupDocumentSnapshot.get("longitude");
-            console.log(locationOnMap);
             licensePlate = groupDocumentSnapshot.get("licensePlate");
             time = "Between " + new Date(groupDocumentSnapshot.get("firstTimestamp").seconds * 1000) + " and " + new Date(groupDocumentSnapshot.get("lastTimestamp").seconds * 1000);
             violationType = groupDocumentSnapshot.get("typeOfViolation");
+
             //Take the reports of the group. For each report, get the description and its pictures
             let reports = groupDocumentSnapshot.get("reports");
             reports.forEach(function (repoId) {
                 let report = db.collection("violationReports").doc(repoId);
                 report.get().then(function (reportSnapshot) {
                     if (reportSnapshot.exists) {
-                        reportsNumber++;
-                        descriptions.push(reportSnapshot.get("description"));
+                        document.getElementById("num").textContent += ++reportsNumber;
+                        document.getElementById("descr").innerText += reportSnapshot.get("description");
+                        console.log(reportSnapshot.get("description"));
                         picturesCollection = reportSnapshot.get("pictures");
-                        var userid = reportSnapshot.get("userUid");
+
                         //Retrieve pictures of the report
+						userid = reportSnapshot.get("userUid");
                         if (picturesCollection) {
                             picturesCollection.forEach(function (value) {
-                                console.log("PATH: " + "pictures/" + userid + "/" + value + ".jpeg");
                                 storage.child("pictures/" + userid + "/" + value).getDownloadURL().then(function (url) {
-                                    console.log(url);
                                     var newImg = document.createElement("img");
                                     newImg.setAttribute("src", url);
                                     newImg.setAttribute("width", 100);
@@ -176,18 +177,14 @@
                     }
                 })
             });
-
-
         }
+        document.getElementById("id").textContent += groupId;
+        //document.getElementById("num").textContent += reportsNumber.toString();
+        document.getElementById("loc").textContent += locationOnMap;
+        document.getElementById("licp").textContent += licensePlate;
+        document.getElementById("time").textContent += time;
+        document.getElementById("vtype").textContent += violationType;
     });
-
-    document.getElementById("id").textContent += groupId;
-    document.getElementById("num").textContent += reportsNumber;
-    document.getElementById("loc").textContent += locationOnMap;
-    document.getElementById("licp").textContent += licensePlate;
-    document.getElementById("time").textContent += time;
-    document.getElementById("vtype").textContent += violationType;
-    document.getElementById("descr").innerText += descriptions;
 
     function deprecatedRetrieve() {
         var report = firebase.firestore().collection("violationReports").doc(groupId).get().then(function (documentSnapshot) {
