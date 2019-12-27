@@ -3,6 +3,7 @@
 
 // Dependencies
 const model = require('../main/model/model');
+const generalUtils = require('../main/utils/generalUtils');
 const chai = require('chai');
 const assert = chai.assert;
 const sinon = require('sinon');
@@ -260,7 +261,9 @@ describe('Cloud Functions Tests', () => {
                 return db.collection("municipalities").doc("testMunicip").collection("clusters").get().then(querySnapshot => {
                     assert.equal(querySnapshot.docs.length, 1);
                     for (let clusterDocSnap of querySnapshot.docs) {
+                        assert.equal(clusterDocSnap.data().firstAddedDate.toDate().getTime(), generalUtils.getNewDateWithDayPrecision(groupData.firstTimestamp).getTime());
                         assert.deepEqual(clusterDocSnap.data().groups, ["test-group-1"]);
+                        assert.equal(clusterDocSnap.data().lastAddedDate.toDate().getTime(), generalUtils.getNewDateWithDayPrecision(groupData.lastTimestamp).getTime());
                         assert.equal(clusterDocSnap.data().latitude, groupData.latitude);
                         assert.equal(clusterDocSnap.data().longitude, groupData.longitude);
                         assert.equal(clusterDocSnap.data().typeOfViolation, groupData.typeOfViolation);
@@ -287,7 +290,9 @@ describe('Cloud Functions Tests', () => {
                     return db.collection("municipalities").doc("testMunicip").collection("clusters").get().then(querySnapshot => {
                         assert.equal(querySnapshot.docs.length, 1);
                         for (let clusterDocSnap of querySnapshot.docs) {
+                            assert.equal(clusterDocSnap.data().firstAddedDate.toDate().getTime(), generalUtils.getNewDateWithDayPrecision(groupData1.firstTimestamp).getTime());
                             assert.deepEqual(clusterDocSnap.data().groups, ["test-group-1", "test-group-2"]);
+                            assert.equal(clusterDocSnap.data().lastAddedDate.toDate().getTime(), generalUtils.getNewDateWithDayPrecision(groupData2.lastTimestamp).getTime());
                             assert.equal(clusterDocSnap.data().latitude, groupData1.latitude);
                             assert.equal(clusterDocSnap.data().longitude, groupData1.longitude);
                             assert.equal(clusterDocSnap.data().typeOfViolation, groupData1.typeOfViolation);

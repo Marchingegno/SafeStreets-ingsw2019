@@ -12,7 +12,7 @@ try {
 const db = admin.firestore();
 
 /**
- * Triggers when the municipality confirms or rejects a violation group.
+ * Triggers when the municipality confirms or rejects a violation group. TODO delete group from cluster if REJECTED
  */
 exports.onReportStatusChangeMS = functions.firestore.document('/municipalities/{municipalityId}/groups/{groupId}').onUpdate(async (change, context) => {
     console.log(`onReportStatusChangeMS started.`);
