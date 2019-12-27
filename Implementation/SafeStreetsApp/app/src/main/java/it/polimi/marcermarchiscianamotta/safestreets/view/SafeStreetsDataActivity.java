@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +26,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
@@ -413,6 +416,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		assert mMap != null; //Checked int the caller
 		MarkerOptions markerOption = new MarkerOptions()
 				.position(new LatLng(cluster.getLatitude(), cluster.getLongitude()))
+				.icon(getMarkerIcon(cluster.getTypeOfViolation().getColor()))
 				.title(cluster.getTypeOfViolation().toString());
 		markers.add(mMap.addMarker(markerOption));
 	}
@@ -423,6 +427,13 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 			markers.get(i).remove();
 			markers.remove(i);
 		}
+	}
+
+	// method definition
+	public BitmapDescriptor getMarkerIcon(String color) {
+		float[] hsv = new float[3];
+		Color.colorToHSV(Color.parseColor(color), hsv);
+		return BitmapDescriptorFactory.defaultMarker(hsv[0]);
 	}
 	//endregion
 }
