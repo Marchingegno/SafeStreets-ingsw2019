@@ -99,9 +99,9 @@ public class ImageRecognition {
 		Log.d(TAG, "Text found:\n" + text);
 
 		for (int i = 0; i < lines.length; i++) {
-			lines[i] = lines[i].replace('-', ' ').replace(".", "").replace(" ", "");
+			lines[i] = lines[i].replace("-", "").replace(".", "").replace(" ", "");
 			//If the current string matches a license plate it is added to the license plates found
-			if (lines[i].matches("[A-Z][A-Z][0-9][0-9][0-9][A-Z][A-Z](.)*"))
+			if (GeneralUtils.isPlate(lines[i]))
 				licencePlatesFound.add(lines[i].substring(0, 7));
 		}
 

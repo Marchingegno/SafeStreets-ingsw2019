@@ -165,7 +165,7 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	 */
 	public boolean setPlate(String plate) {
 		boolean changed = false;
-		if (plate.matches("[A-Z][A-Z][0-9][0-9][0-9][A-Z][A-Z]")) {
+		if (GeneralUtils.isPlate(plate)) {
 			changed = true;
 			report.setLicensePlate(plate);
 		} else
