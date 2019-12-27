@@ -8,14 +8,15 @@ import android.content.res.Resources;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -43,9 +44,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -78,17 +76,19 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 	private GoogleMap mMap = null;
 	private LatLng defaultLocation = new LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE);
 	private List<Marker> markers;
+	@BindView(R.id.violation_type_selection_button)
+	Button violationTypeSelectionButton;
+	@Nullable
+	private Location lastKnownLocation;
 
 	//UI
 	DatePickerDialog picker;
-	@Nullable
-	private Location lastKnownLocation;
 	@BindView(R.id.start_date_view)
 	TextView startDateTextView;
 	@BindView(R.id.end_date_view)
 	TextView endDateTextView;
-	@BindView(R.id.violation_type_selection_button)
-	Button violaitonTypeSelectionButton;
+	@Nullable
+	private LatLng lastSearchedCoordinates;
 	AlertDialog violationTypeDialog;
 
 	//Query
@@ -204,8 +204,6 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 			}
 		}
 	}
-
-
 	//endregion
 
 	//region UI methods
@@ -286,12 +284,13 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 						(dialog, id) -> {
 							//On click
 							violationTypesSelected = selectedItems;
-							if (lastKnownLocation != null) {
-								retrieveViolationsManager.loadClusters(
-										new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), violationTypesSelected);
-							} else
-								Log.e(TAG, "lastKnownLocation is null in setPositiveButton");
 							Log.d(TAG, "Violation types selected: " + violationTypesSelected);
+							if (lastSearchedCoordinates != null) {
+								retrieveViolationsManager.loadClusters(
+										new LatLng(lastSearchedCoordinates.latitude, lastSearchedCoordinates.longitude), violationTypesSelected);
+							} else {
+								Log.e(TAG, "lastSearchedCoordinates is null in setPositiveButton");
+							}
 						})
 				.setNegativeButton("Cancel",
 						(dialog, id) -> {
@@ -330,9 +329,9 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 					LatLng requestedLocation = place.getLatLng();
 					Log.d(TAG, "Place: " + place.getName() + "\nID: " + place.getId() + " \nLatLng: " + place.getLatLng() + "\nAddress: " + place.getAddress());
 					if (requestedLocation != null && mMap != null) {
-						LatLng requestedCoordinates = new LatLng(requestedLocation.latitude, requestedLocation.longitude);
-						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(requestedCoordinates, DEFAULT_ZOOM));
-						retrieveViolationsManager.loadClusters(requestedCoordinates, violationTypesSelected);
+						lastSearchedCoordinates = new LatLng(requestedLocation.latitude, requestedLocation.longitude);
+						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastSearchedCoordinates, DEFAULT_ZOOM));
+						retrieveViolationsManager.loadClusters(lastSearchedCoordinates, violationTypesSelected);
 					} else
 						Log.e(TAG, "No LatLng associated with the searched place. mMap = " + mMap);
 				}
