@@ -8,11 +8,14 @@ import android.content.res.Resources;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.common.api.Status;
@@ -41,9 +44,11 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.RetrieveViolationsManager;
 import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
+import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.ViolationRetrieverUser;
 import pub.devrel.easypermissions.AppSettingsDialog;
@@ -78,10 +83,14 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 	TextView startDateTextView;
 	@BindView(R.id.end_date_view)
 	TextView endDateTextView;
+	@BindView(R.id.violation_type_selection_button)
+	Button violaitonTypeSelectionButton;
+	AlertDialog violationTypeDialog;
 
-	//Others
+	//Query
 	private long startDate = 0;
 	private long endDate = 0;
+	private List<ViolationEnum> violationTypesSelected = Arrays.asList(ViolationEnum.values());//all types of violation are selected at the beginning
 	private RetrieveViolationsManager retrieveViolationsManager;
 
 	//region Static methods
@@ -111,6 +120,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 
 		retrieveViolationsManager = new RetrieveViolationsManager(this);
 		setupDatePickerDialogs();
+		setupTypeOfViolationDialog();
 		setupMapFragment();
 
 		if (!EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -169,12 +179,20 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 	public void onClusterLoaded(List<Cluster> clusters) {
 		if (mMap != null)
 			removeMarkers();
-			for (Cluster rep : clusters) {
-				addMarker(rep);
-			}
+		for (Cluster rep : clusters) {
+			addMarker(rep);
+		}
 	}
 
 
+	//endregion
+
+	//region UI methods
+	//================================================================================
+	@OnClick(R.id.violation_type_selection_button)
+	public void onClickChooseViolationTypes(View v) {
+		violationTypeDialog.show();
+	}
 	//endregion
 
 	//region Private methods
@@ -220,6 +238,43 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 			picker.getDatePicker().setMaxDate(calendar.getTimeInMillis());
 			picker.show();
 		});
+	}
+
+
+	private void setupTypeOfViolationDialog() {
+		List<ViolationEnum> selectedItems = new ArrayList<>();
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		int namOfViolations = ViolationEnum.values().length;
+		CharSequence[] violationTypes = new CharSequence[namOfViolations];
+
+		for (int i = 0; i < namOfViolations; i++)
+			violationTypes[i] = ViolationEnum.values()[i].toString();
+
+		builder.setTitle("Choose the type of violation")
+				.setMultiChoiceItems(violationTypes, null,
+						(dialog, which, isChecked) -> {
+							//On click
+							if (isChecked) {// If the user checked the item, add it to the selected items
+								selectedItems.add(ViolationEnum.values()[which]);
+								Log.d(TAG, "Added to the list of violation types: " + ViolationEnum.values()[which]);
+							} else if (selectedItems.contains(ViolationEnum.values()[which])) {// Else, if the item is already in the array, remove it
+								selectedItems.remove(ViolationEnum.values()[which]);
+								Log.d(TAG, "Removed from the list of violation types: " + ViolationEnum.values()[which]);
+							}
+						})
+				.setPositiveButton("OK",
+						(dialog, id) -> {
+							//On click
+							violationTypesSelected = selectedItems;
+							Log.d(TAG, "Violation types selected: " + violationTypesSelected);
+						})
+				.setNegativeButton("Cancel",
+						(dialog, id) -> {
+							//On click
+							Log.d(TAG, "Violation types selected: " + violationTypesSelected);
+						});
+
+		violationTypeDialog = builder.create();
 	}
 
 	private void setupMapFragment() {
