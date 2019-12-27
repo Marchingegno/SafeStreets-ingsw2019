@@ -21,6 +21,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -29,6 +30,7 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -52,7 +54,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 	private static final String TAG = "SafeStreetsDataActivity";
 
 	//Constants
-	private static final float DEFAULT_ZOOM = 18.0f;//Zoom of the map's camera
+	private static final float DEFAULT_ZOOM = 16.0f;//Zoom of the map's camera
 	private static final float DEFAULT_LATITUDE = 45.478130f;
 	private static final float DEFAULT_LONGITUDE = 9.225788f;
 
@@ -66,6 +68,8 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 	@Nullable
 	private GoogleMap mMap = null;
 	private LatLng defaultLocation = new LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE);
+	private List<Marker> markers;
+
 	//UI
 	DatePickerDialog picker;
 	@Nullable
@@ -117,6 +121,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
 		mMap = googleMap;
+		markers = new ArrayList<>();
 
 		//Sets the style of the map
 		try {
@@ -155,9 +160,12 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 	@Override
 	public void onClusterLoaded(List<Cluster> clusters) {
 		if (mMap != null)
+			removeMarkers();
 			for (Cluster rep : clusters) {
-				mMap.addMarker(new MarkerOptions().position(new LatLng(rep.getLatitude(), rep.getLongitude()))
-						.title(ViolationEnum.valueOf(rep.getTypeOfViolation()).toString()));
+				MarkerOptions markerOption = new MarkerOptions()
+						.position(new LatLng(rep.getLatitude(), rep.getLongitude()))
+						.title(ViolationEnum.valueOf(rep.getTypeOfViolation()).toString());
+				markers.add(mMap.addMarker(markerOption));
 			}
 	}
 	//endregion
@@ -313,6 +321,14 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 			e.printStackTrace();
 		}
 		return date == null ? 0 : date.getTime();
+	}
+
+	//Removes the markers from the map
+	private void removeMarkers() {
+		for (int i = markers.size() - 1; i >= 0; i--) {
+			markers.get(i).remove();
+			markers.remove(i);
+		}
 	}
 	//endregion
 }
