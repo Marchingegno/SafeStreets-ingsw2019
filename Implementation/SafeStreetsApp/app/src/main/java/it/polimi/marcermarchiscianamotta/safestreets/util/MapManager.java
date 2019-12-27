@@ -3,6 +3,7 @@ package it.polimi.marcermarchiscianamotta.safestreets.util;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -20,23 +21,21 @@ public class MapManager {
 	private static final String TAG = "MapManager";
 
 	/**
-	 * Returns the name of the city accordingly to the specified coordinates.
+	 * Launches a task to find the name of the city accordingly to the specified coordinates.
 	 *
-	 * @param context   the context of the application.
-	 * @param location the current location.
-	 * @return the name of the city where the location belongs.
+	 * @param context  the context of the application.
+	 * @param location the specified location.
 	 */
-	public static Address getAddressFromLocation(Context context, LatLng location) {
-		Address result = null;
-		try {
-			result = new Geocoder(context).getFromLocation(location.latitude, location.longitude, 1).get(0);
-		} catch (IOException e) {
-			Log.e(TAG, TAG + "failed while retrieving the municipality ", e);
-		}
-		Log.d(TAG, result.toString());
-		return result;
+	public static void getAddressFromLocation(Context context, MapUser caller, LatLng location) {
+		new AddressFromLocationTask(context, caller).execute(location);
 	}
 
+	/**
+	 * Launches a task to find the current location of the device.
+	 *
+	 * @param context the context of the application.
+	 * @param caller  the MapUser caller.
+	 */
 	static public void retrieveLocation(Context context, MapUser caller) {
 		FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
 		fusedLocationProviderClient.getLastLocation()
@@ -58,5 +57,38 @@ public class MapManager {
 	static public Task getLastLocationTask(Context context) {
 		FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
 		return fusedLocationProviderClient.getLastLocation();
+	}
+
+	/**
+	 * Task that retrieves an address from a location.
+	 */
+	private static class AddressFromLocationTask extends AsyncTask<LatLng, Void, Void> {
+
+		private MapUser caller;
+		private Context context;
+
+		AddressFromLocationTask(Context context, MapUser caller) {
+			this.caller = caller;
+			this.context = context;
+		}
+
+		@Override
+		protected Void doInBackground(LatLng... locations) {
+			if (locations.length == 1) {
+				LatLng location = locations[0];
+				Address address = null;
+				try {
+					address = new Geocoder(context).getFromLocation(location.latitude, location.longitude, 1).get(0);
+				} catch (IOException e) {
+					Log.e(TAG, TAG + "Failed while retrieving the address from the location ", e);
+				}
+				Log.d(TAG, "Address found: " + address);
+				//Notify the caller
+				caller.onAddressFound(address);
+			} else
+				Log.e(TAG, "Too many arguments");
+
+			return null;
+		}
 	}
 }
