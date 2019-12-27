@@ -83,6 +83,7 @@ public class DatabaseConnection {
 				.get()
 				.addOnSuccessListener(listenerActivity, querySnapshot -> {
 					List<ViolationReportRepresentation> reports = new ArrayList<>();
+					Log.d(TAG, "getUserViolationReports succeeded");
 					for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
 						ViolationReportRepresentation violationReportRepresentation = documentSnapshot.toObject(ViolationReportRepresentation.class);
 						reports.add(violationReportRepresentation);
@@ -93,19 +94,20 @@ public class DatabaseConnection {
 	}
 
 	/**
-	 * Gets all the violation reports made by the current user.
+	 * Gets all the violation reports in a municipality.
 	 *
+	 * @param municipality municipality to which the clusters belong to.
 	 * @param listenerActivity  the activity that will listen for success or failure events.
 	 * @param onSuccessListener the code to execute on success.
 	 * @param onFailureListener the code to execute on failure.
 	 */
 	public static void getClusters(Activity listenerActivity, String municipality, OnSuccessListener<List<Cluster>> onSuccessListener, OnFailureListener onFailureListener) {
-		FirebaseFirestore.getInstance().collection("municipalities").document("Pordenone").collection("clusters")
+		FirebaseFirestore.getInstance().collection("municipalities").document(municipality).collection("clusters")
 				//.whereEqualTo("userUid", AuthenticationManager.getUserUid())
 				.get()
 				.addOnSuccessListener(listenerActivity, querySnapshot -> {
 					List<Cluster> clusters = new ArrayList<>();
-					Log.d(TAG, querySnapshot.toString());
+					Log.d(TAG, "getClusters succeeded");
 					for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
 						Cluster cluster = documentSnapshot.toObject(Cluster.class);
 						clusters.add(cluster);

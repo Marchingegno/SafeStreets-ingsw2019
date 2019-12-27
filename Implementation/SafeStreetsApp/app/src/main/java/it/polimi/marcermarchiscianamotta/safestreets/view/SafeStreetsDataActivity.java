@@ -43,11 +43,11 @@ import it.polimi.marcermarchiscianamotta.safestreets.controller.RetrieveViolatio
 import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
-import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.DatabaseConnection;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.ViolationRetrieverUser;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapReadyCallback, EasyPermissions.PermissionCallbacks {
+public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapReadyCallback, EasyPermissions.PermissionCallbacks, ViolationRetrieverUser {
 
 	private static final String TAG = "SafeStreetsDataActivity";
 
@@ -61,22 +61,24 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 
 	//Permissions
 	private static final String LOCATION_PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
-	//UI
-	DatePickerDialog picker;
+
 	//Map
 	@Nullable
 	private GoogleMap mMap = null;
 	private LatLng defaultLocation = new LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE);
-	//Locations
+	//UI
+	DatePickerDialog picker;
+	@Nullable
 	private Location lastKnownLocation;
 	@BindView(R.id.start_date_view)
 	TextView startDateTextView;
 	@BindView(R.id.end_date_view)
 	TextView endDateTextView;
+
 	//Others
 	private long startDate = 0;
 	private long endDate = 0;
-	private RetrieveViolationsManager retrieveViolationsManager = new RetrieveViolationsManager(this);
+	private RetrieveViolationsManager retrieveViolationsManager;
 
 	//region Static methods
 	//================================================================================
@@ -103,6 +105,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 
 		ButterKnife.bind(this); // Needed for @BindView attributes.
 
+		retrieveViolationsManager = new RetrieveViolationsManager(this);
 		setupDatePickerDialogs();
 		setupMapFragment();
 
@@ -148,23 +151,16 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 			finish();
 		}
 	}
-	//endregion
 
-	private void loadClusters() {
-		String municipality = MapManager.getAddressFromLocation(this, new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude())).getLocality();
-		DatabaseConnection.getClusters(this, municipality,
-				// On success.
-				reportsResult -> {
-					for (Cluster rep : reportsResult) {
-						mMap.addMarker(new MarkerOptions().position(new LatLng(rep.getLatitude(), rep.getLongitude()))
-								.title(ViolationEnum.valueOf(rep.getTypeOfViolation()).toString()));
-					}
-				},
-				// On failure.
-				e -> {
-					Log.e(TAG, "Failed to retrieve reports", e);
-				});
+	@Override
+	public void onClusterLoaded(List<Cluster> clusters) {
+		if (mMap != null)
+			for (Cluster rep : clusters) {
+				mMap.addMarker(new MarkerOptions().position(new LatLng(rep.getLatitude(), rep.getLongitude()))
+						.title(ViolationEnum.valueOf(rep.getTypeOfViolation()).toString()));
+			}
 	}
+	//endregion
 
 	//region Private methods
 	//================================================================================
@@ -239,7 +235,9 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 					LatLng requestedLocation = place.getLatLng();
 					Log.d(TAG, "Place: " + place.getName() + "\nID: " + place.getId() + " \nLatLng: " + place.getLatLng() + "\nAddress: " + place.getAddress());
 					if (requestedLocation != null && mMap != null) {
-						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(requestedLocation.latitude, requestedLocation.longitude), DEFAULT_ZOOM));
+						LatLng requestedCoordinates = new LatLng(requestedLocation.latitude, requestedLocation.longitude);
+						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(requestedCoordinates, DEFAULT_ZOOM));
+						retrieveViolationsManager.loadClusters(requestedCoordinates);
 					} else
 						Log.e(TAG, "No LatLng associated with the searched place. mMap = " + mMap);
 				}
@@ -285,9 +283,10 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 						.addOnSuccessListener(location -> {
 							if (location != null && mMap != null) {
 								lastKnownLocation = (Location) location;
+								LatLng lastKnownCoordinate = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
 								// Set the map's camera position to the current location of the device.
-								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-								loadClusters();//TODO modify
+								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastKnownCoordinate, DEFAULT_ZOOM));
+								retrieveViolationsManager.loadClusters(lastKnownCoordinate);
 							}
 						})
 						.addOnFailureListener(location -> {
