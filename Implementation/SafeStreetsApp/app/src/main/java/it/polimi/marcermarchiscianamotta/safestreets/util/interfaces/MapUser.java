@@ -1,5 +1,7 @@
 package it.polimi.marcermarchiscianamotta.safestreets.util.interfaces;
 
+import android.location.Address;
+
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -12,4 +14,6 @@ public interface MapUser {
 	 * @param location The location found.
 	 */
 	void onLocationFound(LatLng location);
+
+	void onAddressFound(Address address);
 }

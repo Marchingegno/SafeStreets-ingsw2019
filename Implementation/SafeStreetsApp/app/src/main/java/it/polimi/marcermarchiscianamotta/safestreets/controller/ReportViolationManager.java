@@ -165,7 +165,7 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	 */
 	public boolean setPlate(String plate) {
 		boolean changed = false;
-		if (plate.matches("[A-Z][A-Z][0-9][0-9][0-9][A-Z][A-Z]")) {
+		if (GeneralUtils.isPlate(plate)) {
 			changed = true;
 			report.setLicensePlate(plate);
 		} else
@@ -203,13 +203,16 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	@Override
 	public void onLocationFound(LatLng location) {
 		report.setLocation(location);
+		Log.d(TAG, "Location[" + location.latitude + ", " + location.longitude + "] set.");
+		MapManager.getAddressFromLocation(reportViolationActivity.getApplicationContext(), this, location);
+	}
 
-		Address address = MapManager.getAddressFromLocation(reportViolationActivity.getApplicationContext(), location);
+	@Override
+	public void onAddressFound(Address address) {
 		report.setMunicipality(address.getLocality());
-
 		reportViolationActivity.setAddressText(address.getThoroughfare() + ", " + address.getLocality());
+		Log.d(TAG, "Address: " + address + " set.");
 
-		Log.d(TAG, "Location[" + location.latitude + ", " + location.longitude + "] and Address [" + address.getAddressLine(0) + "] set.");
 	}
 	//endregion
 

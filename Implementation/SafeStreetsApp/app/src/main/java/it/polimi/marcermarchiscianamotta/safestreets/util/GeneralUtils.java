@@ -34,4 +34,8 @@ public final class GeneralUtils {
 		dp = (int) (px / metrics.density);
 		return dp;
 	}
+
+	public static boolean isPlate(String string) {
+		return string.matches("[A-Z][A-Z][0-9][0-9][0-9][A-Z][A-Z](.)*");
+	}
 }

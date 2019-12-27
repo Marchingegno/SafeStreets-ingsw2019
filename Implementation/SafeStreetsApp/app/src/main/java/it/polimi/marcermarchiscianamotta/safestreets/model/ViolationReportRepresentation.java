@@ -2,17 +2,17 @@ package it.polimi.marcermarchiscianamotta.safestreets.model;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 /**
- * Represents a representation of a violation report. This class contains only the relevant attributes
+ * Represents a violation report. This class contains only the relevant attributes
  * that need to be sent or retrieved from the database.
  */
 public class ViolationReportRepresentation {

@@ -61,15 +61,20 @@ dependencies {
     implementation 'com.google.firebase:firebase-ml-vision:24.0.1'
 
     // Multi dex support library
-    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'androidx.multidex:multidex:2.0.0'
 
     // Material UI library
     implementation 'com.google.android.material:material:1.0.0'
 
+    // Maps library
+    implementation 'com.google.android.libraries.places:places:2.1.0'
+
     // Other libraries
+    implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.jakewharton:butterknife:10.1.0'
     implementation 'pub.devrel:easypermissions:3.0.0'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
+
 }
 
 

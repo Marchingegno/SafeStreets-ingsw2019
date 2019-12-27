@@ -4,12 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Cluster {
-	private List<String> groups = new ArrayList<>();
+	private List<String> groups;
 	private double latitude;
 	private double longitude;
-	private String typeOfViolation;
+	private ViolationEnum typeOfViolation;
 
-	public Cluster() {
+	public Cluster(ClusterRepresentation representation) {
+		this.groups = new ArrayList<>(representation.getGroups());
+		this.latitude = representation.getLatitude();
+		this.longitude = representation.getLongitude();
+		this.typeOfViolation = (ViolationEnum.valueOf(representation.getTypeOfViolation()));
 	}
 
 	public List<String> getGroups() {
@@ -24,7 +28,7 @@ public class Cluster {
 		return longitude;
 	}
 
-	public String getTypeOfViolation() {
+	public ViolationEnum getTypeOfViolation() {
 		return typeOfViolation;
 	}
 }

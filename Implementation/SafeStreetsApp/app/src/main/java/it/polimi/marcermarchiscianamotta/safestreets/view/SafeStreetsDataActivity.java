@@ -4,71 +4,111 @@ import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.RetrieveViolationsManager;
 import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
-import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.DatabaseConnection;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.ViolationRetrieverUser;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapReadyCallback, EasyPermissions.PermissionCallbacks {
+public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapReadyCallback, EasyPermissions.PermissionCallbacks, ViolationRetrieverUser {
 
 	private static final String TAG = "SafeStreetsDataActivity";
 
-	private static final float DEFAULT_ZOOM = 20.0f;//TODO check zoom
-	private static final float DEFAULT_LATITUDE = 45.478130f;//TODO check zoom
-	private static final float DEFAULT_LONGITUDE = 9.225788f;//TODO check zoom
+	//Constants
+	private static final float DEFAULT_ZOOM = 16.0f;//Zoom of the map's camera
+	private static final float DEFAULT_LATITUDE = 45.478130f;
+	private static final float DEFAULT_LONGITUDE = 9.225788f;
 
+	//Request codes
 	private static final int RC_LOCATION_PERMS = 301;
 
+	//Permissions
 	private static final String LOCATION_PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
 
+	//Map
+	@Nullable
 	private GoogleMap mMap = null;
-
-	private Location lastKnownLocation;
 	private LatLng defaultLocation = new LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE);
+	private List<Marker> markers;
+	@BindView(R.id.violation_type_selection_button)
+	Button violationTypeSelectionButton;
+	@Nullable
+	private Location lastKnownLocation;
 
+	//UI
 	DatePickerDialog picker;
-	long startDate = 0;
-	long endDate = 0;
-
 	@BindView(R.id.start_date_view)
 	TextView startDateTextView;
 	@BindView(R.id.end_date_view)
 	TextView endDateTextView;
-	private RetrieveViolationsManager retrieveViolationsManager = new RetrieveViolationsManager(this);
+	@Nullable
+	private LatLng lastSearchedCoordinates;
+	AlertDialog violationTypeDialog;
+
+	//Query
+	private long startDate = 0;
+	private long endDate = 0;
+	private List<ViolationEnum> violationTypesSelected = Arrays.asList(ViolationEnum.values());//all types of violation are selected at the beginning
+	private RetrieveViolationsManager retrieveViolationsManager;
 
 	//region Static methods
 	//================================================================================
+
+	/**
+	 * Create intent for launching this activity.
+	 *
+	 * @param context context from which to launch the activity.
+	 * @return intent to launch.
+	 */
 	@NonNull
 	public static Intent createIntent(@NonNull Context context) {
 		return new Intent(context, SafeStreetsDataActivity.class);
@@ -81,18 +121,14 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		// Retrieve the content view that renders the map.
 		setContentView(R.layout.activity_safestreets_data);
+
 		ButterKnife.bind(this); // Needed for @BindView attributes.
 
+		retrieveViolationsManager = new RetrieveViolationsManager(this);
 		setupDatePickerDialogs();
-
-		// Get the SupportMapFragment and request notification
-		// when the map is ready to be used.
-		SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-				.findFragmentById(R.id.map);
-		mapFragment.getMapAsync(this);
+		setupTypeOfViolationDialog();
+		setupMapFragment();
 
 		if (!EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
 			EasyPermissions.requestPermissions(this, "Location permission", RC_LOCATION_PERMS, LOCATION_PERMS);
@@ -118,16 +154,29 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
 		mMap = googleMap;
+		markers = new ArrayList<>();
 
-		// Do other setup activities here too, as described elsewhere in this tutorial.
+		assert mMap != null;
+		mMap.setOnMarkerClickListener(marker -> {
+			//onMarkerClick
+			//TODO launch activity to display groups
+			Toast.makeText(this, "Marker clicked", Toast.LENGTH_LONG).show();
+			return false;
+		});
 
-		// Turn on the My Location layer and the related control on the map.
-		updateLocationUI();
+		//Sets the style of the map
+		try {
+			boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
+			if (!success) {
+				Log.e(TAG, "Style parsing failed.");
+			}
+		} catch (Resources.NotFoundException e) {
+			Log.e(TAG, "Can't find style. Error: ", e);
+		}
 
-		// Get the current location of the device and set the position of the map.
-		getDeviceLocation();
+		turnOnMyLocationLayer();
+		getDeviceLocationAndDisplayIt();
 	}
-
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -137,6 +186,8 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 
 	@Override
 	public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+		turnOnMyLocationLayer();
+		getDeviceLocationAndDisplayIt();
 	}
 
 	@Override
@@ -146,39 +197,46 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 			finish();
 		}
 	}
-	//endregion
-	private void loadClusters() {
-		String municipality = MapManager.getAddressFromLocation(this, new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude())).getLocality();
-		DatabaseConnection.getClusters(this, municipality,
-				// On success.
-				reportsResult -> {
-					for (Cluster rep : reportsResult) {
-						mMap.addMarker(new MarkerOptions().position(new LatLng(rep.getLatitude(), rep.getLongitude()))
-								.title(ViolationEnum.valueOf(rep.getTypeOfViolation()).toString()));
-					}
-				},
-				// On failure.
-				e -> {
-					Log.e(TAG, "Failed to retrieve reports", e);
-				});
-	}
 
+	@Override
+	public void onClusterLoaded(List<Cluster> clusters) {
+		if (mMap != null) {
+			removeMarkers();
+			for (Cluster cluster : clusters) {
+				addMarker(cluster);
+			}
+		}
+	}
+	//endregion
+
+	//region UI methods
+	//================================================================================
+	@OnClick(R.id.violation_type_selection_button)
+	public void onClickChooseViolationTypes(View v) {
+		violationTypeDialog.show();
+	}
+	//endregion
+
+	//region Private methods
+	//================================================================================
 	private void setupDatePickerDialogs() {
+		final Calendar calendar = Calendar.getInstance();
+		int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+		int currentMonth = calendar.get(Calendar.MONTH);
+		int currentYear = calendar.get(Calendar.YEAR);
+
 		startDateTextView.setOnClickListener(v -> {
 			//On click
-			final Calendar calendar = Calendar.getInstance();
-			int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
-			int currentMonth = calendar.get(Calendar.MONTH);
-			int currentYear = calendar.get(Calendar.YEAR);
-			// date picker dialog
 			picker = new DatePickerDialog(SafeStreetsDataActivity.this,
-					//On date set
+					//On date chosen
 					(view, selectedYear, selectedMonth, selectedDay) -> {
 						String date = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
 						startDateTextView.setText(date);
+						//Save chosen starting date
 						startDate = convertDateToLong(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear);
 						Log.d(TAG, "Start date: " + date + " [" + startDate + "]");
 					}, currentYear, currentMonth, currentDay);
+			//Update the interval of the dialog
 			if (endDate != 0)
 				picker.getDatePicker().setMaxDate(endDate);
 			else
@@ -188,62 +246,118 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 
 		endDateTextView.setOnClickListener(v -> {
 			//On click
-			final Calendar calendar = Calendar.getInstance();
-			int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
-			int currentMonth = calendar.get(Calendar.MONTH);
-			int currentYear = calendar.get(Calendar.YEAR);
-			// date picker dialog
 			picker = new DatePickerDialog(SafeStreetsDataActivity.this,
-					//On date set
+					//On date chosen
 					(view, selectedYear, selectedMonth, selectedDay) -> {
 						String date = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
 						endDateTextView.setText(date);
+						//Save chosen ending date
 						endDate = convertDateToLong(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear);
 						Log.d(TAG, "End date: " + date + " [" + endDate + "]");
 					}, currentYear, currentMonth, currentDay);
+			//Update the interval of the dialog
 			picker.getDatePicker().setMinDate(startDate);
 			picker.getDatePicker().setMaxDate(calendar.getTimeInMillis());
 			picker.show();
 		});
 	}
 
-	private void getDeviceLocation() {
-		/*
-		 * Get the best and most recent location of the device, which may be null in rare
-		 * cases when a location is not available.
-		 */
-		try {
-			if (EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-				Task locationResult = MapManager.getLastLocationTask(this);
-				locationResult.addOnCompleteListener(this, new OnCompleteListener() {
-					@Override
-					public void onComplete(@NonNull Task task) {
-						if (task.isSuccessful()) {
-							// Set the map's camera position to the current location of the device.
-							lastKnownLocation = (Location) task.getResult();
-							mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-									new LatLng(lastKnownLocation.getLatitude(),
-											lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-							loadClusters();
-						} else {
-							Log.d(TAG, "Current location is null. Using defaults.");
-							Log.e(TAG, "Exception: %s", task.getException());
-							mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, DEFAULT_ZOOM));
-							mMap.getUiSettings().setMyLocationButtonEnabled(false);
-						}
-					}
-				});
-			}
-		} catch (SecurityException e) {
-			Log.e("Exception: %s", e.getMessage());
+	private void setupTypeOfViolationDialog() {
+		List<ViolationEnum> selectedItems = new ArrayList<>();
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		int namOfViolations = ViolationEnum.values().length;
+		CharSequence[] violationTypes = new CharSequence[namOfViolations];
+
+		for (int i = 0; i < namOfViolations; i++)
+			violationTypes[i] = ViolationEnum.values()[i].toString();
+
+		builder.setTitle("Choose the type of violation")
+				.setMultiChoiceItems(violationTypes, null,
+						(dialog, which, isChecked) -> {
+							//On click
+							if (isChecked) {// If the user checked the item, add it to the selected items
+								selectedItems.add(ViolationEnum.values()[which]);
+								Log.d(TAG, "Added to the list of violation types: " + ViolationEnum.values()[which]);
+							} else if (selectedItems.contains(ViolationEnum.values()[which])) {// Else, if the item is already in the array, remove it
+								selectedItems.remove(ViolationEnum.values()[which]);
+								Log.d(TAG, "Removed from the list of violation types: " + ViolationEnum.values()[which]);
+							}
+						})
+				.setPositiveButton("OK",
+						(dialog, id) -> {
+							//On click
+							violationTypesSelected = selectedItems;
+							Log.d(TAG, "Violation types selected: " + violationTypesSelected);
+							if (lastSearchedCoordinates != null) {
+								retrieveViolationsManager.loadClusters(
+										new LatLng(lastSearchedCoordinates.latitude, lastSearchedCoordinates.longitude), violationTypesSelected);
+							} else {
+								Log.e(TAG, "lastSearchedCoordinates is null in setPositiveButton");
+							}
+						})
+				.setNegativeButton("Cancel",
+						(dialog, id) -> {
+							//On click
+							Log.d(TAG, "Violation types selected: " + violationTypesSelected);
+						});
+
+		violationTypeDialog = builder.create();
+	}
+
+	private void setupMapFragment() {
+		SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+		if (mapFragment != null)
+			mapFragment.getMapAsync(this);
+		else {
+			Log.e(TAG, "mapFragment is null");
+			finish();
+		}
+
+		Places.initialize(getApplicationContext(), getString(R.string.google_api_key));// Initialize the SDK
+		Places.createClient(this); //Creates an instance of PlacesClient
+		AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+				getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);// Initialize the AutocompleteSupportFragment
+
+		// Specify the types of Place data to return.
+		if (autocompleteFragment != null) {
+			autocompleteFragment.setPlaceFields(Arrays.asList(
+					Place.Field.ID,
+					Place.Field.NAME,
+					Place.Field.LAT_LNG,
+					Place.Field.ADDRESS));
+			// Set up a PlaceSelectionListener to handle the response.
+			autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+				@Override
+				public void onPlaceSelected(@NonNull Place place) {
+					LatLng requestedLocation = place.getLatLng();
+					Log.d(TAG, "Place: " + place.getName() + "\nID: " + place.getId() + " \nLatLng: " + place.getLatLng() + "\nAddress: " + place.getAddress());
+					if (requestedLocation != null && mMap != null) {
+						lastSearchedCoordinates = new LatLng(requestedLocation.latitude, requestedLocation.longitude);
+						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastSearchedCoordinates, DEFAULT_ZOOM));
+						retrieveViolationsManager.loadClusters(lastSearchedCoordinates, violationTypesSelected);
+					} else
+						Log.e(TAG, "No LatLng associated with the searched place. mMap = " + mMap);
+				}
+
+				@Override
+				public void onError(@NonNull Status status) {
+					Log.e(TAG, "An error occurred in OnPlaceSelectedListener: " + status);
+				}
+			});
+		} else {
+			Log.e(TAG, "autocompleteFragment is null in setupMapFragment");
+			finish();
 		}
 	}
 
-	private void updateLocationUI() {
+	// Turn on the MyLocationLayer and the related control on the map.
+	private void turnOnMyLocationLayer() {
 		if (mMap == null) {
+			Log.e(TAG, "mMap is null in turnOnMyLocationLayer");
 			return;
 		}
 		try {
+			mMap.getUiSettings().setMapToolbarEnabled(false);
 			if (EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
 				mMap.setMyLocationEnabled(true);
 				mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -254,20 +368,72 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 				EasyPermissions.requestPermissions(this, "Location permission", RC_LOCATION_PERMS, LOCATION_PERMS);
 			}
 		} catch (SecurityException e) {
-			Log.e("Exception: %s", e.getMessage());
+			Log.e(TAG, "Security exception: " + e.getMessage());
+		}
+	}
+
+	// Get the current location of the device and sets the map's camera position.
+	private void getDeviceLocationAndDisplayIt() {
+		try {
+			if (EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+				MapManager.getLastLocationTask(this)
+						.addOnSuccessListener(location -> {
+							if (location != null && mMap != null) {
+								lastKnownLocation = (Location) location;
+								LatLng lastKnownCoordinate = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+								// Set the map's camera position to the current location of the device.
+								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastKnownCoordinate, DEFAULT_ZOOM));
+								retrieveViolationsManager.loadClusters(lastKnownCoordinate, violationTypesSelected);
+							}
+						})
+						.addOnFailureListener(location -> {
+							Log.d(TAG, "Current location is null. Using defaults.");
+							if (mMap != null) {
+								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, DEFAULT_ZOOM));
+								mMap.getUiSettings().setMyLocationButtonEnabled(false);
+							} else {
+								Log.e(TAG, "mMap is null in getDeviceLocationAndDisplayIt");
+								finish();
+							}
+						});
+			}
+		} catch (SecurityException e) {
+			Log.e(TAG, "Exception: " + e.getMessage());
 		}
 	}
 
 	private long convertDateToLong(String dateString) {
+		Date date = null;
 		try {
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-			Date date = sdf.parse(dateString);
-
-			return date.getTime();
-
+			date = new SimpleDateFormat("dd/MM/yyyy", Locale.ITALY).parse(dateString);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		return 0;
+		return date == null ? 0 : date.getTime();
 	}
+
+	private void addMarker(Cluster cluster) {
+		assert mMap != null; //Checked int the caller
+		MarkerOptions markerOption = new MarkerOptions()
+				.position(new LatLng(cluster.getLatitude(), cluster.getLongitude()))
+				.icon(getMarkerIcon(cluster.getTypeOfViolation().getColor()))
+				.title(cluster.getTypeOfViolation().toString());
+		markers.add(mMap.addMarker(markerOption));
+	}
+
+	//Removes the markers from the map
+	private void removeMarkers() {
+		for (int i = markers.size() - 1; i >= 0; i--) {
+			markers.get(i).remove();
+			markers.remove(i);
+		}
+	}
+
+	// method definition
+	public BitmapDescriptor getMarkerIcon(String color) {
+		float[] hsv = new float[3];
+		Color.colorToHSV(Color.parseColor(color), hsv);
+		return BitmapDescriptorFactory.defaultMarker(hsv[0]);
+	}
+	//endregion
 }

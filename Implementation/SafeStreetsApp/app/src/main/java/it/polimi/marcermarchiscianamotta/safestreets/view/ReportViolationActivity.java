@@ -46,11 +46,13 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, AdapterView.OnItemSelectedListener, SaveUser, LoadUser {
 
+	//Log tag
 	private static final String TAG = "ReportViolationActivity";
 
+	//Constants
 	private static final int PICTURE_DESIRED_SIZE = 680;
 
-	//fullSizePictureDirectory where all files are saved
+	//Paths where picture aed are saved
 	private static String mainDirectoryPath;
 	private static File fullSizePictureDirectory;
 	private static File thumbnailPictureDirectory;
@@ -69,40 +71,32 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	private static final String LOCATION_PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
 	private static final String CAMERA_PERMS = Manifest.permission.CAMERA;
 
-	private ReportViolationManager reportViolationManager;
-	Uri currentPicturePath;
-
+	//UI elements
 	@BindView(R.id.address_text_view)
 	TextView addressTextView;
-
 	@BindView(R.id.plate_text)
 	TextView plateTextView;
-
 	@BindView(R.id.report_violation_root)
 	View rootView;
-
 	@BindView(R.id.description)
 	EditText descriptionText;
-
 	@BindView(R.id.report_violation_number_of_photos_added)
 	TextView numberOfPhotosAddedTextView;
-
 	@BindView(R.id.report_violation_spinner)
 	Spinner violationTypeSpinner;
-
 	@BindView(R.id.plate_text_view)
 	EditText plateEditText;
-
 	@BindView(R.id.uploading_text_view)
 	TextView uploadingTextView;
-
 	@BindView(R.id.uploading_progress_bar)
 	ProgressBar uploadingProgressBar;
-
 	@BindView(R.id.photo_linear_layout)
 	LinearLayout pictureLinearLayout;
 	List<ImageView> pictureViewArray = new ArrayList<>();
 
+	//Others
+	private ReportViolationManager reportViolationManager;
+	private Uri currentPicturePath;
 
 	//region Static methods
 	//================================================================================
@@ -124,8 +118,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_report_violation);
 
-		// Needed for @BindView attributes.
-		ButterKnife.bind(this);
+		ButterKnife.bind(this);// Needed for @BindView attributes.
 
 		reportViolationManager = new ReportViolationManager(this, rootView);
 
@@ -334,8 +327,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			findViewById(R.id.uploading_panel).setVisibility(View.VISIBLE);
 			findViewById(R.id.report_violation_floating_send_button).setVisibility(View.GONE);
 			reportViolationManager.sendViolationReport(descriptionText.getText().toString());
-		}
-		else
+		} else
 			GeneralUtils.showSnackbar(rootView, "Before reporting, please complete all mandatory fields.");
 	}
 
