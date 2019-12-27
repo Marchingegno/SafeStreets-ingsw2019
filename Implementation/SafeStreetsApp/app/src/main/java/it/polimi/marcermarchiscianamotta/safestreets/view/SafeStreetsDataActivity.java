@@ -380,6 +380,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 						.addOnSuccessListener(location -> {
 							if (location != null && mMap != null) {
 								lastKnownLocation = (Location) location;
+								lastSearchedCoordinates = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
 								LatLng lastKnownCoordinate = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
 								// Set the map's camera position to the current location of the device.
 								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastKnownCoordinate, DEFAULT_ZOOM));
