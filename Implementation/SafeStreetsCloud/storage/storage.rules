@@ -5,11 +5,6 @@ service firebase.storage {
             allow read: if isOwner(userId) || isMunicipality();
             allow create: if isOwner(userId) && isImageBelowMaxSize(5);
         }
-
-        // TODO delete (allows everything)
-        match /{allPaths=**} {
-            allow read, write: if request.auth!=null;
-        }
     }
 }
 
