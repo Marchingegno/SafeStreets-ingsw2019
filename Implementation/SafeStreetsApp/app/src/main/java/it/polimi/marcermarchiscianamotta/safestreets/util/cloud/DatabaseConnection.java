@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
+import it.polimi.marcermarchiscianamotta.safestreets.model.ClusterRepresentation;
 import it.polimi.marcermarchiscianamotta.safestreets.model.UserRepresentation;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReportRepresentation;
 
@@ -109,8 +110,8 @@ public class DatabaseConnection {
 					List<Cluster> clusters = new ArrayList<>();
 					Log.d(TAG, "getClusters succeeded");
 					for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
-						Cluster cluster = documentSnapshot.toObject(Cluster.class);
-						clusters.add(cluster);
+						ClusterRepresentation clusterRepresentation = documentSnapshot.toObject(ClusterRepresentation.class);
+						clusters.add(new Cluster(clusterRepresentation));
 					}
 					onSuccessListener.onSuccess(clusters);
 				})

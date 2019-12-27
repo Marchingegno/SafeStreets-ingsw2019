@@ -9,6 +9,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,7 +44,6 @@ import butterknife.ButterKnife;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.RetrieveViolationsManager;
 import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
-import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.ViolationRetrieverUser;
 import pub.devrel.easypermissions.AppSettingsDialog;
@@ -123,6 +123,14 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		mMap = googleMap;
 		markers = new ArrayList<>();
 
+		assert mMap != null;
+		mMap.setOnMarkerClickListener(marker -> {
+			//onMarkerClick
+			marker.setTitle("CLICKED");
+			Toast.makeText(this, "Marker clicked", Toast.LENGTH_LONG).show();
+			return false;
+		});
+
 		//Sets the style of the map
 		try {
 			boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
@@ -162,12 +170,11 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		if (mMap != null)
 			removeMarkers();
 			for (Cluster rep : clusters) {
-				MarkerOptions markerOption = new MarkerOptions()
-						.position(new LatLng(rep.getLatitude(), rep.getLongitude()))
-						.title(ViolationEnum.valueOf(rep.getTypeOfViolation()).toString());
-				markers.add(mMap.addMarker(markerOption));
+				addMarker(rep);
 			}
 	}
+
+
 	//endregion
 
 	//region Private methods
@@ -321,6 +328,15 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 			e.printStackTrace();
 		}
 		return date == null ? 0 : date.getTime();
+	}
+
+	private void addMarker(Cluster cluster) {
+		assert mMap != null; //Checked int the caller
+		MarkerOptions markerOption = new MarkerOptions()
+				.position(new LatLng(cluster.getLatitude(), cluster.getLongitude()))
+				.title(cluster.getTypeOfViolation().toString())
+				.snippet("description");
+		markers.add(mMap.addMarker(markerOption));
 	}
 
 	//Removes the markers from the map
