@@ -5,17 +5,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="16dp"
-    android:paddingBottom="16dp"
+    android:padding="16dp"
     android:clipToPadding="false"
     tools:context=".view.MainMenuActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="24dp"
-        android:layout_marginRight="24dp"
-        android:layout_marginBottom="16dp"
         android:orientation="vertical">
 
         <TextView
@@ -24,108 +20,109 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"
             android:drawableTop="@drawable/ic_launcher_foreground"
             android:gravity="center"
             android:text="Welcome back testtesttest@test.com" />
 
-        <Button
-            android:id="@+id/signed_in_report_violation"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="16dp"
-            android:text="Report Violation" />
-
-        <Button
-            android:id="@+id/signed_in_see_violations"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="16dp"
-            android:text="See Violations" />
-
-        <Button
-            android:id="@+id/signed_in_my_reports"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="16dp"
-            android:text="My reports" />
-
-        <Button
-            android:id="@+id/signed_in_sign_out"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="16dp"
-            android:text="Sign out" />
-
-        <Button
-            android:id="@+id/signed_in_delete_account"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="16dp"
-            android:text="Delete account"
-            android:theme="@style/ButtonWarning"
-            tools:ignore="ButtonStyle" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:orientation="horizontal">
-
-        </LinearLayout>
-
-        <TextView
-            style="@style/Base.TextAppearance.AppCompat.Subhead"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="User profile (DEBUG):" />
-
-        <LinearLayout
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal">
+            style="@style/CardViewStyle">
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:id="@+id/signed_in_report_violation"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:background="@drawable/rounded_imageview"
+                    android:cropToPadding="false"
+                    android:padding="16dp"
+                    app:srcCompat="@drawable/ic_report_violation" />
 
                 <TextView
-                    android:id="@+id/user_email"
+                    style="@style/Base.TextAppearance.AppCompat.Headline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textIsSelectable="true" />
-
-                <TextView
-                    android:id="@+id/user_phone_number"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textIsSelectable="true" />
-
-                <TextView
-                    android:id="@+id/user_display_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textIsSelectable="true" />
-
-                <TextView
-                    android:id="@+id/user_is_new"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textIsSelectable="false" />
+                    android:layout_gravity="center"
+                    android:layout_margin="16dp"
+                    android:gravity="center"
+                    android:text="Report violation" />
 
             </LinearLayout>
 
-        </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/CardViewStyle">
+
+            <LinearLayout
+                android:id="@+id/signed_in_see_violations"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:background="@drawable/rounded_imageview"
+                    android:cropToPadding="false"
+                    android:padding="16dp"
+                    app:srcCompat="@drawable/ic_see_violations" />
+
+                <TextView
+                    style="@style/Base.TextAppearance.AppCompat.Headline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="16dp"
+                    android:gravity="center"
+                    android:text="SafeStreets data" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/CardViewStyle">
+
+            <LinearLayout
+                android:id="@+id/signed_in_my_reports"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:background="@drawable/rounded_imageview"
+                    android:cropToPadding="false"
+                    android:padding="16dp"
+                    app:srcCompat="@drawable/ic_my_reports" />
+
+                <TextView
+                    style="@style/Base.TextAppearance.AppCompat.Headline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="16dp"
+                    android:gravity="center"
+                    android:text="My reports" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
 
     </LinearLayout>
 

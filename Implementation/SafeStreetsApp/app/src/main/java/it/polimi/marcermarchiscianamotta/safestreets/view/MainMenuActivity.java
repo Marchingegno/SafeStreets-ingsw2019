@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -14,7 +16,6 @@ import com.google.firebase.auth.UserInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -28,13 +29,7 @@ public class MainMenuActivity extends AppCompatActivity {
     private static final String TAG = "MainMenuActivity";
 
     @BindView(android.R.id.content) View rootView;
-
     @BindView(R.id.main_menu_welcome_text) TextView welcomeText;
-
-    @BindView(R.id.user_email) TextView mUserEmail;
-    @BindView(R.id.user_display_name) TextView mUserDisplayName;
-    @BindView(R.id.user_phone_number) TextView mUserPhoneNumber;
-    @BindView(R.id.user_is_new) TextView mIsNewUser;
 
 
     //region Static methods
@@ -52,19 +47,39 @@ public class MainMenuActivity extends AppCompatActivity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Close activity if user is not signed in (Android launchers can launch activities singularly)
-        if(!AuthenticationManager.isSignedIn()) {
-            startActivity(StartupActivity.createIntent(this));
-            finish();
-            return;
-        }
-
         setContentView(R.layout.activity_main_menu);
         ButterKnife.bind(this); // Needed for @BindView attributes.
 
-        // Handle sign-in response.
+        // Display welcome text.
+        displayWelcomeText();
+
+        // Debug sign-in response.
         IdpResponse response = getIntent().getParcelableExtra(ExtraConstants.IDP_RESPONSE);
-        handleResponse(response);
+        debugSignInResponse(response);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Add items to the action bar.
+        getMenuInflater().inflate(R.menu.menu_main_menu_activity, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            case R.id.main_menu_action_sign_out:
+                signOut();
+                return true;
+
+            case R.id.main_menu_action_settings:
+                startActivity(SettingsActivity.createIntent(this));
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
     //endregion
 
@@ -85,9 +100,12 @@ public class MainMenuActivity extends AppCompatActivity {
     public void onClickMyReports(View v) {
         startActivity(MyReportsActivity.createIntent(v.getContext()));
     }
+    //endregion
 
-    @OnClick(R.id.signed_in_sign_out)
-    public void onClickSignOut(View v) {
+
+    //region Private methods
+    //================================================================================
+    private void signOut() {
         AuthenticationManager.signOut(this, task -> {
             if (task.isSuccessful()) {
                 startActivity(StartupActivity.createIntent(this));
@@ -99,55 +117,23 @@ public class MainMenuActivity extends AppCompatActivity {
         });
     }
 
-    @OnClick(R.id.signed_in_delete_account)
-    public void onClickDeleteAccount(View v) {
-        new AlertDialog.Builder(this)
-                .setMessage("Are you sure you want to delete this account?")
-                .setPositiveButton("Yes, nuke it!", (dialogInterface, i) -> deleteAccount())
-                .setNegativeButton("No", null)
-                .show();
-    }
-    //endregion
-
-
-    //region Private methods
-    //================================================================================
-    private void deleteAccount() {
-        AuthenticationManager.deleteAccount(this, task -> {
-            if (task.isSuccessful()) {
-                startActivity(StartupActivity.createIntent(this));
-                finish();
-            } else {
-                Log.w(TAG, "deleteAccount:failure", task.getException());
-                GeneralUtils.showSnackbar(rootView, "Delete account failed");
-            }
-        });
-    }
-
-    private void handleResponse(@Nullable IdpResponse response) {
+    private void displayWelcomeText() {
         UserInfo user = AuthenticationManager.getUser();
-
         if(TextUtils.isEmpty(user.getEmail())) {
-            if(TextUtils.isEmpty(user.getPhoneNumber())) {
+            if(TextUtils.isEmpty(user.getPhoneNumber()))
                 welcomeText.setText("Welcome back");
-            } else {
+            else
                 welcomeText.setText("Welcome back " + user.getPhoneNumber());
-            }
         } else {
             welcomeText.setText("Welcome back " + user.getEmail());
         }
+    }
 
-        mUserEmail.setText(
-                TextUtils.isEmpty(user.getEmail()) ? "No email" : user.getEmail());
-        mUserPhoneNumber.setText(
-                TextUtils.isEmpty(user.getPhoneNumber()) ? "No phone number" : user.getPhoneNumber());
-        mUserDisplayName.setText(
-                TextUtils.isEmpty(user.getDisplayName()) ? "No display name" : user.getDisplayName());
-
+    private void debugSignInResponse(@Nullable IdpResponse response) {
         if (response == null)
-            mIsNewUser.setText("Existing user with a saved sign-in");
+            Log.i(TAG, "Existing user with a saved sign-in");
         else
-            mIsNewUser.setText(response.isNewUser() ? "New user" : "Existing user");
+            Log.i(TAG, response.isNewUser() ? "New user" : "Existing user");
     }
     //endregion
 
