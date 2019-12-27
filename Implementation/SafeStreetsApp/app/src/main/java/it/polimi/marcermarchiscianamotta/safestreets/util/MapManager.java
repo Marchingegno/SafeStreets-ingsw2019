@@ -49,6 +49,12 @@ public class MapManager {
 				.addOnFailureListener(location -> Log.e(TAG, "Failed to retrieve the location"));
 	}
 
+	/**
+	 * Returns a Task that retrieves the current location.
+	 *
+	 * @param context the context of the caller.
+	 * @return a Task that retrieves the current location.
+	 */
 	static public Task getLastLocationTask(Context context) {
 		FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
 		return fusedLocationProviderClient.getLastLocation();

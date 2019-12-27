@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.common.api.Status;
@@ -21,10 +22,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
@@ -35,6 +34,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -51,31 +51,42 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 
 	private static final String TAG = "SafeStreetsDataActivity";
 
-	private static final float DEFAULT_ZOOM = 18.0f;//TODO check zoom
-	private static final float DEFAULT_LATITUDE = 45.478130f;//TODO check zoom
-	private static final float DEFAULT_LONGITUDE = 9.225788f;//TODO check zoom
+	//Constants
+	private static final float DEFAULT_ZOOM = 18.0f;//Zoom of the map's camera
+	private static final float DEFAULT_LATITUDE = 45.478130f;
+	private static final float DEFAULT_LONGITUDE = 9.225788f;
 
+	//Request codes
 	private static final int RC_LOCATION_PERMS = 301;
 
+	//Permissions
 	private static final String LOCATION_PERMS = Manifest.permission.ACCESS_FINE_LOCATION;
-
-	private GoogleMap mMap = null;
-
-	private Location lastKnownLocation;
-	private LatLng defaultLocation = new LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE);
-
+	//UI
 	DatePickerDialog picker;
-	long startDate = 0;
-	long endDate = 0;
-
+	//Map
+	@Nullable
+	private GoogleMap mMap = null;
+	private LatLng defaultLocation = new LatLng(DEFAULT_LATITUDE, DEFAULT_LONGITUDE);
+	//Locations
+	private Location lastKnownLocation;
 	@BindView(R.id.start_date_view)
 	TextView startDateTextView;
 	@BindView(R.id.end_date_view)
 	TextView endDateTextView;
+	//Others
+	private long startDate = 0;
+	private long endDate = 0;
 	private RetrieveViolationsManager retrieveViolationsManager = new RetrieveViolationsManager(this);
 
 	//region Static methods
 	//================================================================================
+
+	/**
+	 * Create intent for launching this activity.
+	 *
+	 * @param context context from which to launch the activity.
+	 * @return intent to launch.
+	 */
 	@NonNull
 	public static Intent createIntent(@NonNull Context context) {
 		return new Intent(context, SafeStreetsDataActivity.class);
@@ -88,50 +99,12 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		// Retrieve the content view that renders the map.
 		setContentView(R.layout.activity_safestreets_data);
+
 		ButterKnife.bind(this); // Needed for @BindView attributes.
 
 		setupDatePickerDialogs();
-
-		// Get the SupportMapFragment and request notification
-		// when the map is ready to be used.
-		SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-				.findFragmentById(R.id.map);
-		mapFragment.getMapAsync(this);
-
-		// Initialize the SDK
-		Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
-
-		// Create a new Places client instance
-		PlacesClient placesClient = Places.createClient(this);
-
-		// Initialize the AutocompleteSupportFragment.
-		AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-				getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
-
-		// Specify the types of place data to return.
-		autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS));
-
-		// Set up a PlaceSelectionListener to handle the response.
-		autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-			@Override
-			public void onPlaceSelected(Place place) {
-				LatLng requestedLocation = place.getLatLng();
-				mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-						new LatLng(requestedLocation.latitude,
-								requestedLocation.longitude), DEFAULT_ZOOM));
-					Log.d(TAG, "Place: " + place.getName() + "\nID: " + place.getId() + " \nLatLng: " + place.getLatLng() + "\nAddress: " + place.getAddress());
-			}
-
-			@Override
-			public void onError(Status status) {
-				// TODO: Handle the error.
-				Log.i(TAG, "An error occurred: " + status);
-			}
-		});
-
+		setupMapFragment();
 
 		if (!EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
 			EasyPermissions.requestPermissions(this, "Location permission", RC_LOCATION_PERMS, LOCATION_PERMS);
@@ -142,13 +115,9 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 	public void onMapReady(GoogleMap googleMap) {
 		mMap = googleMap;
 
+		//Sets the style of the map
 		try {
-			// Customise the styling of the base map using a JSON object defined
-			// in a raw resource file.
-			boolean success = googleMap.setMapStyle(
-					MapStyleOptions.loadRawResourceStyle(
-							this, R.raw.style_json));
-
+			boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
 			if (!success) {
 				Log.e(TAG, "Style parsing failed.");
 			}
@@ -156,15 +125,9 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 			Log.e(TAG, "Can't find style. Error: ", e);
 		}
 
-		// Do other setup activities here too, as described elsewhere in this tutorial.
-
-		// Turn on the My Location layer and the related control on the map.
-		updateLocationUI();
-
-		// Get the current location of the device and set the position of the map.
-		getDeviceLocation();
+		turnOnMyLocationLayer();
+		getDeviceLocationAndDisplayIt();
 	}
-
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -174,6 +137,8 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 
 	@Override
 	public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+		turnOnMyLocationLayer();
+		getDeviceLocationAndDisplayIt();
 	}
 
 	@Override
@@ -183,8 +148,8 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 			finish();
 		}
 	}
-
 	//endregion
+
 	private void loadClusters() {
 		String municipality = MapManager.getAddressFromLocation(this, new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude())).getLocality();
 		DatabaseConnection.getClusters(this, municipality,
@@ -201,22 +166,26 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 				});
 	}
 
+	//region Private methods
+	//================================================================================
 	private void setupDatePickerDialogs() {
+		final Calendar calendar = Calendar.getInstance();
+		int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+		int currentMonth = calendar.get(Calendar.MONTH);
+		int currentYear = calendar.get(Calendar.YEAR);
+
 		startDateTextView.setOnClickListener(v -> {
 			//On click
-			final Calendar calendar = Calendar.getInstance();
-			int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
-			int currentMonth = calendar.get(Calendar.MONTH);
-			int currentYear = calendar.get(Calendar.YEAR);
-			// date picker dialog
 			picker = new DatePickerDialog(SafeStreetsDataActivity.this,
-					//On date set
+					//On date chosen
 					(view, selectedYear, selectedMonth, selectedDay) -> {
 						String date = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
 						startDateTextView.setText(date);
+						//Save chosen starting date
 						startDate = convertDateToLong(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear);
 						Log.d(TAG, "Start date: " + date + " [" + startDate + "]");
 					}, currentYear, currentMonth, currentDay);
+			//Update the interval of the dialog
 			if (endDate != 0)
 				picker.getDatePicker().setMaxDate(endDate);
 			else
@@ -226,62 +195,77 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 
 		endDateTextView.setOnClickListener(v -> {
 			//On click
-			final Calendar calendar = Calendar.getInstance();
-			int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
-			int currentMonth = calendar.get(Calendar.MONTH);
-			int currentYear = calendar.get(Calendar.YEAR);
-			// date picker dialog
 			picker = new DatePickerDialog(SafeStreetsDataActivity.this,
-					//On date set
+					//On date chosen
 					(view, selectedYear, selectedMonth, selectedDay) -> {
 						String date = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
 						endDateTextView.setText(date);
+						//Save chosen ending date
 						endDate = convertDateToLong(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear);
 						Log.d(TAG, "End date: " + date + " [" + endDate + "]");
 					}, currentYear, currentMonth, currentDay);
+			//Update the interval of the dialog
 			picker.getDatePicker().setMinDate(startDate);
 			picker.getDatePicker().setMaxDate(calendar.getTimeInMillis());
 			picker.show();
 		});
 	}
 
-	private void getDeviceLocation() {
-		/*
-		 * Get the best and most recent location of the device, which may be null in rare
-		 * cases when a location is not available.
-		 */
-		try {
-			if (EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-				Task locationResult = MapManager.getLastLocationTask(this);
-				locationResult.addOnSuccessListener(location -> {
-					if (location != null) {
-						// Set the map's camera position to the current location of the device.
-						lastKnownLocation = (Location) location;
-						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-								new LatLng(lastKnownLocation.getLatitude(),
-										lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-						loadClusters();
-					}
-				}).addOnFailureListener(location -> {
-					Log.d(TAG, "Current location is null. Using defaults.");
-					mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, DEFAULT_ZOOM));
-					mMap.getUiSettings().setMyLocationButtonEnabled(false);
-				});
-			}
-		} catch (SecurityException e) {
-			Log.e("Exception: %s", e.getMessage());
+	private void setupMapFragment() {
+		SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+		if (mapFragment != null)
+			mapFragment.getMapAsync(this);
+		else {
+			Log.e(TAG, "mapFragment is null");
+			finish();
+		}
+
+		Places.initialize(getApplicationContext(), getString(R.string.google_api_key));// Initialize the SDK
+		Places.createClient(this); //Creates an instance of PlacesClient
+		AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
+				getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);// Initialize the AutocompleteSupportFragment
+
+		// Specify the types of place data to return.
+		if (autocompleteFragment != null) {
+			autocompleteFragment.setPlaceFields(Arrays.asList(
+					Place.Field.ID,
+					Place.Field.NAME,
+					Place.Field.LAT_LNG,
+					Place.Field.ADDRESS));
+			// Set up a PlaceSelectionListener to handle the response.
+			autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+				@Override
+				public void onPlaceSelected(@NonNull Place place) {
+					LatLng requestedLocation = place.getLatLng();
+					Log.d(TAG, "Place: " + place.getName() + "\nID: " + place.getId() + " \nLatLng: " + place.getLatLng() + "\nAddress: " + place.getAddress());
+					if (requestedLocation != null && mMap != null) {
+						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(requestedLocation.latitude, requestedLocation.longitude), DEFAULT_ZOOM));
+					} else
+						Log.e(TAG, "No LatLng associated with the searched place. mMap = " + mMap);
+				}
+
+				@Override
+				public void onError(@NonNull Status status) {
+					Log.e(TAG, "An error occurred in OnPlaceSelectedListener: " + status);
+				}
+			});
+		} else {
+			Log.e(TAG, "autocompleteFragment is null in setupMapFragment");
+			finish();
 		}
 	}
 
-	private void updateLocationUI() {
+	// Turn on the MyLocationLayer and the related control on the map.
+	private void turnOnMyLocationLayer() {
 		if (mMap == null) {
+			Log.e(TAG, "mMap is null in turnOnMyLocationLayer");
 			return;
 		}
 		try {
+			mMap.getUiSettings().setMapToolbarEnabled(false);
 			if (EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
 				mMap.setMyLocationEnabled(true);
 				mMap.getUiSettings().setMyLocationButtonEnabled(true);
-				mMap.getUiSettings().setMapToolbarEnabled(false);
 			} else {
 				mMap.setMyLocationEnabled(false);
 				mMap.getUiSettings().setMyLocationButtonEnabled(false);
@@ -289,20 +273,47 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 				EasyPermissions.requestPermissions(this, "Location permission", RC_LOCATION_PERMS, LOCATION_PERMS);
 			}
 		} catch (SecurityException e) {
-			Log.e("Exception: %s", e.getMessage());
+			Log.e(TAG, "Security exception: " + e.getMessage());
+		}
+	}
+
+	// Get the current location of the device and sets the map's camera position.
+	private void getDeviceLocationAndDisplayIt() {
+		try {
+			if (EasyPermissions.hasPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+				MapManager.getLastLocationTask(this)
+						.addOnSuccessListener(location -> {
+							if (location != null && mMap != null) {
+								lastKnownLocation = (Location) location;
+								// Set the map's camera position to the current location of the device.
+								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+								loadClusters();//TODO modify
+							}
+						})
+						.addOnFailureListener(location -> {
+							Log.d(TAG, "Current location is null. Using defaults.");
+							if (mMap != null) {
+								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, DEFAULT_ZOOM));
+								mMap.getUiSettings().setMyLocationButtonEnabled(false);
+							} else {
+								Log.e(TAG, "mMap is null in getDeviceLocationAndDisplayIt");
+								finish();
+							}
+						});
+			}
+		} catch (SecurityException e) {
+			Log.e(TAG, "Exception: " + e.getMessage());
 		}
 	}
 
 	private long convertDateToLong(String dateString) {
+		Date date = null;
 		try {
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-			Date date = sdf.parse(dateString);
-
-			return date.getTime();
-
+			date = new SimpleDateFormat("dd/MM/yyyy", Locale.ITALY).parse(dateString);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		return 0;
+		return date == null ? 0 : date.getTime();
 	}
+	//endregion
 }
