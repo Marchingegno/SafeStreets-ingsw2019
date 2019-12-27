@@ -19,6 +19,7 @@ import java.util.UUID;
 import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ClusterRepresentation;
 import it.polimi.marcermarchiscianamotta.safestreets.model.UserRepresentation;
+import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReportRepresentation;
 
 /**
@@ -102,20 +103,27 @@ public class DatabaseConnection {
 	 * @param onSuccessListener the code to execute on success.
 	 * @param onFailureListener the code to execute on failure.
 	 */
-	public static void getClusters(Activity listenerActivity, String municipality, OnSuccessListener<List<Cluster>> onSuccessListener, OnFailureListener onFailureListener) {
-		FirebaseFirestore.getInstance().collection("municipalities").document(municipality).collection("clusters")
-				//.whereEqualTo("userUid", AuthenticationManager.getUserUid())
-				.get()
-				.addOnSuccessListener(listenerActivity, querySnapshot -> {
-					List<Cluster> clusters = new ArrayList<>();
-					Log.d(TAG, "getClusters succeeded");
-					for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
-						ClusterRepresentation clusterRepresentation = documentSnapshot.toObject(ClusterRepresentation.class);
-						clusters.add(new Cluster(clusterRepresentation));
-					}
-					onSuccessListener.onSuccess(clusters);
-				})
-				.addOnFailureListener(listenerActivity, onFailureListener);
+	public static void getClusters(Activity listenerActivity, String municipality, List<ViolationEnum> violationTypesToRetrieve, OnSuccessListener<List<Cluster>> onSuccessListener, OnFailureListener onFailureListener) {
+		if (violationTypesToRetrieve.size() > 0) {
+			Log.d(TAG, "Filtering on: " + violationTypesToRetrieve);
+			FirebaseFirestore.getInstance().collection("municipalities").document(municipality).collection("clusters")
+					.whereIn("typeOfViolation", violationTypesToRetrieve)
+					.get()
+					.addOnSuccessListener(listenerActivity, querySnapshot -> {
+						List<Cluster> clusters = new ArrayList<>();
+						Log.d(TAG, "getClusters succeeded");
+						for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
+							ClusterRepresentation clusterRepresentation = documentSnapshot.toObject(ClusterRepresentation.class);
+							clusters.add(new Cluster(clusterRepresentation));
+						}
+						onSuccessListener.onSuccess(clusters);
+					})
+					.addOnFailureListener(listenerActivity, onFailureListener);
+		} else {
+			Log.i(TAG, "No violation type to filter by");
+			onSuccessListener.onSuccess(new ArrayList<>());
+		}
+
 	}
 	//endregion
 

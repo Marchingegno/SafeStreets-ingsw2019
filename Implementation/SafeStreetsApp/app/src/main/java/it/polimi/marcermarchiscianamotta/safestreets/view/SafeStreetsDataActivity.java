@@ -136,7 +136,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		assert mMap != null;
 		mMap.setOnMarkerClickListener(marker -> {
 			//onMarkerClick
-			marker.setTitle("CLICKED");
+			//TODO launch activity to display groups
 			Toast.makeText(this, "Marker clicked", Toast.LENGTH_LONG).show();
 			return false;
 		});
@@ -177,10 +177,11 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 
 	@Override
 	public void onClusterLoaded(List<Cluster> clusters) {
-		if (mMap != null)
+		if (mMap != null) {
 			removeMarkers();
-		for (Cluster rep : clusters) {
-			addMarker(rep);
+			for (Cluster cluster : clusters) {
+				addMarker(cluster);
+			}
 		}
 	}
 
@@ -240,7 +241,6 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		});
 	}
 
-
 	private void setupTypeOfViolationDialog() {
 		List<ViolationEnum> selectedItems = new ArrayList<>();
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -266,6 +266,11 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 						(dialog, id) -> {
 							//On click
 							violationTypesSelected = selectedItems;
+							if (lastKnownLocation != null) {
+								retrieveViolationsManager.loadClusters(
+										new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), violationTypesSelected);
+							} else
+								Log.e(TAG, "lastKnownLocation is null in setPositiveButton");
 							Log.d(TAG, "Violation types selected: " + violationTypesSelected);
 						})
 				.setNegativeButton("Cancel",
@@ -291,7 +296,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
 				getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);// Initialize the AutocompleteSupportFragment
 
-		// Specify the types of place data to return.
+		// Specify the types of Place data to return.
 		if (autocompleteFragment != null) {
 			autocompleteFragment.setPlaceFields(Arrays.asList(
 					Place.Field.ID,
@@ -307,7 +312,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 					if (requestedLocation != null && mMap != null) {
 						LatLng requestedCoordinates = new LatLng(requestedLocation.latitude, requestedLocation.longitude);
 						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(requestedCoordinates, DEFAULT_ZOOM));
-						retrieveViolationsManager.loadClusters(requestedCoordinates);
+						retrieveViolationsManager.loadClusters(requestedCoordinates, violationTypesSelected);
 					} else
 						Log.e(TAG, "No LatLng associated with the searched place. mMap = " + mMap);
 				}
@@ -356,7 +361,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 								LatLng lastKnownCoordinate = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
 								// Set the map's camera position to the current location of the device.
 								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastKnownCoordinate, DEFAULT_ZOOM));
-								retrieveViolationsManager.loadClusters(lastKnownCoordinate);
+								retrieveViolationsManager.loadClusters(lastKnownCoordinate, violationTypesSelected);
 							}
 						})
 						.addOnFailureListener(location -> {
@@ -389,8 +394,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		assert mMap != null; //Checked int the caller
 		MarkerOptions markerOption = new MarkerOptions()
 				.position(new LatLng(cluster.getLatitude(), cluster.getLongitude()))
-				.title(cluster.getTypeOfViolation().toString())
-				.snippet("description");
+				.title(cluster.getTypeOfViolation().toString());
 		markers.add(mMap.addMarker(markerOption));
 	}
 

@@ -6,6 +6,10 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.DatabaseConnection;
 import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.MapUser;
@@ -18,6 +22,7 @@ public class RetrieveViolationsManager implements MapUser {
 
 	private ViolationRetrieverUser caller;
 	private Activity activity;
+	private List<ViolationEnum> violationTypeToRetrieve;
 
 	public RetrieveViolationsManager(Activity activity) {
 		if (activity instanceof ViolationRetrieverUser) {
@@ -27,15 +32,16 @@ public class RetrieveViolationsManager implements MapUser {
 	}
 
 	public void loadClusters(String municipality) {
-		DatabaseConnection.getClusters(activity, municipality,
+		DatabaseConnection.getClusters(activity, municipality, violationTypeToRetrieve,
 				// On success.
-				reportsResult -> caller.onClusterLoaded(reportsResult),
+				retrievedClusters -> caller.onClusterLoaded(retrievedClusters),
 				// On failure.
 				e -> Log.e(TAG, "Failed to retrieve clusters in " + municipality, e)
 		);
 	}
 
-	public void loadClusters(LatLng location) {
+	public void loadClusters(LatLng location, List<ViolationEnum> violationTypes) {
+		this.violationTypeToRetrieve = new ArrayList<>(violationTypes);
 		MapManager.getAddressFromLocation(activity, this, location);
 	}
 

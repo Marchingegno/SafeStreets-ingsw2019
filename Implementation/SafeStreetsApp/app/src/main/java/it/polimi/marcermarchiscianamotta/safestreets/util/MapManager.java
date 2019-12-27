@@ -62,10 +62,11 @@ public class MapManager {
 	/**
 	 * Task that retrieves an address from a location.
 	 */
-	private static class AddressFromLocationTask extends AsyncTask<LatLng, Void, Void> {
+	private static class AddressFromLocationTask extends AsyncTask<LatLng, Void, Address> {
 
 		private MapUser caller;
 		private Context context;
+		private Address addressFound;
 
 		AddressFromLocationTask(Context context, MapUser caller) {
 			this.caller = caller;
@@ -73,7 +74,7 @@ public class MapManager {
 		}
 
 		@Override
-		protected Void doInBackground(LatLng... locations) {
+		protected Address doInBackground(LatLng... locations) {
 			if (locations.length == 1) {
 				LatLng location = locations[0];
 				Address address = null;
@@ -84,11 +85,17 @@ public class MapManager {
 				}
 				Log.d(TAG, "Address found: " + address);
 				//Notify the caller
-				caller.onAddressFound(address);
+				return address;
 			} else
 				Log.e(TAG, "Too many arguments");
 
 			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Address address) {
+			super.onPostExecute(address);
+			caller.onAddressFound(address);
 		}
 	}
 }
