@@ -54,7 +54,7 @@ async function doStatusChange(groupSnap) {
     // Update status of reports.
     let promisesOfStatusUpdate = [];
     for (let reportId of reportIds) {
-        promisesOfStatusUpdate.push(db.collection("violationReports").doc(reportId).update("reportStatus", newStatus));
+        promisesOfStatusUpdate.push(db.collection("violationReports").doc(reportId).update({reportStatus: newStatus, statusMotivation: "Rejected by the municipality."}));
     }
     await Promise.all(promisesOfStatusUpdate);
 }
