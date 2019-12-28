@@ -116,7 +116,7 @@
 
 
 <script>
-    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     document.getElementById("login").addEventListener("click", login);
 
     document.getElementById("login").addEventListener("keyup", function (event) {

@@ -90,12 +90,12 @@
 		<div class="Container">
 			<div class="dateInput">
 				<h4>Start date</h4>
-				<input id="stDate" placeholder=" Search location" type="date" value="2011-11-30"/>
+				<input id="stDate" type="date" value="2011-11-30"/>
 			</div>
 
 			<div class="dateInput">
 				<h4>End date</h4>
-				<input id="eDate" placeholder=" Search license plate" type="date"/>
+				<input id="eDate" type="date">
 			</div>
 		</div>
 
@@ -104,7 +104,9 @@
 		<input name="Violations" type="checkbox">Violations<br>
 		<input name="Accidents" type="checkbox">Accidents<br>
 		<button>Select types</button>
-		<button onclick="updateSearch()">Search</button>
+		<p>
+			<button onclick="updateSearch()">Search</button>
+		</p>
 
 		<div class="mapContainer">
 			<div id="map"></div>
@@ -117,13 +119,12 @@
     var map;
 
     function initMap() {
-        console.log("Func started");
+        console.log(sessionStorage.municip);
         latitude = 45.5488358;
         longitude = 9.1217414;
         var loc = {lat: latitude, lng: longitude};
         map = new google.maps.Map(
             document.getElementById('map'), {zoom: 14, center: loc, streetViewControl: false});
-        addMarkerAtLocationAndCenter(loc.lat, loc.lng);
     }
 
     function addMarkerAtLocationAndCenter(latitude, longitude) {
@@ -134,29 +135,37 @@
     }
 
     function updateSearch() {
-        console.log("update search started");
-        var db = firebase.firestore();
-        var reportsToDisplay;
-        var startDate = document.getElementById("stDate").value;
-        var endDate = document.getElementById("eDate").value;
+        latitude = 45.5488358;
+        longitude = 9.1217414;
+        var loc = {lat: latitude, lng: longitude};
+        map = new google.maps.Map(
+            document.getElementById('map'), {zoom: 15, center: loc, streetViewControl: false});
+        var municipDB = firebase.firestore().collection("municipalities").doc(sessionStorage.municip);
+        var endDateSet = document.getElementById("eDate").value !== "";
+        var startDateSet = document.getElementById("stDate").value !== "";
+        var startDate = new Date(document.getElementById("stDate").value).getTime() / 1000;
+        var endDate = new Date(document.getElementById("eDate").value).getTime() / 1000;
         var licensePlate = document.getElementById("lic").value;
         var location = document.getElementById("loc").value;
-        var stDate = new Date(startDate);
-        console.log("Start date: " + stDate);
-        console.log("End date: " + endDate);
-        console.log(endDate == "");
 
-        db.collection("violationReports").where("uploadTimestamp", ">=", stDate).get().then(function (querySnapshot) {
-            querySnapshot.forEach(function (doc) {
-                console.log("found one");
-                var newLoc = {lat: doc.get("latitude"), lng: doc.get("longitude")};
-                var marker = new google.maps.Marker({position: newLoc, map: map})
+        municipDB.collection("clusters").get().then(function (clustersSnapshot) {
+            clustersSnapshot.forEach(function (clusterSnapshot) {
+                var firstAddedDate = clusterSnapshot.get("firstAddedDate");
+                var lastAddedDate = clusterSnapshot.get("lastAddedDate");
+                if (startDateSet && lastAddedDate.seconds < startDate)
+                    return;
+                if (endDateSet && firstAddedDate.seconds > endDate)
+                    return;
+                var clusterId = clusterSnapshot.id;
 
-            })
-        })
-
+                console.log("found a cluster");
+                addMarkerAtLocationAndCenter(clusterSnapshot.get("latitude"), clusterSnapshot.get("longitude"));
+                var newLoc = {lat: clusterSnapshot.get("latitude"), lng: clusterSnapshot.get("longitude")};
+                var marker = new google.maps.Marker({position: newLoc, map: map, title: clusterId});
+                map.setCenter(newLoc);
+            });
+        });
     }
-
 </script>
 
 
