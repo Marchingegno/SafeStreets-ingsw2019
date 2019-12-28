@@ -37,15 +37,11 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -54,6 +50,7 @@ import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.RetrieveViolationsManager;
 import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
+import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.ViolationRetrieverUser;
 import pub.devrel.easypermissions.AppSettingsDialog;
@@ -233,7 +230,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 						String date = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
 						startDateTextView.setText(date);
 						//Save chosen starting date
-						startDate = convertDateToLong(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear);
+						startDate = GeneralUtils.convertDateToLong(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear);
 						Log.d(TAG, "Start date: " + date + " [" + startDate + "]");
 					}, currentYear, currentMonth, currentDay);
 			//Update the interval of the dialog
@@ -252,7 +249,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 						String date = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
 						endDateTextView.setText(date);
 						//Save chosen ending date
-						endDate = convertDateToLong(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear);
+						endDate = GeneralUtils.convertDateToLong(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear);
 						Log.d(TAG, "End date: " + date + " [" + endDate + "]");
 					}, currentYear, currentMonth, currentDay);
 			//Update the interval of the dialog
@@ -400,16 +397,6 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		} catch (SecurityException e) {
 			Log.e(TAG, "Exception: " + e.getMessage());
 		}
-	}
-
-	private long convertDateToLong(String dateString) {
-		Date date = null;
-		try {
-			date = new SimpleDateFormat("dd/MM/yyyy", Locale.ITALY).parse(dateString);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		return date == null ? 0 : date.getTime();
 	}
 
 	private void addMarker(Cluster cluster) {

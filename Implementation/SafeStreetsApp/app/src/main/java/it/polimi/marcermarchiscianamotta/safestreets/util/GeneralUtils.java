@@ -7,6 +7,11 @@ import android.view.View;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public final class GeneralUtils {
 
 	/**
@@ -37,5 +42,15 @@ public final class GeneralUtils {
 
 	public static boolean isPlate(String string) {
 		return string.matches("[A-Z][A-Z][0-9][0-9][0-9][A-Z][A-Z](.)*");
+	}
+
+	public static long convertDateToLong(String dateString) {
+		Date date = null;
+		try {
+			date = new SimpleDateFormat("dd/MM/yyyy", Locale.ITALY).parse(dateString);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return date == null ? 0 : date.getTime();
 	}
 }
