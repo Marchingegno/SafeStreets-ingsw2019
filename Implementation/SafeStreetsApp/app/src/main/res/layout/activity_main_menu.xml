@@ -14,6 +14,12 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/ic_launcher_full" />
+
         <TextView
             android:id="@+id/main_menu_welcome_text"
             style="@style/Base.TextAppearance.AppCompat.Headline"
@@ -21,7 +27,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="8dp"
-            android:drawableTop="@drawable/ic_launcher_foreground"
             android:gravity="center"
             android:text="Welcome back testtesttest@test.com" />
 
