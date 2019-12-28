@@ -7,6 +7,7 @@ import android.util.Log;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
@@ -23,6 +24,8 @@ public class RetrieveViolationsManager implements MapUser {
 	private ViolationRetrieverUser caller;
 	private Activity activity;
 	private List<ViolationEnum> violationTypeToRetrieve;
+	private Date intervalStartDate;
+	private Date intervalEndDate;
 
 	public RetrieveViolationsManager(Activity activity) {
 		if (activity instanceof ViolationRetrieverUser) {
@@ -32,7 +35,7 @@ public class RetrieveViolationsManager implements MapUser {
 	}
 
 	public void loadClusters(String municipality) {
-		DatabaseConnection.getClusters(activity, municipality, violationTypeToRetrieve,
+		DatabaseConnection.getClusters(activity, municipality, violationTypeToRetrieve, intervalStartDate, intervalEndDate,
 				// On success.
 				retrievedClusters -> caller.onClusterLoaded(retrievedClusters),
 				// On failure.
@@ -40,8 +43,10 @@ public class RetrieveViolationsManager implements MapUser {
 		);
 	}
 
-	public void loadClusters(LatLng location, List<ViolationEnum> violationTypes) {
+	public void loadClusters(LatLng location, List<ViolationEnum> violationTypes, Date intervalStartDate, Date intervalEndDate) {
 		this.violationTypeToRetrieve = new ArrayList<>(violationTypes);
+		this.intervalStartDate = intervalStartDate;
+		this.intervalEndDate = intervalEndDate;
 		MapManager.getAddressFromLocation(activity, this, location);
 	}
 

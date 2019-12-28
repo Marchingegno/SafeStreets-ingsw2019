@@ -47,10 +47,15 @@ public final class GeneralUtils {
 	public static long convertDateToLong(String dateString) {
 		Date date = null;
 		try {
-			date = new SimpleDateFormat("dd/MM/yyyy", Locale.ITALY).parse(dateString);
+			date = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss", Locale.ITALY).parse(dateString);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 		return date == null ? 0 : date.getTime();
 	}
+
+	public static Date convertLongToDate(long longToConvert) {
+		return new Date(longToConvert);
+	}
+
 }

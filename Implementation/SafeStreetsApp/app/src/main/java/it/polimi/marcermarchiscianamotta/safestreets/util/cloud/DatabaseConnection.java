@@ -13,6 +13,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.Transaction;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -74,7 +75,7 @@ public class DatabaseConnection {
 	/**
 	 * Gets all the violation reports made by the current user.
 	 *
-	 * @param listenerActivity the activity that will listen for success or failure events.
+	 * @param listenerActivity  the activity that will listen for success or failure events.
 	 * @param onSuccessListener the code to execute on success.
 	 * @param onFailureListener the code to execute on failure.
 	 */
@@ -98,23 +99,25 @@ public class DatabaseConnection {
 	/**
 	 * Gets all the violation reports in a municipality.
 	 *
-	 * @param municipality municipality to which the clusters belong to.
+	 * @param municipality      municipality to which the clusters belong to.
 	 * @param listenerActivity  the activity that will listen for success or failure events.
 	 * @param onSuccessListener the code to execute on success.
 	 * @param onFailureListener the code to execute on failure.
 	 */
-	public static void getClusters(Activity listenerActivity, String municipality, List<ViolationEnum> violationTypesToRetrieve, OnSuccessListener<List<Cluster>> onSuccessListener, OnFailureListener onFailureListener) {
+	public static void getClusters(Activity listenerActivity, String municipality, List<ViolationEnum> violationTypesToRetrieve, Date intervalStartDate, Date intervalEndDate, OnSuccessListener<List<Cluster>> onSuccessListener, OnFailureListener onFailureListener) {
 		if (violationTypesToRetrieve.size() > 0) {
-			Log.d(TAG, "Filtering on: " + violationTypesToRetrieve);
+			Log.d(TAG, "Filtering on: " + violationTypesToRetrieve + "\n\tinterval = " + intervalStartDate + " to " + intervalEndDate);
 			FirebaseFirestore.getInstance().collection("municipalities").document(municipality).collection("clusters")
 					.whereIn("typeOfViolation", violationTypesToRetrieve)
 					.get()
 					.addOnSuccessListener(listenerActivity, querySnapshot -> {
 						List<Cluster> clusters = new ArrayList<>();
 						Log.d(TAG, "getClusters succeeded");
+						//Discard
 						for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
 							ClusterRepresentation clusterRepresentation = documentSnapshot.toObject(ClusterRepresentation.class);
-							clusters.add(new Cluster(clusterRepresentation));
+							if (clusterRepresentation.getLastAddedDate().after(intervalStartDate) && clusterRepresentation.getFirstAddedDate().before(intervalEndDate))
+								clusters.add(new Cluster(clusterRepresentation));
 						}
 						onSuccessListener.onSuccess(clusters);
 					})
@@ -123,8 +126,32 @@ public class DatabaseConnection {
 			Log.i(TAG, "No violation type to filter by");
 			onSuccessListener.onSuccess(new ArrayList<>());
 		}
-
 	}
+	/*
+	CLUSTER [first - last]
+	INTERVAL [start - end]
+
+	cluster is selected if (last > start && first < end)
+
+					f----------------l					FALSE
+			s_____e
+
+					f----------------l					TRUE
+				s_____e
+
+					f----------------l					TRUE
+						s_____e
+
+					f----------------l					TRUE
+									s_____e
+
+					f----------------l					FALSE
+										s_____e
+
+					f---------l							TRUE
+				s__________________e
+
+	 */
 	//endregion
 
 	//region Private methods

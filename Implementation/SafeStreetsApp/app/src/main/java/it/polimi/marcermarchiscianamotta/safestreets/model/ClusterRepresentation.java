@@ -1,6 +1,7 @@
 package it.polimi.marcermarchiscianamotta.safestreets.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -12,10 +13,14 @@ public class ClusterRepresentation {
 	private double latitude;
 	private double longitude;
 	private String typeOfViolation;
+	private Date firstAddedDate;
+	private Date lastAddedDate;
 
 	public ClusterRepresentation() {
 	}
 
+	//region Getter methods
+	//================================================================================
 	public List<String> getGroups() {
 		return groups;
 	}
@@ -31,4 +36,13 @@ public class ClusterRepresentation {
 	public String getTypeOfViolation() {
 		return typeOfViolation;
 	}
+
+	public Date getFirstAddedDate() {
+		return firstAddedDate;
+	}
+
+	public Date getLastAddedDate() {
+		return lastAddedDate;
+	}
+	//endregion
 }
