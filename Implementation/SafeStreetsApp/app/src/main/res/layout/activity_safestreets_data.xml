@@ -34,9 +34,10 @@
 			<TextView
 				android:id="@+id/start_date_view"
 				android:layout_width="0dp"
-				android:layout_height="wrap_content"
+				android:layout_height="40dp"
 				android:layout_gravity="left"
 				android:layout_weight="1"
+				android:gravity="center_vertical"
 				android:clickable="true"
 				android:text="Enter start date"
 				android:textAlignment="center" />
@@ -44,9 +45,10 @@
 			<TextView
 				android:id="@+id/end_date_view"
 				android:layout_width="0dp"
-				android:layout_height="wrap_content"
+				android:layout_height="40dp"
 				android:layout_gravity="right"
 				android:layout_weight="1"
+				android:gravity="center_vertical"
 				android:clickable="true"
 				android:text="Enter end date"
 				android:textAlignment="center" />
@@ -55,6 +57,7 @@
 
 
 		<Button
+			style="@style/Widget.AppCompat.Button.Borderless.Colored"
 			android:id="@+id/violation_type_selection_button"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
