@@ -17,21 +17,18 @@
 	div.details txt {
 		display: block;
 		margin-left: 10px;
-		padding-bottom: 23px;
+		padding-bottom: 15px;
 	}
 
 	div.infos {
 		display: block;
+		height: 200px;
 		margin-left: 100px;
 	}
 
 	div.infos titles {
 		display: block;
 		margin-left: 50px;
-	}
-
-	div.infos titles {
-		display: block;
 		font-size: x-large;
 		font-weight: bolder;
 	}
@@ -59,25 +56,77 @@
 	div.box[id="descr"] {
 		width: 250px;
 		margin-right: 50px;
+		max-height: 300px;
+		overflow-y: scroll;
 	}
 
 	div.box[id="pic"] {
 		margin-left: 20%;
 		width: 250px;
 		max-width: 400px;
-		height: fit-content;
+		max-height: 300px;
+		overflow-y: scroll;
 	}
 
 	img {
-		/*-webkit-transform: rotate(90deg);
-		-moz-transform: rotate(90deg);
-		-ms-transform: rotate(90deg);
-		-o-transform: rotate(90deg);
-		transform: rotate(90deg);*/
 		cursor: pointer;
 		padding-left: 15px;
 		padding-top: 10px;
 		padding-bottom: 15px;
+	}
+
+	#buttons {
+		display: block;
+		margin-top: 200px;
+		margin-left: 20px;
+	}
+
+	#accept {
+		margin-left: 200px;
+		background-color: green;
+		color: white;
+		font-size: 20px;
+		text-decoration: none;
+		border: 2px solid white;
+		border-radius: 20px;
+		transition-duration: .2s;
+		-webkit-transition-duration: .2s;
+		-moz-transition-duration: .2s;
+		padding: 7px 40px;
+	}
+
+	#accept:hover {
+		color: black;
+		border: 2px solid green;
+		background-color: white;
+		transition-duration: .2s;
+		-webkit-transition-duration: .2s;
+		-moz-transition-duration: .2s;
+		cursor: pointer;
+	}
+
+	#reject {
+		margin-left: 250px;
+		background-color: darkred;
+		color: white;
+		font-size: 20px;
+		text-decoration: none;
+		border: 2px solid white;
+		border-radius: 20px;
+		transition-duration: .2s;
+		-webkit-transition-duration: .2s;
+		-moz-transition-duration: .2s;
+		padding: 7px 40px;
+	}
+
+	#reject:hover {
+		color: black;
+		border: 2px solid darkred;
+		background-color: white;
+		transition-duration: .2s;
+		-webkit-transition-duration: .2s;
+		-moz-transition-duration: .2s;
+		cursor: pointer;
 	}
 
 
@@ -110,15 +159,17 @@
 		</titles>
 
 		<div class="boxes">
-			<div class="box" id="descr">
-
-			</div>
-
-			<div class="box" id="pic">
-
-			</div>
+			<div class="box" id="descr"></div>
+			<div class="box" id="pic"></div>
 		</div>
 	</div>
+
+	<div id="buttons">
+		<button id="accept">Accept</button>
+		<button id="reject">Reject</button>
+	</div>
+
+
 </div>
 
 
@@ -135,7 +186,7 @@
     var time;
     var violationType;
     var descriptions = [];
-    var groups = db.collection("municipalities").doc(sessionStorage.municip).collection("groups");
+    var groups = db.collection("municipalities").doc(localStorage.municip).collection("groups");
 
     groups.doc(groupId).get().then(function (groupDocumentSnapshot) {
         if (groupDocumentSnapshot.exists) {
@@ -151,13 +202,13 @@
                 let report = db.collection("violationReports").doc(repoId);
                 report.get().then(function (reportSnapshot) {
                     if (reportSnapshot.exists) {
-                        document.getElementById("num").textContent += ++reportsNumber;
+                        console.log("found a report");
+                        document.getElementById("num").textContent = "Number of reports:\t\t" + ++reportsNumber;
                         document.getElementById("descr").innerText += reportSnapshot.get("description");
-                        console.log(reportSnapshot.get("description"));
                         picturesCollection = reportSnapshot.get("pictures");
 
                         //Retrieve pictures of the report
-						userid = reportSnapshot.get("userUid");
+                        userid = reportSnapshot.get("userUid");
                         if (picturesCollection) {
                             picturesCollection.forEach(function (value) {
                                 storage.child("pictures/" + userid + "/" + value).getDownloadURL().then(function (url) {

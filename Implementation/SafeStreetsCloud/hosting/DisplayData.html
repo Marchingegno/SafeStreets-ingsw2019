@@ -119,7 +119,7 @@
     var map;
 
     function initMap() {
-        console.log(sessionStorage.municip);
+        console.log(localStorage.municip);
         latitude = 45.5488358;
         longitude = 9.1217414;
         var loc = {lat: latitude, lng: longitude};
@@ -140,7 +140,7 @@
         var loc = {lat: latitude, lng: longitude};
         map = new google.maps.Map(
             document.getElementById('map'), {zoom: 15, center: loc, streetViewControl: false});
-        var municipDB = firebase.firestore().collection("municipalities").doc(sessionStorage.municip);
+        var municipDB = firebase.firestore().collection("municipalities").doc(localStorage.municip);
         var endDateSet = document.getElementById("eDate").value !== "";
         var startDateSet = document.getElementById("stDate").value !== "";
         var startDate = new Date(document.getElementById("stDate").value).getTime() / 1000;

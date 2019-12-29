@@ -167,17 +167,17 @@
 	var db = firebase.firestore();
 
     function retrieveReports() {
-		var groups = db.collection("municipalities").doc(sessionStorage.municip).collection("groups");
-		groups.get().then(function (querySnapshot) {
-			querySnapshot.forEach(function (doc) {
-				//console.log(doc.data());
-				let groupID = doc.id;
-				let licensePlate = doc.get("licensePlate");
-				let location = doc.get("latitude").toString() + "  |  " + doc.get("longitude").toString();
-				let violationType = doc.get("typeOfViolation");
-				var reports = doc.get("reports");
-				let numOfReports = 0;
-				reports.forEach(function (repo) {
+        var groups = db.collection("municipalities").doc(localStorage.municip).collection("groups");
+        groups.get().then(function (querySnapshot) {
+            querySnapshot.forEach(function (doc) {
+                //console.log(doc.data());
+                let groupID = doc.id;
+                let licensePlate = doc.get("licensePlate");
+                let location = doc.get("latitude").toString() + "  |  " + doc.get("longitude").toString();
+                let violationType = doc.get("typeOfViolation");
+                var reports = doc.get("reports");
+                let numOfReports = 0;
+                reports.forEach(function (repo) {
 					numOfReports++;
                 });
 				createReportWithParameters(licensePlate, location, violationType, numOfReports, groupID);
@@ -206,13 +206,13 @@
     function selectMunicip() {
         var municipalityName = location.hash;
         municipalityName = municipalityName.slice(1);
-        sessionStorage.municip = municipalityName;
-        console.log(sessionStorage.municip);
+        localStorage.municip = municipalityName;
+        console.log(localStorage.municip);
     }
 
     function retrieveMunicipalityReports() {
         console.log("before query");
-        municipalities.doc(sessionStorage.municip).collection("groups").get().then(function (documentSnapshot) {
+        municipalities.doc(localStorage.municip).collection("groups").get().then(function (documentSnapshot) {
             documentSnapshot.forEach(function (doc) {
                 console.log("control");
                 let uid = doc.id;

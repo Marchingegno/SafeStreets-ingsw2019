@@ -150,12 +150,12 @@
 						// Signed in.
 						console.log(idTokenResult.toString());
 						if(idTokenResult.claims !== null && idTokenResult.claims.isMunicipality === true) {
-							// User is a municipality.
-							const municipalityId = idTokenResult.claims.municipalityId;
-							sessionStorage.municip = municipalityId;
-							console.log("Municipality logged in, has authorization to access files of " + municipalityId + ".");
-							window.location.href = "AcceptViolations.html"
-						} else {
+                            // User is a municipality.
+                            const municipalityId = idTokenResult.claims.municipalityId;
+                            localStorage.municip = municipalityId;
+                            console.log("Municipality logged in, has authorization to access files of " + municipalityId + ".");
+                            window.location.href = "AcceptViolations.html"
+                        } else {
 							// User is not a municipality.
 							console.log("This user doesn't have authorization (not a municipality).");
 							alert("This service is reserved for municipalities only.\n" +

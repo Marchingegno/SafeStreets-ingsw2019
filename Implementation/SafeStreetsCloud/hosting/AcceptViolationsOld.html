@@ -223,13 +223,13 @@
     function selectMunicip() {
         var municipalityName = location.hash;
         municipalityName = municipalityName.slice(1);
-        sessionStorage.municip = municipalityName;
-        console.log(sessionStorage.municip);
+        localStorage.municip = municipalityName;
+        console.log(localStorage.municip);
     }
 
     function retrieveMunicipalityReports() {
         console.log("before query");
-        municipalities.doc(sessionStorage.municip).collection("groups").get().then(function (documentSnapshot) {
+        municipalities.doc(localStorage.municip).collection("groups").get().then(function (documentSnapshot) {
             documentSnapshot.forEach(function (doc) {
                 console.log("control");
                 let uid = doc.id;
