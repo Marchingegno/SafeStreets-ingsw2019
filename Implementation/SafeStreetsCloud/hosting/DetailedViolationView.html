@@ -165,8 +165,8 @@
 	</div>
 
 	<div id="buttons">
-		<button id="accept">Accept</button>
-		<button id="reject">Reject</button>
+		<button id="accept" onclick="approveViolation()">Accept</button>
+		<button id="reject" onclick="rejectViolation()">Reject</button>
 	</div>
 
 
@@ -186,9 +186,9 @@
     var time;
     var violationType;
     var descriptions = [];
-    var groups = db.collection("municipalities").doc(localStorage.municip).collection("groups");
+    var groupRef = db.collection("municipalities").doc(localStorage.municip).collection("groups").doc(groupId);
 
-    groups.doc(groupId).get().then(function (groupDocumentSnapshot) {
+    groupRef.get().then(function (groupDocumentSnapshot) {
         if (groupDocumentSnapshot.exists) {
             //Get location, licensePlate, time, violationType
             locationOnMap = groupDocumentSnapshot.get("latitude") + "  |  " + groupDocumentSnapshot.get("longitude");
@@ -236,50 +236,36 @@
         document.getElementById("vtype").textContent += violationType;
     });
 
-    function deprecatedRetrieve() {
-        var report = firebase.firestore().collection("violationReports").doc(groupId).get().then(function (documentSnapshot) {
-            if (documentSnapshot.exists) {
-                document.getElementById("id").textContent += documentSnapshot.id;
-                document.getElementById("num").textContent += "not implemented yet.";
-                document.getElementById("loc").textContent += documentSnapshot.get("latitude") + "  |  " + documentSnapshot.get("longitude");
-                var licensePlate = documentSnapshot.get("licensePlate");
-                if (!licensePlate) licensePlate = documentSnapshot.get("licencePlate");
-                document.getElementById("licp").textContent += licensePlate;
-                try {
-                    document.getElementById("time").textContent += new Date(documentSnapshot.get("uploadTimestamp").seconds * 1000);
-                } catch (e) {
-                    console.log("do absolutely nothing");
+
+    function approveViolation() {
+        db.runTransaction(function (transaction) {
+            return transaction.get(groupRef).then(function (groupDoc) {
+                if (!groupDoc.exists) {
+                    throw "Document does not exist!";
                 }
-                document.getElementById("vtype").textContent += documentSnapshot.get("violationType");
-                document.getElementById("descr").innerText += documentSnapshot.get("description");
-                picturesCollection = documentSnapshot.get("pictures");
-                userid = documentSnapshot.get("userUid");
-            } else {
-                console.log("report doesn't exists");
-            }
-            //RETRIEVE REPORT PICTURES
-            if (picturesCollection) {
-                picturesCollection.forEach(function (pictures) {
-                    pictures.forEach(function (value) {
-                        console.log("PATH: " + "pictures/" + userid + "/" + value + ".jpeg");
-                        storage.child("pictures/" + userid + "/" + value).getDownloadURL().then(function (url) {
-                            console.log(url);
-                            newImg = document.createElement("img");
-                            newImg.setAttribute("src", url);
-                            newImg.setAttribute("width", 100);
-                            newImg.setAttribute("height", 100);
-                            newImg.addEventListener("click", function () {
-                                openPic(url);
-                            });
-                            document.getElementById("pic").appendChild(newImg);
-                        }).catch(function (error) {
-                            console.log("There has been an error. " + error);
-                        });
-                    });
-                });
-            }
+
+                transaction.update(groupRef, {groupStatus: "CONFIRMED"})
+            });
         });
+
+        console.log("updated to confirmed");
+        window.location.href = "AcceptViolations.html"
     }
+
+    function rejectViolation() {
+        db.runTransaction(function (transaction) {
+            return transaction.get(groupRef).then(function (groupDoc) {
+                if (!groupDoc.exists) {
+                    throw "Document does not exist!";
+                }
+
+                transaction.update(groupRef, {groupStatus: "REJECTED"})
+            });
+        });
+        console.log("updated to rejected");
+        window.location.href = "AcceptViolations.html"
+    }
+
 
     function openPic(picUrl) {
         window.open(picUrl);

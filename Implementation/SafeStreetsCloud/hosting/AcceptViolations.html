@@ -86,23 +86,17 @@
 	<div>
 		<button onclick="createReport()">Create report</button>
 		<button onclick="retrieveReports()">Retrieve reports</button>
-		<!--<button onclick="retrieveMunicipalityReports()">Retrieve municipality reports</button>-->
 	</div>
 
 	<div class="reports" id="reports">
 		<div class="report">
-			<ul>
-				<li>License plate: XXX</li>
-				<li>Location: ZZZ</li>
-				<li>Violation type: CCC</li>
-				<li>Number of reports: 99</li>
-			</ul>
 		</div>
 	</div>
 </div>
 
 <script>
     let counter = 0;
+
 
     function createReport() {
         createReportWithParameters(counter++, counter++, counter++, counter++)
