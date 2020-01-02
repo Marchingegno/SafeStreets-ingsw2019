@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ClusterRepresentation;
+import it.polimi.marcermarchiscianamotta.safestreets.model.Group;
 import it.polimi.marcermarchiscianamotta.safestreets.model.UserRepresentation;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReportRepresentation;
@@ -92,6 +93,26 @@ public class DatabaseConnection {
 						reports.add(violationReportRepresentation);
 					}
 					onSuccessListener.onSuccess(reports);
+				})
+				.addOnFailureListener(listenerActivity, onFailureListener);
+	}
+
+	/**
+	 * Gets all the violation reports made by the current user.
+	 *
+	 * @param listenerActivity  the activity that will listen for success or failure events.
+	 * @param onSuccessListener the code to execute on success.
+	 * @param onFailureListener the code to execute on failure.
+	 */
+	public static void getGroup(Activity listenerActivity, String groupID, String municipality, OnSuccessListener<Group> onSuccessListener, OnFailureListener onFailureListener) {
+		Log.d(TAG, "Retrieving group: " + groupID);
+		FirebaseFirestore.getInstance().collection("municipalities").document(municipality).collection("groups")
+				.document(groupID)
+				.get()
+				.addOnSuccessListener(listenerActivity, querySnapshot -> {
+					Log.d(TAG, "getGroup succeeded for group: " + groupID);
+					Group group = querySnapshot.toObject(Group.class);
+					onSuccessListener.onSuccess(group);
 				})
 				.addOnFailureListener(listenerActivity, onFailureListener);
 	}

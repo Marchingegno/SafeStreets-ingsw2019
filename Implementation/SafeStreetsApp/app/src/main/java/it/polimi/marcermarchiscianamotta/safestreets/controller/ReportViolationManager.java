@@ -207,12 +207,14 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 		MapManager.getAddressFromLocation(reportViolationActivity.getApplicationContext(), this, location);
 	}
 
+
 	@Override
 	public void onAddressFound(Address address) {
-		report.setMunicipality(address.getLocality());
-		reportViolationActivity.setAddressText(address.getThoroughfare() + ", " + address.getLocality());
-		Log.d(TAG, "Address: " + address + " set.");
-
+		if (address != null) {
+			report.setMunicipality(address.getLocality());
+			reportViolationActivity.setAddressText(address.getThoroughfare() + ", " + address.getLocality());
+			Log.d(TAG, "Address: " + address + " set.");
+		} else Log.d(TAG, "address is null in onAddressFound");
 	}
 	//endregion
 

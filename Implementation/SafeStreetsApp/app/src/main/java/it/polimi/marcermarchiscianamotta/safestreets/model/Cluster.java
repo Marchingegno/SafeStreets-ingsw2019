@@ -1,10 +1,11 @@
 package it.polimi.marcermarchiscianamotta.safestreets.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Cluster {
+public class Cluster implements Serializable {
 	private List<String> groups;
 	private double latitude;
 	private double longitude;
@@ -51,6 +52,10 @@ public class Cluster {
 
 	//region Public methods
 	//================================================================================
+
+	public int numberOfGroups() {
+		return groups.size();
+	}
 
 	@Override
 	public String toString() {

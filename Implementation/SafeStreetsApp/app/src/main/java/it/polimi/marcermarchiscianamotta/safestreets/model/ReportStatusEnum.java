@@ -7,5 +7,6 @@ public enum ReportStatusEnum {
 	SUBMITTED,
 	APPROVED,
 	REJECTED,
+	CONFIRMED,
 	CORRECT
 }

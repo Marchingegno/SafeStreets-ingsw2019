@@ -7,10 +7,12 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import java.util.Date;
 
-import androidx.annotation.Nullable;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
+import it.polimi.marcermarchiscianamotta.safestreets.model.Group;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ReportStatusEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 
@@ -33,6 +35,19 @@ public class ReportCardView {
 			((TextView) parentView.findViewById(R.id.card_report_status_motivation)).setText("Motivation: " + statusMotivation);
 		else
 			parentView.findViewById(R.id.card_report_status_motivation).setVisibility(View.GONE);
+	}
+
+	public ReportCardView(Context context, LayoutInflater layoutInflater, Group group, String municipality) {
+		this.context = context;
+
+		// Create card.
+		parentView = layoutInflater.inflate(R.layout.view_card_report, null); // this fixes the "Calling startActivity() from outside of an Activity context requires the FLAG_ACTIVITY_NEW_TASK flag" error when clicking links
+
+		// Set card content.
+		((TextView) parentView.findViewById(R.id.card_report_timestamp)).setText("🗓 " + group.getLastTimestamp());
+		((TextView) parentView.findViewById(R.id.card_report_municipality)).setText("📍 " + municipality);
+		((TextView) parentView.findViewById(R.id.card_report_status)).setText("Status: " + group.getGroupStatus());
+		((TextView) parentView.findViewById(R.id.card_report_status_motivation)).setText("Type of violation: " + group.getTypeOfViolation());
 	}
 
 	public View getParentView() {

@@ -78,6 +78,7 @@ public class MapManager {
 			if (locations.length == 1) {
 				LatLng location = locations[0];
 				Address address = null;
+				Log.d(TAG, "Retrieving the address from [" + location.latitude + ", " + location.longitude + "]");
 				try {
 					address = new Geocoder(context).getFromLocation(location.latitude, location.longitude, 1).get(0);
 				} catch (IOException e) {

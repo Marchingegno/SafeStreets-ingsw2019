@@ -13,7 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,6 +36,7 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -156,8 +156,9 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		assert mMap != null;
 		mMap.setOnMarkerClickListener(marker -> {
 			//onMarkerClick
-			//TODO launch activity to display groups
-			Toast.makeText(this, marker.getTag().toString(), Toast.LENGTH_LONG).show();
+			Intent intent = ClusterActivity.createIntent(this);
+			intent.putExtra("cluster", (Serializable) marker.getTag());
+			startActivity(intent);
 			return false;
 		});
 
@@ -404,8 +405,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		assert mMap != null; //Checked int the caller
 		MarkerOptions markerOption = new MarkerOptions()
 				.position(new LatLng(cluster.getLatitude(), cluster.getLongitude()))
-				.icon(getMarkerIcon(cluster.getTypeOfViolation().getColor()))
-				.title(cluster.getTypeOfViolation().toString());
+				.icon(getMarkerIcon(cluster.getTypeOfViolation().getColor()));
 		Marker marker = mMap.addMarker(markerOption);
 		marker.setTag(cluster);
 		markers.add(marker);

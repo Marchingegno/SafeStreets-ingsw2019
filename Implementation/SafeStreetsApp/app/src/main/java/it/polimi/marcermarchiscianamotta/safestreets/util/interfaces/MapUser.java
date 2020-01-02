@@ -2,6 +2,8 @@ package it.polimi.marcermarchiscianamotta.safestreets.util.interfaces;
 
 import android.location.Address;
 
+import androidx.annotation.Nullable;
+
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -15,5 +17,5 @@ public interface MapUser {
 	 */
 	void onLocationFound(LatLng location);
 
-	void onAddressFound(Address address);
+	void onAddressFound(@Nullable Address address);
 }
