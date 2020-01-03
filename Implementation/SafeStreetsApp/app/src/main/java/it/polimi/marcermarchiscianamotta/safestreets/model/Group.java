@@ -77,7 +77,7 @@ public class Group implements Comparable<Group> {
 		if (firstTimestamp == null)
 			return 0;
 		else
-			return firstTimestamp.compareTo(o.getFirstTimestamp());
+			return -firstTimestamp.compareTo(o.getFirstTimestamp());
 	}
 	//endregion
 }

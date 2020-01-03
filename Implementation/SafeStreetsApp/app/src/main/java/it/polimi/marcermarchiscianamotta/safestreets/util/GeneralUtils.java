@@ -1,7 +1,10 @@
 package it.polimi.marcermarchiscianamotta.safestreets.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.DisplayMetrics;
 import android.view.View;
 
@@ -61,4 +64,10 @@ public final class GeneralUtils {
 		return new Date(longToConvert);
 	}
 
+	public static boolean isNetworkAvailable(Activity activity) {
+		ConnectivityManager connectivityManager
+				= (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+		return activeNetworkInfo != null;
+	}
 }

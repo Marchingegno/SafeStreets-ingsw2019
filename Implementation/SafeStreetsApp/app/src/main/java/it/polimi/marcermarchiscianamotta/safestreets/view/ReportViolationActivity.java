@@ -229,6 +229,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 
 	/**
 	 * Save the loaded picture with a lower image quality.
+	 *
 	 * @param bitmap the loaded bitmap.
 	 */
 	@Override
@@ -328,10 +329,13 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		//Checks if the all mandatory fields are specified and if so starts the process of uploading
 		reportViolationManager.setPlate(plateEditText.getText().toString());
 		if (reportViolationManager.isReadyToSend()) {
-			findViewById(R.id.scroll_view).setVisibility(View.GONE);
-			findViewById(R.id.uploading_panel).setVisibility(View.VISIBLE);
-			findViewById(R.id.report_violation_floating_send_button).setVisibility(View.GONE);
-			reportViolationManager.sendViolationReport(descriptionText.getText().toString());
+			if (GeneralUtils.isNetworkAvailable(this)) {
+				findViewById(R.id.scroll_view).setVisibility(View.GONE);
+				findViewById(R.id.uploading_panel).setVisibility(View.VISIBLE);
+				findViewById(R.id.report_violation_floating_send_button).setVisibility(View.GONE);
+				reportViolationManager.sendViolationReport(descriptionText.getText().toString());
+			} else
+				GeneralUtils.showSnackbar(rootView, "No connection to internet.");
 		} else
 			GeneralUtils.showSnackbar(rootView, "Before reporting, please complete all mandatory fields.");
 	}

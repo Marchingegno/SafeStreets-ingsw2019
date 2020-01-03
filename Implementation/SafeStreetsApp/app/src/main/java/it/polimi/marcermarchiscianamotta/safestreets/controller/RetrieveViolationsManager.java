@@ -3,6 +3,7 @@ package it.polimi.marcermarchiscianamotta.safestreets.controller;
 import android.app.Activity;
 import android.location.Address;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -94,7 +95,10 @@ public class RetrieveViolationsManager implements MapUser {
 	 */
 	@Override
 	public void onAddressFound(Address address) {
-		loadClusters(address.getLocality());
+		if (address != null)
+			loadClusters(address.getLocality());
+		else
+			Toast.makeText(activity, "Unable to retrieve the address", Toast.LENGTH_SHORT);
 	}
 	//endregion
 }
