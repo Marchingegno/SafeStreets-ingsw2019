@@ -20,17 +20,17 @@ import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.AuthenticationManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.DatabaseConnection;
 import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.StorageConnection;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.ImageRecognitionUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.ImageRecognitionInterface;
 import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.MapUser;
 import it.polimi.marcermarchiscianamotta.safestreets.view.ReportViolationActivity;
 
 /**
- * This class manages the violation reporting.
+ * This class manages the violation's reporting.
  *
  * @author Marcer
  * @author Desno365
  */
-public class ReportViolationManager implements ImageRecognitionUser, MapUser {
+public class ReportViolationManager implements ImageRecognitionInterface, MapUser {
 
 	//Tag for logging
 	private static final String TAG = "ReportViolationManager";
@@ -49,6 +49,7 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 	//They are needed in order to link the report with its pictures correctly.
 	private List<String> picturesIDOnServer;
 
+	//Others
 	private int numberOfUploadedPhotos = 0;
 
 	//Constructor
@@ -58,6 +59,7 @@ public class ReportViolationManager implements ImageRecognitionUser, MapUser {
 		this.rootView = rootView;
 		report = new ViolationReport(AuthenticationManager.getUserUid());
 	}
+	//endregion
 
 	//region Public methods
 	//================================================================================

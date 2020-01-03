@@ -14,31 +14,41 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.util.LoadPictureTask;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadBitmapInterface;
 
-public class PictureActivity extends AppCompatActivity implements LoadUser {
+/**
+ * Displays a pictures and allows to delete it.
+ *
+ * @author Marcer
+ */
+public class PictureActivity extends AppCompatActivity implements LoadBitmapInterface {
 
-	private static final int PICTURE_DESIRED_SIZE = 680;
-
+	//Log tag
 	private static final String TAG = "PictureActivity";
 
+	//Constant
+	private static final int PICTURE_DESIRED_SIZE = 680;
+
+	//UI
 	@BindView(R.id.delete_button)
 	Button deleteButton;
-
 	@BindView(R.id.return_button)
 	Button returnButton;
-
 	@BindView(R.id.picture_view)
 	ImageView pictureImageView;
 
+	//Other
 	int mViewIndex;
 	Uri mPicturePath;
 
+	//region Overridden methods
+	//================================================================================
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -51,7 +61,7 @@ public class PictureActivity extends AppCompatActivity implements LoadUser {
 		mViewIndex = Integer.parseInt(getIntent().getStringExtra("Index of the view associated with the picture"));
 
 		loadAndDisplayPicture(mPicturePath);
-		
+
 		// Add back button to action bar.
 		ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
@@ -70,18 +80,6 @@ public class PictureActivity extends AppCompatActivity implements LoadUser {
 	}
 
 	/**
-	 * Calls a task to load the image.
-	 *
-	 * @param uri the path of the picture to load.
-	 */
-	private void loadAndDisplayPicture(Uri uri) {
-		Log.d(TAG, "Loading picture at: " + uri.toString());
-		LoadPictureTask loadTask = new LoadPictureTask(this);
-		loadTask.setMaxDimension(PICTURE_DESIRED_SIZE);
-		loadTask.execute(uri);
-	}
-
-	/**
 	 * Once the picture has been loaded it is displayed.
 	 *
 	 * @param bitmap the loaded bitmap.
@@ -95,6 +93,18 @@ public class PictureActivity extends AppCompatActivity implements LoadUser {
 		}
 		pictureImageView.setImageBitmap(bitmap);
 	}
+	//endregion
+
+	//region Private methods
+	//================================================================================
+	//Calls a task to load the image from the specified uri.
+	private void loadAndDisplayPicture(Uri uri) {
+		Log.d(TAG, "Loading picture at: " + uri.toString());
+		LoadPictureTask loadTask = new LoadPictureTask(this);
+		loadTask.setMaxDimension(PICTURE_DESIRED_SIZE);
+		loadTask.execute(uri);
+	}
+	//endregion
 
 	//region UI methods
 	//================================================================================

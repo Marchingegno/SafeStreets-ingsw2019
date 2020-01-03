@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -32,13 +33,23 @@ import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.DatabaseConnection;
 import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.MapUser;
 
+/**
+ * Retrieves and displays the groups belonging to a cluster.
+ *
+ * @author Marcer
+ */
 public class ClusterActivity extends AppCompatActivity implements MapUser {
 
+	//Log tag
 	private final static String TAG = "ClusterActivity";
+
+	//UI
 	@BindView(R.id.cluster_root)
 	View rootView;
 	@BindView(R.id.cluster_cards_container)
 	LinearLayout cardsContainer;
+
+	//Other
 	private String municipality;
 	private int numberOfGroupsRetrievedSoFar;
 	private List<Group> groups = new ArrayList<>();
@@ -52,6 +63,8 @@ public class ClusterActivity extends AppCompatActivity implements MapUser {
 	}
 	//endregion
 
+	//Constructor
+	//================================================================================
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -69,7 +82,10 @@ public class ClusterActivity extends AppCompatActivity implements MapUser {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
 	}
+	//endregion
 
+	//region Overridden methods
+	//================================================================================
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == android.R.id.home) {
@@ -80,6 +96,50 @@ public class ClusterActivity extends AppCompatActivity implements MapUser {
 		}
 	}
 
+	@Override
+	public void onLocationFound(LatLng location) {
+		//Not used
+	}
+
+	/**
+	 * When the address has been found, a query for each group belonging to the desired cluster is performed.
+	 * When all the groups have been retrieved, they are displayed.
+	 *
+	 * @param address the address found.
+	 */
+	@Override
+	public void onAddressFound(Address address) {
+		if (address != null) {
+			municipality = address.getLocality();
+			numberOfGroupsRetrievedSoFar = 0;
+			//For each group in the cluster
+			for (String groupID : cluster.getGroups()) {
+				DatabaseConnection.getGroup(this, groupID, municipality,
+						// On success.
+						groupResult -> {
+							Log.d(TAG, "Retrieved group:" + groupResult.toString());
+							numberOfGroupsRetrievedSoFar++;
+							groups.add(groupResult);
+							//If all the groups have been retrieved.
+							if (numberOfGroupsRetrievedSoFar == cluster.numberOfGroups()) {
+								displayObtainedReports();
+							}
+						},
+						// On failure.
+						e -> {
+							findViewById(R.id.cluster_loading_view).setVisibility(View.GONE);
+							findViewById(R.id.cluster_connection_error).setVisibility(View.VISIBLE);
+							GeneralUtils.showSnackbar(rootView, "Failed to retrieve groups, please try again later.");
+							Log.e(TAG, "Failed to retrieve groups", e);
+						});
+			}
+		} else
+			Log.d(TAG, "address is null in onAddressFound");
+	}
+	//endregion
+
+	//region Private methods
+	//================================================================================
 	private void startGettingGroups() {
 		MapManager.getAddressFromLocation(this, this, new LatLng(cluster.getLatitude(), cluster.getLongitude()));
 	}
@@ -92,7 +152,9 @@ public class ClusterActivity extends AppCompatActivity implements MapUser {
 			createReportsCards(groups);
 	}
 
+	//Sorts the groups by first date and creates the card view to be displayed.
 	private void createReportsCards(final List<Group> groups) {
+		Collections.sort(groups);
 		runOnUiThread(() -> {
 			for (Group group : groups) {
 				ReportCardView card = new ReportCardView(this, this.getLayoutInflater(), group, municipality);
@@ -120,38 +182,5 @@ public class ClusterActivity extends AppCompatActivity implements MapUser {
 
 		return set;
 	}
-
-	@Override
-	public void onLocationFound(LatLng location) {
-		//Not used
-	}
-
-	@Override
-	public void onAddressFound(Address address) {
-		if (address != null) {
-			municipality = address.getLocality();
-			numberOfGroupsRetrievedSoFar = 0;
-			for (String groupID : cluster.getGroups()) {
-				DatabaseConnection.getGroup(this, groupID, municipality,
-						// On success.
-						groupResult -> {
-							Log.d(TAG, "Retrieved group:" + groupResult.toString());
-							numberOfGroupsRetrievedSoFar++;
-							groups.add(groupResult);
-							if (numberOfGroupsRetrievedSoFar == cluster.numberOfGroups()) {
-								displayObtainedReports();
-							}
-						},
-						// On failure.
-						e -> {
-							findViewById(R.id.cluster_loading_view).setVisibility(View.GONE);
-							findViewById(R.id.cluster_connection_error).setVisibility(View.VISIBLE);
-							GeneralUtils.showSnackbar(rootView, "Failed to retrieve groups, please try again later.");
-							Log.e(TAG, "Failed to retrieve groups", e);
-						});
-			}
-		} else
-			Log.d(TAG, "address is null in onAddressFound");
-
-	}
+	//endregion
 }

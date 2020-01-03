@@ -26,6 +26,8 @@ import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReportRepres
 
 /**
  * Handles the connection with the database.
+ * @author Marcer
+ * @author Desno365
  */
 public class DatabaseConnection {
 
@@ -148,31 +150,6 @@ public class DatabaseConnection {
 			onSuccessListener.onSuccess(new ArrayList<>());
 		}
 	}
-	/*
-	CLUSTER [first - last]
-	INTERVAL [start - end]
-
-	cluster is selected if (last > start && first < end)
-
-					f----------------l					FALSE
-			s_____e
-
-					f----------------l					TRUE
-				s_____e
-
-					f----------------l					TRUE
-						s_____e
-
-					f----------------l					TRUE
-									s_____e
-
-					f----------------l					FALSE
-										s_____e
-
-					f---------l							TRUE
-				s__________________e
-
-	 */
 	//endregion
 
 	//region Private methods

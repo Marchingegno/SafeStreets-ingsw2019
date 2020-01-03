@@ -13,11 +13,12 @@ import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.LinearLayout;
 
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
@@ -25,15 +26,24 @@ import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReportRepres
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.DatabaseConnection;
 
+/**
+ * Displays the reports of the user.
+ *
+ * @author Desno365
+ */
 public class MyReportsActivity extends AppCompatActivity {
 
+	//Log tag
 	private static final String TAG = "MyReportsActivity";
 
-	@BindView(R.id.my_reports_root) View rootView;
-	@BindView(R.id.my_reports_cards_container) LinearLayout cardsContainer;
-
+	//Constants
 	final long MIN_LOADING_DISPLAY_TIME = 500; // 0.5 seconds.
 
+	//UI
+	@BindView(R.id.my_reports_root)
+	View rootView;
+	@BindView(R.id.my_reports_cards_container)
+	LinearLayout cardsContainer;
 
 	//region Static methods
 	//================================================================================
@@ -42,7 +52,6 @@ public class MyReportsActivity extends AppCompatActivity {
 		return new Intent(context, MyReportsActivity.class);
 	}
 	//endregion
-
 
 	//region Overridden methods
 	//================================================================================
@@ -86,7 +95,7 @@ public class MyReportsActivity extends AppCompatActivity {
 					final long endTime = System.currentTimeMillis();
 					final long time = (endTime - startTime);
 					Log.i(TAG, "Getting the reports took " + time + " milliseconds");
-					if(time < MIN_LOADING_DISPLAY_TIME) {
+					if (time < MIN_LOADING_DISPLAY_TIME) {
 						new android.os.Handler().postDelayed(() -> runOnUiThread(() -> displayObtainedReports(activity, reportsResult)), MIN_LOADING_DISPLAY_TIME - time);
 					} else {
 						displayObtainedReports(activity, reportsResult);
@@ -103,7 +112,7 @@ public class MyReportsActivity extends AppCompatActivity {
 
 	private void displayObtainedReports(Activity activity, List<ViolationReportRepresentation> reportsResult) {
 		findViewById(R.id.my_reports_loading_view).setVisibility(View.GONE);
-		if(reportsResult.size() == 0)
+		if (reportsResult.size() == 0)
 			findViewById(R.id.my_reports_no_reports).setVisibility(View.VISIBLE);
 		else
 			createReportsCards(activity, reportsResult);

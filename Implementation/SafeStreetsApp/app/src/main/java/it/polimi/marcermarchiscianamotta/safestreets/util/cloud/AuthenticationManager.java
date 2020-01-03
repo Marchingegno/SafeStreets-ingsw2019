@@ -15,6 +15,8 @@ import it.polimi.marcermarchiscianamotta.safestreets.R;
 
 /**
  * Handles the authentication with the cloud.
+ *
+ * @author Desno365
  */
 public class AuthenticationManager {
 

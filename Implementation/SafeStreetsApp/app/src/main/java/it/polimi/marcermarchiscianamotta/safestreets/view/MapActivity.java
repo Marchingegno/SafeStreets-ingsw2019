@@ -52,13 +52,14 @@ import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.ViolationRetrieverUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.DataRetrieverInterface;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapReadyCallback, EasyPermissions.PermissionCallbacks, ViolationRetrieverUser {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, EasyPermissions.PermissionCallbacks, DataRetrieverInterface {
 
-	private static final String TAG = "SafeStreetsDataActivity";
+	//Log tag
+	private static final String TAG = "MapActivity";
 
 	//Constants
 	private static final float DEFAULT_ZOOM = 16.0f;//Zoom of the map's camera
@@ -108,7 +109,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 	 */
 	@NonNull
 	public static Intent createIntent(@NonNull Context context) {
-		return new Intent(context, SafeStreetsDataActivity.class);
+		return new Intent(context, MapActivity.class);
 	}
 	//endregion
 
@@ -154,6 +155,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		markers = new ArrayList<>();
 
 		assert mMap != null;
+		//When a marker is clicked the corresponding cluster is loaded and the ClusterActivity is launched
 		mMap.setOnMarkerClickListener(marker -> {
 			//onMarkerClick
 			Intent intent = ClusterActivity.createIntent(this);
@@ -196,6 +198,11 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		}
 	}
 
+	/**
+	 * For each loaded cluster a marker is created on the map.
+	 *
+	 * @param clusters the retrieved cluster.
+	 */
 	@Override
 	public void onClusterLoaded(List<Cluster> clusters) {
 		if (mMap != null) {
@@ -227,7 +234,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 
 		startDateTextView.setOnClickListener(v -> {
 			//On click
-			picker = new DatePickerDialog(SafeStreetsDataActivity.this,
+			picker = new DatePickerDialog(MapActivity.this,
 					//On date chosen
 					(view, selectedYear, selectedMonth, selectedDay) -> {
 						String date = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
@@ -244,7 +251,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 
 		endDateTextView.setOnClickListener(v -> {
 			//On click
-			picker = new DatePickerDialog(SafeStreetsDataActivity.this,
+			picker = new DatePickerDialog(MapActivity.this,
 					//On date chosen
 					(view, selectedYear, selectedMonth, selectedDay) -> {
 						String date = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
@@ -419,7 +426,6 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		}
 	}
 
-	// method definition
 	private BitmapDescriptor getMarkerIcon(String color) {
 		float[] hsv = new float[3];
 		Color.colorToHSV(Color.parseColor(color), hsv);

@@ -7,6 +7,8 @@ import java.util.List;
 /**
  * Represents a cluster. This class contains only the relevant attributes
  * that need to be sent or retrieved from the database.
+ *
+ * @author Marcer
  */
 public class ClusterRepresentation {
 	private List<String> groups = new ArrayList<>();
@@ -16,8 +18,11 @@ public class ClusterRepresentation {
 	private Date firstAddedDate;
 	private Date lastAddedDate;
 
+	//Constructor
+	//================================================================================
 	public ClusterRepresentation() {
 	}
+	//endregion
 
 	//region Getter methods
 	//================================================================================

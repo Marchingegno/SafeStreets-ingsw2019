@@ -42,7 +42,7 @@
 			android:label="Report Violation"
 			android:screenOrientation="portrait" />
 		<activity
-			android:name=".view.SafeStreetsDataActivity"
+			android:name=".view.MapActivity"
 			android:label="Violations on the territory" />
 		<activity
 			android:name=".view.MyReportsActivity"

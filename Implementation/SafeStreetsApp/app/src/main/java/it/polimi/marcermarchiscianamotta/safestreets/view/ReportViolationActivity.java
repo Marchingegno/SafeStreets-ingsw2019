@@ -40,12 +40,18 @@ import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 import it.polimi.marcermarchiscianamotta.safestreets.util.LoadPictureTask;
 import it.polimi.marcermarchiscianamotta.safestreets.util.SavePictureTask;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadUser;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.SaveUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadBitmapInterface;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.SavePictureInterface;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, AdapterView.OnItemSelectedListener, SaveUser, LoadUser {
+/**
+ * Handles the reporting of the violations.
+ *
+ * @author Marcer
+ * @author Desno365
+ */
+public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, AdapterView.OnItemSelectedListener, SavePictureInterface, LoadBitmapInterface {
 
 	//Log tag
 	private static final String TAG = "ReportViolationActivity";
@@ -114,6 +120,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	}
 	//endregion
 
+	//region Overridden methods
+	//================================================================================
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -149,6 +157,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			EasyPermissions.requestPermissions(this, "Camera permission", RC_WRITE_EXT_STORAGE_PERMS, WRITE_EXT_STORAGE_PERMS);
 		}
 
+		//TODO move to internal storage
 		mainDirectoryPath = Environment.getExternalStorageDirectory() + "/SafeStreets/";
 		fullSizePictureDirectory = new File(mainDirectoryPath + "/Pictures/");
 		thumbnailPictureDirectory = new File(mainDirectoryPath + "/Thumbnails/");
@@ -177,9 +186,6 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		}
 	}
 
-
-	//region Callback methods
-	//================================================================================
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -198,25 +204,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			case (RC_IMAGE_DELETION):
 				if (resultCode == RESULT_OK) {
 					if (Boolean.parseBoolean(data.getStringExtra("Want to delete"))) {
-						int indexOfThePictureToDelete = Integer.parseInt(data.getStringExtra("View index"));
-
-						URI pathOfThePictureToDelete = URI.create(data.getStringExtra("Picture path"));
-						File pictureToDelete = new File(pathOfThePictureToDelete);
-
-						if (pictureToDelete.exists() &&
-								indexOfThePictureToDelete < reportViolationManager.numberOfPictures() &&
-								Uri.parse(data.getStringExtra("Picture path")).equals(reportViolationManager.getPicture(indexOfThePictureToDelete))) {
-							ImageView imageViewToRemove = pictureViewArray.remove(indexOfThePictureToDelete);
-
-							pictureLinearLayout.removeView(imageViewToRemove);
-							reportViolationManager.removePicture(indexOfThePictureToDelete);
-
-							String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPictures() + "/" + reportViolationManager.getMaxNumOfPictures();
-							numberOfPhotosAddedTextView.setText(textToDisplay);
-
-							Log.d(TAG, "Num of image views: " + pictureViewArray.size());
-						} else
-							Log.e(TAG, "File: " + pathOfThePictureToDelete + " not found");
+						removePictureFromView(data);
 					}
 				}
 				break;
@@ -224,21 +212,25 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		}
 	}
 
-	public void onPictureUploaded(int pictureUploaded, int totalNumberOfPicture) {
-		uploadingProgressBar.setProgress(pictureUploaded);
-		uploadingTextView.setText("Uploaded " + pictureUploaded + " out of " + totalNumberOfPicture);
-	}
-
+	/**
+	 * Displays the picture on the view.
+	 *
+	 * @param savedPicturePath uri where the picture has been saved.
+	 */
 	@Override
-	public void onPictureSaved(Uri thumbnailCreated) {
-		ImageView imageView = createImageView(thumbnailCreated);
+	public void onPictureSaved(Uri savedPicturePath) {
+		ImageView imageView = createImageView(savedPicturePath);
 		pictureViewArray.add(imageView);
 		pictureLinearLayout.addView(imageView);
-		reportViolationManager.addPhotoToReport(thumbnailCreated);
+		reportViolationManager.addPhotoToReport(savedPicturePath);
 		String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPictures() + "/" + reportViolationManager.getMaxNumOfPictures();
 		numberOfPhotosAddedTextView.setText(textToDisplay);
 	}
 
+	/**
+	 * Save the loaded picture with a lower image quality.
+	 * @param bitmap the loaded bitmap.
+	 */
 	@Override
 	public void onPictureLoaded(Bitmap bitmap) {
 		SavePictureTask saver = new SavePictureTask(this);
@@ -298,12 +290,24 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			finish();
 		}
 	}
+
+	/**
+	 * Update the progress bar on a successfully uploaded picture.
+	 *
+	 * @param pictureUploaded      the number of pictured uploaded so far.
+	 * @param totalNumberOfPicture total number of picture to upload.
+	 */
+	public void onPictureUploaded(int pictureUploaded, int totalNumberOfPicture) {
+		uploadingProgressBar.setProgress(pictureUploaded);
+		uploadingTextView.setText("Uploaded " + pictureUploaded + " out of " + totalNumberOfPicture);
+	}
 	//endregion
 
 	//region UI methods
 	//================================================================================
 	@OnClick(R.id.report_violation_add_photo_temporary)
 	public void onClickAddPhoto(View v) {
+		//Starts the camera intent
 		if (reportViolationManager.canTakeAnotherPicture()) {
 			String fileName = String.valueOf(System.currentTimeMillis());
 			File destination = new File(fullSizePictureDirectory, fileName + ".jpg");
@@ -319,9 +323,9 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			GeneralUtils.showSnackbar(rootView, "Maximum number of pictures reached.");
 	}
 
-
 	@OnClick(R.id.report_violation_floating_send_button)
 	public void onClickSendViolation(View v) {
+		//Checks if the all mandatory fields are specified and if so starts the process of uploading
 		reportViolationManager.setPlate(plateEditText.getText().toString());
 		if (reportViolationManager.isReadyToSend()) {
 			findViewById(R.id.scroll_view).setVisibility(View.GONE);
@@ -350,7 +354,28 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 
 	@Override
 	public void onNothingSelected(AdapterView<?> parent) {
-		// TODO Auto-generated method stub
+	}
+
+	private void removePictureFromView(Intent data) {
+		int indexOfThePictureToDelete = Integer.parseInt(data.getStringExtra("View index"));
+
+		URI pathOfThePictureToDelete = URI.create(data.getStringExtra("Picture path"));
+		File pictureToDelete = new File(pathOfThePictureToDelete);
+
+		if (pictureToDelete.exists() &&
+				indexOfThePictureToDelete < reportViolationManager.numberOfPictures() &&
+				Uri.parse(data.getStringExtra("Picture path")).equals(reportViolationManager.getPicture(indexOfThePictureToDelete))) {
+			ImageView imageViewToRemove = pictureViewArray.remove(indexOfThePictureToDelete);
+
+			pictureLinearLayout.removeView(imageViewToRemove);
+			reportViolationManager.removePicture(indexOfThePictureToDelete);
+
+			String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPictures() + "/" + reportViolationManager.getMaxNumOfPictures();
+			numberOfPhotosAddedTextView.setText(textToDisplay);
+
+			Log.d(TAG, "Num of image views: " + pictureViewArray.size());
+		} else
+			Log.e(TAG, "File: " + pathOfThePictureToDelete + " not found");
 	}
 	//endregion
 

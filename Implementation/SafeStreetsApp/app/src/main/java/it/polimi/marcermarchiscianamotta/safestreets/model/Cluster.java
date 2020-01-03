@@ -5,6 +5,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Represents a cluster.
+ *
+ * @author Marcer
+ */
 public class Cluster implements Serializable {
 	private List<String> groups;
 	private double latitude;
@@ -13,7 +18,8 @@ public class Cluster implements Serializable {
 	private Date firstAddedDate;
 	private Date lastAddedDate;
 
-
+	//Constructor
+	//================================================================================
 	public Cluster(ClusterRepresentation representation) {
 		this.groups = new ArrayList<>(representation.getGroups());
 		this.latitude = representation.getLatitude();
@@ -22,6 +28,7 @@ public class Cluster implements Serializable {
 		this.lastAddedDate = representation.getLastAddedDate();
 		this.firstAddedDate = representation.getFirstAddedDate();
 	}
+	//endregion
 
 	//region Getter methods
 	//================================================================================
@@ -60,12 +67,12 @@ public class Cluster implements Serializable {
 	@Override
 	public String toString() {
 		return "Cluster{" +
-				"\ntypeOfViolation = " + typeOfViolation +
-				"\nlatitude = " + latitude +
-				"\nlongitude = " + longitude +
-				"\nfirstAddedDate = " + firstAddedDate +
-				"\nlastAddedDate = " + lastAddedDate +
-				"\ngroups = " + groups +
+				"\t\ntypeOfViolation = " + typeOfViolation +
+				"\t\nlatitude = " + latitude +
+				"\t\nlongitude = " + longitude +
+				"\t\nfirstAddedDate = " + firstAddedDate +
+				"\t\nlastAddedDate = " + lastAddedDate +
+				"\t\ngroups = " + groups +
 				'}';
 	}
 

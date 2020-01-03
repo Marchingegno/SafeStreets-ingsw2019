@@ -6,12 +6,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import com.firebase.ui.auth.ErrorCodes;
-import com.firebase.ui.auth.IdpResponse;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.firebase.ui.auth.ErrorCodes;
+import com.firebase.ui.auth.IdpResponse;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -19,6 +20,11 @@ import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.AuthenticationManager;
 
+/**
+ * Handles the login.
+ *
+ * @author Desno365
+ */
 public class StartupActivity extends AppCompatActivity {
 
     private static final String TAG = "StartupActivity";
@@ -33,6 +39,7 @@ public class StartupActivity extends AppCompatActivity {
 
     //region Static methods
     //================================================================================
+
     /**
      * Create intent for launching this activity.
      * @param context context from which to launch the activity.
@@ -81,8 +88,7 @@ public class StartupActivity extends AppCompatActivity {
     //region UI
     //================================================================================
     @OnClick(R.id.startup_button_sign_in)
-    public void onClickSignIn(View v)
-    {
+    public void onClickSignIn(View v) {
         // Launch sign-in intent. The intent will give a result to onActivityResult() using the request code RC_SIGN_IN.
         startActivityForResult(AuthenticationManager.getLaunchableAuthenticationIntent(), RC_SIGN_IN);
     }
@@ -102,13 +108,9 @@ public class StartupActivity extends AppCompatActivity {
             if (response == null || response.getError() == null) {
                 // User pressed back button
                 GeneralUtils.showSnackbar(rootView, "Sign in cancelled");
-            }
-
-            else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
+            } else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
                 GeneralUtils.showSnackbar(rootView, "No Internet Connection");
-            }
-
-            else {
+            } else {
                 GeneralUtils.showSnackbar(rootView, "An unknown error occurred");
                 Log.e(TAG, "Sign-in error: ", response.getError());
             }

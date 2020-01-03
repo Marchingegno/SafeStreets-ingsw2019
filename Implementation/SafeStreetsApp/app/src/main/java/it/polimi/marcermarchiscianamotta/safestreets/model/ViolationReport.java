@@ -11,6 +11,9 @@ import java.util.List;
 
 /**
  * Contains all the attributes of a report.
+ *
+ * @author Marcer
+ * @author Desno365
  */
 public class ViolationReport {
 	private static final String TAG = "ViolationReport";
@@ -34,6 +37,7 @@ public class ViolationReport {
 	public ViolationReport(String userUid) {
 		this.userUid = userUid;
 	}
+	//endregion
 
 	//region Setter methods
 	//================================================================================
@@ -57,6 +61,11 @@ public class ViolationReport {
 	public void setPicturesIDOnServer(List<String> picturesIDOnServer) {
 		this.picturesIDOnServer = picturesIDOnServer;
 	}
+
+	public void setLicensePlate(String licensePlate) {
+		this.licensePlate = licensePlate;
+		Log.d(TAG, "License plate set to: " + licensePlate);
+	}
 	//endregion
 
 	//region Getter methods
@@ -64,6 +73,7 @@ public class ViolationReport {
 	public String getMunicipality() {
 		return municipality;
 	}
+
 	//endregion
 
 	public String getLicensePlate() {
@@ -76,11 +86,6 @@ public class ViolationReport {
 
 	public Double getLongitude() {
 		return longitude;
-	}
-
-	public void setLicensePlate(String licensePlate) {
-		this.licensePlate = licensePlate;
-		Log.d(TAG, "License plate set to: " + licensePlate);
 	}
 
 	public List<Uri> getPictures() {

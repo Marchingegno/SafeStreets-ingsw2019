@@ -15,8 +15,12 @@ import java.io.IOException;
 
 import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.MapUser;
 
+/**
+ * Handles map requests.
+ *
+ * @author Marcer
+ */
 public class MapManager {
-
 
 	private static final String TAG = "MapManager";
 
@@ -36,7 +40,7 @@ public class MapManager {
 	 * @param context the context of the application.
 	 * @param caller  the MapUser caller.
 	 */
-	static public void retrieveLocation(Context context, MapUser caller) {
+	public static void retrieveLocation(Context context, MapUser caller) {
 		FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
 		fusedLocationProviderClient.getLastLocation()
 				.addOnSuccessListener(location -> {
@@ -54,7 +58,7 @@ public class MapManager {
 	 * @param context the context of the caller.
 	 * @return a Task that retrieves the current location.
 	 */
-	static public Task getLastLocationTask(Context context) {
+	public static Task getLastLocationTask(Context context) {
 		FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
 		return fusedLocationProviderClient.getLastLocation();
 	}
@@ -68,11 +72,16 @@ public class MapManager {
 		private Context context;
 		private Address addressFound;
 
+		//Constructor
+		//================================================================================
 		AddressFromLocationTask(Context context, MapUser caller) {
 			this.caller = caller;
 			this.context = context;
 		}
+		//endregion
 
+		//region Task overridden methods
+		//================================================================================
 		@Override
 		protected Address doInBackground(LatLng... locations) {
 			if (locations.length == 1) {
@@ -98,5 +107,6 @@ public class MapManager {
 			super.onPostExecute(address);
 			caller.onAddressFound(address);
 		}
+		//endregion
 	}
 }

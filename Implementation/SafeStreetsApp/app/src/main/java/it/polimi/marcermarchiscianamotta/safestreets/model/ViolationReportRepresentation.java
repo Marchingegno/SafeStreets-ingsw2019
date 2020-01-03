@@ -14,6 +14,9 @@ import java.util.List;
 /**
  * Represents a violation report. This class contains only the relevant attributes
  * that need to be sent or retrieved from the database.
+ *
+ * @author Marcer
+ * @author Desno365
  */
 public class ViolationReportRepresentation {
 	private static final String TAG = "ViolationReportRep";
@@ -30,6 +33,8 @@ public class ViolationReportRepresentation {
 	private ReportStatusEnum reportStatus = ReportStatusEnum.SUBMITTED;
 	private String statusMotivation = null;
 
+	//Constructors
+	//================================================================================
 	public ViolationReportRepresentation() {
 		// Needed for deserializing the object
 	}
@@ -51,8 +56,9 @@ public class ViolationReportRepresentation {
 			} else
 				pictures = new ArrayList<>(pictureIDs);
 		} else
-			throw new RuntimeException("Not all mandatory fields are specified");//TODO create a new type of exception
+			throw new RuntimeException("Not all mandatory fields are specified");
 	}
+	//endregion
 
 	//region Getter methods
 	//================================================================================

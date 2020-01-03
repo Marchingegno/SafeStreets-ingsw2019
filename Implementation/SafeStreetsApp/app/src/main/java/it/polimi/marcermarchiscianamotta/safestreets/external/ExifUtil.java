@@ -7,13 +7,11 @@ import android.media.ExifInterface;
 import java.io.IOException;
 
 /**
- * Exif util class https://gist.github.com/9re/1990019
+ * Exif util class. Handles the orientation of the bitmaps.
  * @author 9re
  */
 public class ExifUtil {
-	/**
-	 * More about ExifInformation can be found here http://sylvana.net/jpegcrop/exif_orientation.html
-	 */
+
 	public static Bitmap rotateBitmap(String src, Bitmap bitmap) {
 		try {
 			int orientation = getExifOrientation(src);

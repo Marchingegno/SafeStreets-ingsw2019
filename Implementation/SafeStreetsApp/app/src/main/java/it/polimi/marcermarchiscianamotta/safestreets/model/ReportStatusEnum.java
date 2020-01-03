@@ -7,6 +7,6 @@ public enum ReportStatusEnum {
 	SUBMITTED,
 	APPROVED,
 	REJECTED,
-	CONFIRMED,
+	CONFIRMED, //TODO remove once no longer in the database
 	CORRECT
 }

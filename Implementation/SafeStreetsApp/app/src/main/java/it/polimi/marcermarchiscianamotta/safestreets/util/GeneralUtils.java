@@ -12,6 +12,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * Collection of static methods used by different classes.
+ */
 public final class GeneralUtils {
 
 	/**

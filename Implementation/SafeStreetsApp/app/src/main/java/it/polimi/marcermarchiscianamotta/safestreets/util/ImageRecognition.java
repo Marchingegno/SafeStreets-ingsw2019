@@ -12,10 +12,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.ImageRecognitionUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.ImageRecognitionInterface;
 
 /**
- * Handles the image recognition.
+ * Handles the text recognition.
+ *
+ * @author Marcer
  */
 public class ImageRecognition {
 	private static final String TAG = "ImageRecognition";
@@ -28,7 +30,7 @@ public class ImageRecognition {
 	 * @param photoPath the photo's path of the photo to be analyzed.
 	 * @param caller    the class that called the procedure and needs to be notified.
 	 */
-	static public void retrieveText(Context context, Uri photoPath, ImageRecognitionUser caller) {
+	static public void retrieveText(Context context, Uri photoPath, ImageRecognitionInterface caller) {
 		FirebaseVisionImage image = null;
 		try {
 			image = FirebaseVisionImage.fromFilePath(context, photoPath);
@@ -61,7 +63,7 @@ public class ImageRecognition {
 	 * @param photoPath the photo's path of the photo to be analyzed.
 	 * @param caller    the class that called the procedure and needs to be notified.
 	 */
-	static public void retrievePlateFromPhoto(Context context, Uri photoPath, ImageRecognitionUser caller) {
+	static public void retrievePlateFromPhoto(Context context, Uri photoPath, ImageRecognitionInterface caller) {
 		FirebaseVisionImage image = null;
 		try {
 			image = FirebaseVisionImage.fromFilePath(context, photoPath);

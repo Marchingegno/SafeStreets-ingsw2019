@@ -1,30 +1,38 @@
 package it.polimi.marcermarchiscianamotta.safestreets.model;
 
+
+import androidx.annotation.NonNull;
+
 import java.util.Date;
 
-public class Group {
+/**
+ * Represents a Group.
+ *
+ * @author Marcer
+ */
+public class Group implements Comparable<Group> {
 	private double latitude;
 	private double longitude;
-	private String typeOfViolation;
 	private Date firstTimestamp;
 	private Date lastTimestamp;
 	private ReportStatusEnum groupStatus;
-	private ViolationEnum typeOfViolaiton;
+	private ViolationEnum typeOfViolation;
 	private String licensePlate;
 
+	//region Getter methods
+	//================================================================================
 	public Group() {
 	}
+	//endregion
 
+	//region Getter methods
+	//================================================================================
 	public double getLatitude() {
 		return latitude;
 	}
 
 	public double getLongitude() {
 		return longitude;
-	}
-
-	public String getTypeOfViolation() {
-		return typeOfViolation;
 	}
 
 	public Date getFirstTimestamp() {
@@ -39,26 +47,37 @@ public class Group {
 		return groupStatus;
 	}
 
-	public ViolationEnum getTypeOfViolaiton() {
-		return typeOfViolaiton;
+	public ViolationEnum getTypeOfViolation() {
+		return typeOfViolation;
 	}
 
 	public String getLicensePlate() {
 		return licensePlate;
 	}
+	//endregion
 
-
+	//region Overridden methods
+	//================================================================================
+	@NonNull
 	@Override
 	public String toString() {
 		return "Group{" +
-				"latitude=" + latitude +
-				", longitude=" + longitude +
-				", typeOfViolation='" + typeOfViolation + '\'' +
-				", firstTimestamp=" + firstTimestamp +
-				", lastTimestamp=" + lastTimestamp +
-				", groupStatus=" + groupStatus +
-				", typeOfViolaiton=" + typeOfViolaiton +
-				", licensePlate='" + licensePlate + '\'' +
+				"\t\nlatitude = " + latitude +
+				"\t\nlongitude = " + longitude +
+				"\t\nfirstTimestamp = " + firstTimestamp +
+				"\t\nlastTimestamp = " + lastTimestamp +
+				"\t\ngroupStatus = " + groupStatus +
+				"\t\ntypeOfViolation = " + typeOfViolation +
+				"\t\nlicensePlate = " + licensePlate +
 				'}';
 	}
+
+	@Override
+	public int compareTo(@NonNull Group o) {
+		if (firstTimestamp == null)
+			return 0;
+		else
+			return firstTimestamp.compareTo(o.getFirstTimestamp());
+	}
+	//endregion
 }
