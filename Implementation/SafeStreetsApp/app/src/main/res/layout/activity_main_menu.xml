@@ -15,20 +15,20 @@
         android:orientation="vertical">
 
         <ImageView
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:layout_width="92dp"
+            android:layout_height="96dp"
             android:layout_gravity="center"
             app:srcCompat="@drawable/ic_launcher_full" />
 
         <TextView
             android:id="@+id/main_menu_welcome_text"
             style="@style/Base.TextAppearance.AppCompat.Headline"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="8dp"
             android:gravity="center"
-            android:text="Welcome back testtesttest@test.com" />
+            android:text="Welcome back \ntesttesttest@test.com" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
