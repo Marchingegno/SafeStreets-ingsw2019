@@ -18,7 +18,7 @@
             android:layout_width="92dp"
             android:layout_height="96dp"
             android:layout_gravity="center"
-            app:srcCompat="@drawable/ic_launcher_full" />
+            app:srcCompat="@drawable/ic_launcher" />
 
         <TextView
             android:id="@+id/main_menu_welcome_text"

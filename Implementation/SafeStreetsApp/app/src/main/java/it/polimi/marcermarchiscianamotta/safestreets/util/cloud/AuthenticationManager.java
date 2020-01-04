@@ -44,7 +44,7 @@ public class AuthenticationManager {
 		return AuthUI.getInstance()
 				.createSignInIntentBuilder()
 				.setAvailableProviders(providers)
-				.setLogo(R.drawable.ic_launcher_full)
+				.setLogo(R.drawable.ic_launcher)
 				.setIsSmartLockEnabled(false, false)
 				.setTosAndPrivacyPolicyUrls(
 						"https://example.com/terms.html",
