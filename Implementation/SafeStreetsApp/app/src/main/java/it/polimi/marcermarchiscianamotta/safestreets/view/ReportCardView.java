@@ -52,7 +52,7 @@ public class ReportCardView {
 		parentView = layoutInflater.inflate(R.layout.view_card_report, null); // this fixes the "Calling startActivity() from outside of an Activity context requires the FLAG_ACTIVITY_NEW_TASK flag" error when clicking links
 
 		// Set card content.
-		((TextView) parentView.findViewById(R.id.card_report_timestamp)).setText("🗓 " + group.getLastTimestamp());
+		((TextView) parentView.findViewById(R.id.card_report_timestamp)).setText("🗓 " + group.getLastTimestamp().toLocaleString());
 		((TextView) parentView.findViewById(R.id.card_report_municipality)).setText("📍 " + municipality);
 		((TextView) parentView.findViewById(R.id.card_report_status)).setText("Status: " + group.getGroupStatus());
 		((TextView) parentView.findViewById(R.id.card_extra_text)).setText("Type of violation: " + group.getTypeOfViolation());
