@@ -1,4 +1,4 @@
-package it.polimi.marcermarchiscianamotta.safestreets.util.interfaces;
+package it.polimi.marcermarchiscianamotta.safestreets.interfaces;
 
 /**
  * This interface must be implemented by the classes that wish to retrieve the results of the text recognizer.

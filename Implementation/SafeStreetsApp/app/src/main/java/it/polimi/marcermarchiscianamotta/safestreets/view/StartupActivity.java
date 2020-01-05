@@ -17,8 +17,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
+import it.polimi.marcermarchiscianamotta.safestreets.controller.AuthenticationManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
-import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.AuthenticationManager;
 
 /**
  * Handles the login.

@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import it.polimi.marcermarchiscianamotta.safestreets.controller.AuthenticationManager;
+
 /**
  * Handles the connection with the cloud storage.
  *

@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import it.polimi.marcermarchiscianamotta.safestreets.controller.AuthenticationManager;
 import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ClusterRepresentation;
 import it.polimi.marcermarchiscianamotta.safestreets.model.Group;

@@ -10,7 +10,7 @@ import android.util.Log;
 import java.io.InputStream;
 
 import it.polimi.marcermarchiscianamotta.safestreets.external.ExifUtil;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadBitmapInterface;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.LoadBitmapInterface;
 
 /**
  * Loads a bitmap from the local storage and returns it.

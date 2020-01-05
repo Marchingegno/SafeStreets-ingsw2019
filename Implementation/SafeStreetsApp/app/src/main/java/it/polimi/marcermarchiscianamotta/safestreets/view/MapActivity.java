@@ -47,12 +47,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
+import it.polimi.marcermarchiscianamotta.safestreets.controller.MapManager;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.RetrieveViolationsManager;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.DataRetrieverInterface;
 import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
-import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.DataRetrieverInterface;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 

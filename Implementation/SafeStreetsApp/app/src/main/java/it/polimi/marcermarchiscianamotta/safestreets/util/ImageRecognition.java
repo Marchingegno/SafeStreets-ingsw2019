@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.ImageRecognitionInterface;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.ImageRecognitionInterface;
 
 /**
  * Handles the text recognition.

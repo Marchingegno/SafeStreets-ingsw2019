@@ -26,12 +26,12 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
+import it.polimi.marcermarchiscianamotta.safestreets.controller.MapManager;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.MapUser;
 import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
 import it.polimi.marcermarchiscianamotta.safestreets.model.Group;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
-import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.DatabaseConnection;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.MapUser;
 
 /**
  * Retrieves and displays the groups belonging to a cluster.
