@@ -90,12 +90,12 @@
 		<div class="Container">
 			<div class="dateInput">
 				<h4>Start date</h4>
-				<input id="stDate" type="date" value="2011-11-30"/>
+				<input id="stDate" type="date" value="2019-06-06"/>
 			</div>
 
 			<div class="dateInput">
 				<h4>End date</h4>
-				<input id="eDate" type="date">
+				<input id="eDate" type="date" value="2020-12-31">
 			</div>
 		</div>
 
@@ -112,6 +112,7 @@
 			<div id="map"></div>
 		</div>
 	</div>
+	<br>
 </div>
 
 <script>
@@ -146,6 +147,7 @@
         var startDate = new Date(document.getElementById("stDate").value).getTime() / 1000;
         var endDate = new Date(document.getElementById("eDate").value).getTime() / 1000;
         var licensePlate = document.getElementById("lic").value;
+        var licensePlateSet = licensePlate !== "";
         var location = document.getElementById("loc").value;
 
         municipDB.collection("clusters").get().then(function (clustersSnapshot) {
@@ -156,6 +158,11 @@
                     return;
                 if (endDateSet && firstAddedDate.seconds > endDate)
                     return;
+                if (licensePlateSet) {
+                    if (licensePlate !== clusterSnapshot.get("licensePlate"))
+                        console.log(clusterSnapshot.get("licensePlate"));
+                    return;
+                }
                 var clusterId = clusterSnapshot.id;
 
                 console.log("found a cluster");

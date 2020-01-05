@@ -42,7 +42,7 @@
 		list-style-type: none;
 		background-color: white;
 		font-size: large;
-		border-bottom: 1px solid black;
+		/*border-bottom: 1px solid black;*/
 		border-top: 1px solid black;
 	}
 
@@ -73,34 +73,34 @@
 </ul>
 <div class="content">
 
-	<div class="orderBy">
+	<!--<div class="orderBy">
 		Order by
 		<menu style="display: inline">number of reports</menu>
 		<br>
-	</div>
+	</diz> -->
 
 	<h1>
 		Violations
 	</h1>
 
 	<div>
-		<button onclick="createReport()">Create report</button>
+		<button onclick="deleteReport()">Delete</button>
 		<button onclick="retrieveReports()">Retrieve reports</button>
 	</div>
 
 	<div class="reports" id="reports">
-		<div class="report">
-		</div>
 	</div>
 </div>
 
 <script>
     let counter = 0;
 
-
-    function createReport() {
-        createReportWithParameters(counter++, counter++, counter++, counter++)
-
+    function deleteReport() {
+        var reportsElem = document.getElementById("reports");
+        children = reportsElem.childNodes;
+        while (children.length !== 0) {
+            reportsElem.removeChild(children[0]);
+        }
     }
 
     function createReportWithParameters(licensePlate, location, violationType, numOfReports, uid) {
