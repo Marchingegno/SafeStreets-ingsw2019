@@ -13,10 +13,16 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+
 import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.AuthenticationManager;
 
+/**
+ * The Settings menu.
+ *
+ * @author Desno 365
+ */
 public class SettingsActivity extends AppCompatActivity {
 
 	private static final String TAG = "SettingsActivity";

@@ -15,6 +15,8 @@ import java.util.UUID;
 
 /**
  * Handles the connection with the cloud storage.
+ *
+ * @author Desno365
  */
 public class StorageConnection {
 

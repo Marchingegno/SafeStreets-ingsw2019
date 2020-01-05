@@ -13,7 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,15 +36,12 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -53,15 +49,17 @@ import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.RetrieveViolationsManager;
 import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
-import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
+import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationTypeEnum;
+import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.ViolationRetrieverUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.DataRetrieverInterface;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapReadyCallback, EasyPermissions.PermissionCallbacks, ViolationRetrieverUser {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, EasyPermissions.PermissionCallbacks, DataRetrieverInterface {
 
-	private static final String TAG = "SafeStreetsDataActivity";
+	//Log tag
+	private static final String TAG = "MapActivity";
 
 	//Constants
 	private static final float DEFAULT_ZOOM = 16.0f;//Zoom of the map's camera
@@ -96,8 +94,8 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 
 	//Query
 	private long startDate = 0;
-	private long endDate = 0;
-	private List<ViolationEnum> violationTypesSelected = Arrays.asList(ViolationEnum.values());//all types of violation are selected at the beginning
+	private long endDate;
+	private List<ViolationTypeEnum> violationTypesSelected = Arrays.asList(ViolationTypeEnum.values());//all types of violation are selected at the beginning
 	private RetrieveViolationsManager retrieveViolationsManager;
 
 	//region Static methods
@@ -111,7 +109,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 	 */
 	@NonNull
 	public static Intent createIntent(@NonNull Context context) {
-		return new Intent(context, SafeStreetsDataActivity.class);
+		return new Intent(context, MapActivity.class);
 	}
 	//endregion
 
@@ -157,10 +155,12 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		markers = new ArrayList<>();
 
 		assert mMap != null;
+		//When a marker is clicked the corresponding cluster is loaded and the ClusterActivity is launched
 		mMap.setOnMarkerClickListener(marker -> {
 			//onMarkerClick
-			//TODO launch activity to display groups
-			Toast.makeText(this, "Marker clicked", Toast.LENGTH_LONG).show();
+			Intent intent = ClusterActivity.createIntent(this);
+			intent.putExtra("cluster", (Serializable) marker.getTag());
+			startActivity(intent);
 			return false;
 		});
 
@@ -198,6 +198,11 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		}
 	}
 
+	/**
+	 * For each loaded cluster a marker is created on the map.
+	 *
+	 * @param clusters the retrieved cluster.
+	 */
 	@Override
 	public void onClusterLoaded(List<Cluster> clusters) {
 		if (mMap != null) {
@@ -225,62 +230,63 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		int currentMonth = calendar.get(Calendar.MONTH);
 		int currentYear = calendar.get(Calendar.YEAR);
 
+		endDate = System.currentTimeMillis();
+
 		startDateTextView.setOnClickListener(v -> {
 			//On click
-			picker = new DatePickerDialog(SafeStreetsDataActivity.this,
+			picker = new DatePickerDialog(MapActivity.this,
 					//On date chosen
 					(view, selectedYear, selectedMonth, selectedDay) -> {
 						String date = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
 						startDateTextView.setText(date);
 						//Save chosen starting date
-						startDate = convertDateToLong(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear);
+						startDate = GeneralUtils.convertDateToLong(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear + " 00:00:00");
+						loadClusters(lastSearchedCoordinates);
 						Log.d(TAG, "Start date: " + date + " [" + startDate + "]");
 					}, currentYear, currentMonth, currentDay);
 			//Update the interval of the dialog
-			if (endDate != 0)
-				picker.getDatePicker().setMaxDate(endDate);
-			else
-				picker.getDatePicker().setMaxDate(calendar.getTimeInMillis());
+			picker.getDatePicker().setMaxDate(endDate);
 			picker.show();
 		});
 
 		endDateTextView.setOnClickListener(v -> {
 			//On click
-			picker = new DatePickerDialog(SafeStreetsDataActivity.this,
+			picker = new DatePickerDialog(MapActivity.this,
 					//On date chosen
 					(view, selectedYear, selectedMonth, selectedDay) -> {
 						String date = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
 						endDateTextView.setText(date);
 						//Save chosen ending date
-						endDate = convertDateToLong(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear);
+						endDate = GeneralUtils.convertDateToLong(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear + " 23:59:59");
+						loadClusters(lastSearchedCoordinates);
 						Log.d(TAG, "End date: " + date + " [" + endDate + "]");
 					}, currentYear, currentMonth, currentDay);
 			//Update the interval of the dialog
 			picker.getDatePicker().setMinDate(startDate);
-			picker.getDatePicker().setMaxDate(calendar.getTimeInMillis());
+			picker.getDatePicker().setMaxDate(System.currentTimeMillis());
 			picker.show();
 		});
 	}
 
 	private void setupTypeOfViolationDialog() {
-		List<ViolationEnum> selectedItems = new ArrayList<>();
+		List<ViolationTypeEnum> selectedItems = new ArrayList<>();
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		int namOfViolations = ViolationEnum.values().length;
+		int namOfViolations = ViolationTypeEnum.values().length;
 		CharSequence[] violationTypes = new CharSequence[namOfViolations];
 
 		for (int i = 0; i < namOfViolations; i++)
-			violationTypes[i] = ViolationEnum.values()[i].toString();
+			violationTypes[i] = ViolationTypeEnum.values()[i].toString();
 
 		builder.setTitle("Choose the type of violation")
 				.setMultiChoiceItems(violationTypes, null,
 						(dialog, which, isChecked) -> {
 							//On click
 							if (isChecked) {// If the user checked the item, add it to the selected items
-								selectedItems.add(ViolationEnum.values()[which]);
-								Log.d(TAG, "Added to the list of violation types: " + ViolationEnum.values()[which]);
-							} else if (selectedItems.contains(ViolationEnum.values()[which])) {// Else, if the item is already in the array, remove it
-								selectedItems.remove(ViolationEnum.values()[which]);
-								Log.d(TAG, "Removed from the list of violation types: " + ViolationEnum.values()[which]);
+								selectedItems.add(ViolationTypeEnum.values()[which]);
+								Log.d(TAG, "Added to the list of violation types: " + ViolationTypeEnum.values()[which]);
+							} else if (selectedItems.contains(ViolationTypeEnum.values()[which])) {// Else, if the item is already in the array, remove it
+								selectedItems.remove(ViolationTypeEnum.values()[which]);
+								Log.d(TAG, "Removed from the list of violation types: " + ViolationTypeEnum.values()[which]);
 							}
 						})
 				.setPositiveButton("OK",
@@ -289,8 +295,8 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 							violationTypesSelected = selectedItems;
 							Log.d(TAG, "Violation types selected: " + violationTypesSelected);
 							if (lastSearchedCoordinates != null) {
-								retrieveViolationsManager.loadClusters(
-										new LatLng(lastSearchedCoordinates.latitude, lastSearchedCoordinates.longitude), violationTypesSelected);
+								LatLng coordinates = new LatLng(lastSearchedCoordinates.latitude, lastSearchedCoordinates.longitude);
+								loadClusters(coordinates);
 							} else {
 								Log.e(TAG, "lastSearchedCoordinates is null in setPositiveButton");
 							}
@@ -334,7 +340,7 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 					if (requestedLocation != null && mMap != null) {
 						lastSearchedCoordinates = new LatLng(requestedLocation.latitude, requestedLocation.longitude);
 						mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastSearchedCoordinates, DEFAULT_ZOOM));
-						retrieveViolationsManager.loadClusters(lastSearchedCoordinates, violationTypesSelected);
+						loadClusters(lastSearchedCoordinates);
 					} else
 						Log.e(TAG, "No LatLng associated with the searched place. mMap = " + mMap);
 				}
@@ -381,10 +387,9 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 							if (location != null && mMap != null) {
 								lastKnownLocation = (Location) location;
 								lastSearchedCoordinates = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
-								LatLng lastKnownCoordinate = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
 								// Set the map's camera position to the current location of the device.
-								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastKnownCoordinate, DEFAULT_ZOOM));
-								retrieveViolationsManager.loadClusters(lastKnownCoordinate, violationTypesSelected);
+								mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lastSearchedCoordinates, DEFAULT_ZOOM));
+								loadClusters(lastSearchedCoordinates);
 							}
 						})
 						.addOnFailureListener(location -> {
@@ -403,23 +408,14 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		}
 	}
 
-	private long convertDateToLong(String dateString) {
-		Date date = null;
-		try {
-			date = new SimpleDateFormat("dd/MM/yyyy", Locale.ITALY).parse(dateString);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		return date == null ? 0 : date.getTime();
-	}
-
 	private void addMarker(Cluster cluster) {
 		assert mMap != null; //Checked int the caller
 		MarkerOptions markerOption = new MarkerOptions()
 				.position(new LatLng(cluster.getLatitude(), cluster.getLongitude()))
-				.icon(getMarkerIcon(cluster.getTypeOfViolation().getColor()))
-				.title(cluster.getTypeOfViolation().toString());
-		markers.add(mMap.addMarker(markerOption));
+				.icon(getMarkerIcon(cluster.getTypeOfViolation().getColor()));
+		Marker marker = mMap.addMarker(markerOption);
+		marker.setTag(cluster);
+		markers.add(marker);
 	}
 
 	//Removes the markers from the map
@@ -430,11 +426,14 @@ public class SafeStreetsDataActivity extends AppCompatActivity implements OnMapR
 		}
 	}
 
-	// method definition
-	public BitmapDescriptor getMarkerIcon(String color) {
+	private BitmapDescriptor getMarkerIcon(String color) {
 		float[] hsv = new float[3];
 		Color.colorToHSV(Color.parseColor(color), hsv);
 		return BitmapDescriptorFactory.defaultMarker(hsv[0]);
+	}
+
+	private void loadClusters(LatLng coordinates) {
+		retrieveViolationsManager.loadClusters(coordinates, violationTypesSelected, GeneralUtils.convertLongToDate(startDate), GeneralUtils.convertLongToDate(endDate));
 	}
 	//endregion
 }

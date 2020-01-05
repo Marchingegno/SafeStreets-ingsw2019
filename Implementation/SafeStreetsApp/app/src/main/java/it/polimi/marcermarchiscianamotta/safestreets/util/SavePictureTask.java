@@ -10,7 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.SaveUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.SavePictureInterface;
 
 /**
  * Task that saves the specified bitmap to the specified uri.
@@ -22,11 +22,14 @@ public class SavePictureTask extends AsyncTask<Bitmap, Void, Uri> {
 	private int quality = 100;
 	private Uri pathWhereToSave;
 
-	private SaveUser caller;
+	private SavePictureInterface caller;
 
-	public SavePictureTask(SaveUser caller) {
+	//Constructor
+	//================================================================================
+	public SavePictureTask(SavePictureInterface caller) {
 		this.caller = caller;
 	}
+	//endregion
 
 	//region Task overridden methods
 	//================================================================================
@@ -76,10 +79,20 @@ public class SavePictureTask extends AsyncTask<Bitmap, Void, Uri> {
 
 	//region Public methods
 	//================================================================================
+
+	/**
+	 * Sets the quality of the image to be saved.
+	 *
+	 * @param quality number from 0 to 100.
+	 */
 	public void setQuality(int quality) {
 		this.quality = quality;
 	}
 
+	/**
+	 * Sets the path where to save the picture.
+	 * @param pathWhereToSave path where to save the image.
+	 */
 	public void setPathWhereToSave(Uri pathWhereToSave) {
 		this.pathWhereToSave = pathWhereToSave;
 	}

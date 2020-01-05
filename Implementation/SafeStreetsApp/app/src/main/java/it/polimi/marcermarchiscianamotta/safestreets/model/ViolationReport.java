@@ -11,6 +11,9 @@ import java.util.List;
 
 /**
  * Contains all the attributes of a report.
+ *
+ * @author Marcer
+ * @author Desno365
  */
 public class ViolationReport {
 	private static final String TAG = "ViolationReport";
@@ -24,7 +27,7 @@ public class ViolationReport {
 	private List<Uri> pictures = new ArrayList<>();
 	private List<String> picturesIDOnServer;
 	private Date uploadTimestamp;
-	private ViolationEnum typeOfViolation;
+	private ViolationTypeEnum typeOfViolation;
 	private ReportStatusEnum reportStatus = ReportStatusEnum.SUBMITTED;
 	private String statusMotivation = null;
 
@@ -34,6 +37,7 @@ public class ViolationReport {
 	public ViolationReport(String userUid) {
 		this.userUid = userUid;
 	}
+	//endregion
 
 	//region Setter methods
 	//================================================================================
@@ -50,12 +54,16 @@ public class ViolationReport {
 		this.description = description;
 	}
 
-	public void setTypeOfViolation(ViolationEnum typeOfViolation) {
-		this.typeOfViolation = typeOfViolation;
+	public ViolationTypeEnum getTypeOfViolation() {
+		return typeOfViolation;
 	}
 
 	public void setPicturesIDOnServer(List<String> picturesIDOnServer) {
 		this.picturesIDOnServer = picturesIDOnServer;
+	}
+
+	public void setTypeOfViolation(ViolationTypeEnum typeOfViolation) {
+		this.typeOfViolation = typeOfViolation;
 	}
 	//endregion
 
@@ -64,6 +72,7 @@ public class ViolationReport {
 	public String getMunicipality() {
 		return municipality;
 	}
+
 	//endregion
 
 	public String getLicensePlate() {
@@ -78,11 +87,6 @@ public class ViolationReport {
 		return longitude;
 	}
 
-	public void setLicensePlate(String licensePlate) {
-		this.licensePlate = licensePlate;
-		Log.d(TAG, "License plate set to: " + licensePlate);
-	}
-
 	public List<Uri> getPictures() {
 		return pictures;
 	}
@@ -91,8 +95,9 @@ public class ViolationReport {
 		return pictures.get(index);
 	}
 
-	public ViolationEnum getTypeOfViolation() {
-		return typeOfViolation;
+	public void setLicensePlate(String licensePlate) {
+		this.licensePlate = licensePlate;
+		Log.d(TAG, "License plate set to: " + licensePlate);
 	}
 
 	public Date getTimestamp() {

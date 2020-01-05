@@ -15,6 +15,8 @@ import it.polimi.marcermarchiscianamotta.safestreets.R;
 
 /**
  * Handles the authentication with the cloud.
+ *
+ * @author Desno365
  */
 public class AuthenticationManager {
 
@@ -42,7 +44,7 @@ public class AuthenticationManager {
 		return AuthUI.getInstance()
 				.createSignInIntentBuilder()
 				.setAvailableProviders(providers)
-				.setLogo(R.drawable.ic_launcher_foreground)
+				.setLogo(R.drawable.ic_launcher)
 				.setIsSmartLockEnabled(false, false)
 				.setTosAndPrivacyPolicyUrls(
 						"https://example.com/terms.html",

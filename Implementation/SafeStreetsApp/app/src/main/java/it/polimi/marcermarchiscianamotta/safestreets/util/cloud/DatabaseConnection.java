@@ -13,17 +13,21 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.Transaction;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ClusterRepresentation;
+import it.polimi.marcermarchiscianamotta.safestreets.model.Group;
 import it.polimi.marcermarchiscianamotta.safestreets.model.UserRepresentation;
-import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReportRepresentation;
+import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationTypeEnum;
 
 /**
  * Handles the connection with the database.
+ * @author Marcer
+ * @author Desno365
  */
 public class DatabaseConnection {
 
@@ -74,7 +78,7 @@ public class DatabaseConnection {
 	/**
 	 * Gets all the violation reports made by the current user.
 	 *
-	 * @param listenerActivity the activity that will listen for success or failure events.
+	 * @param listenerActivity  the activity that will listen for success or failure events.
 	 * @param onSuccessListener the code to execute on success.
 	 * @param onFailureListener the code to execute on failure.
 	 */
@@ -96,25 +100,47 @@ public class DatabaseConnection {
 	}
 
 	/**
-	 * Gets all the violation reports in a municipality.
+	 * Gets all the violation reports made by the current user.
 	 *
-	 * @param municipality municipality to which the clusters belong to.
 	 * @param listenerActivity  the activity that will listen for success or failure events.
 	 * @param onSuccessListener the code to execute on success.
 	 * @param onFailureListener the code to execute on failure.
 	 */
-	public static void getClusters(Activity listenerActivity, String municipality, List<ViolationEnum> violationTypesToRetrieve, OnSuccessListener<List<Cluster>> onSuccessListener, OnFailureListener onFailureListener) {
+	public static void getGroup(Activity listenerActivity, String groupID, String municipality, OnSuccessListener<Group> onSuccessListener, OnFailureListener onFailureListener) {
+		Log.d(TAG, "Retrieving group: " + groupID);
+		FirebaseFirestore.getInstance().collection("municipalities").document(municipality).collection("groups")
+				.document(groupID)
+				.get()
+				.addOnSuccessListener(listenerActivity, querySnapshot -> {
+					Log.d(TAG, "getGroup succeeded for group: " + groupID);
+					Group group = querySnapshot.toObject(Group.class);
+					onSuccessListener.onSuccess(group);
+				})
+				.addOnFailureListener(listenerActivity, onFailureListener);
+	}
+
+	/**
+	 * Gets all the violation reports in a municipality.
+	 *
+	 * @param municipality      municipality to which the clusters belong to.
+	 * @param listenerActivity  the activity that will listen for success or failure events.
+	 * @param onSuccessListener the code to execute on success.
+	 * @param onFailureListener the code to execute on failure.
+	 */
+	public static void getClusters(Activity listenerActivity, String municipality, List<ViolationTypeEnum> violationTypesToRetrieve, Date intervalStartDate, Date intervalEndDate, OnSuccessListener<List<Cluster>> onSuccessListener, OnFailureListener onFailureListener) {
 		if (violationTypesToRetrieve.size() > 0) {
-			Log.d(TAG, "Filtering on: " + violationTypesToRetrieve);
+			Log.d(TAG, "Filtering on: " + violationTypesToRetrieve + "\n\tinterval = " + intervalStartDate + " to " + intervalEndDate);
 			FirebaseFirestore.getInstance().collection("municipalities").document(municipality).collection("clusters")
 					.whereIn("typeOfViolation", violationTypesToRetrieve)
 					.get()
 					.addOnSuccessListener(listenerActivity, querySnapshot -> {
 						List<Cluster> clusters = new ArrayList<>();
 						Log.d(TAG, "getClusters succeeded");
+						//Discard
 						for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
 							ClusterRepresentation clusterRepresentation = documentSnapshot.toObject(ClusterRepresentation.class);
-							clusters.add(new Cluster(clusterRepresentation));
+							if (clusterRepresentation.getLastAddedDate().after(intervalStartDate) && clusterRepresentation.getFirstAddedDate().before(intervalEndDate))
+								clusters.add(new Cluster(clusterRepresentation));
 						}
 						onSuccessListener.onSuccess(clusters);
 					})
@@ -123,7 +149,6 @@ public class DatabaseConnection {
 			Log.i(TAG, "No violation type to filter by");
 			onSuccessListener.onSuccess(new ArrayList<>());
 		}
-
 	}
 	//endregion
 

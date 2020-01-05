@@ -21,30 +21,37 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.ReportViolationManager;
-import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationEnum;
+import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationTypeEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 import it.polimi.marcermarchiscianamotta.safestreets.util.LoadPictureTask;
 import it.polimi.marcermarchiscianamotta.safestreets.util.SavePictureTask;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadUser;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.SaveUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadBitmapInterface;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.SavePictureInterface;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, AdapterView.OnItemSelectedListener, SaveUser, LoadUser {
+/**
+ * Handles the reporting of the violations.
+ *
+ * @author Marcer
+ * @author Desno365
+ */
+public class ReportViolationActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, AdapterView.OnItemSelectedListener, SavePictureInterface, LoadBitmapInterface {
 
 	//Log tag
 	private static final String TAG = "ReportViolationActivity";
@@ -113,6 +120,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	}
 	//endregion
 
+	//region Overridden methods
+	//================================================================================
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -123,7 +132,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		reportViolationManager = new ReportViolationManager(this, rootView);
 
 		violationTypeSpinner.setOnItemSelectedListener(this);
-		ArrayAdapter<ViolationEnum> langAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ViolationEnum.values());
+		ArrayAdapter<ViolationTypeEnum> langAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ViolationTypeEnum.values());
 		langAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		violationTypeSpinner.setAdapter(langAdapter);
 
@@ -148,6 +157,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			EasyPermissions.requestPermissions(this, "Camera permission", RC_WRITE_EXT_STORAGE_PERMS, WRITE_EXT_STORAGE_PERMS);
 		}
 
+		//TODO move to internal storage
 		mainDirectoryPath = Environment.getExternalStorageDirectory() + "/SafeStreets/";
 		fullSizePictureDirectory = new File(mainDirectoryPath + "/Pictures/");
 		thumbnailPictureDirectory = new File(mainDirectoryPath + "/Thumbnails/");
@@ -176,9 +186,6 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		}
 	}
 
-
-	//region Callback methods
-	//================================================================================
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -192,30 +199,13 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 						GeneralUtils.showSnackbar(rootView, "Photo not found.");
 						Log.e(TAG, "Photo not found at " + currentPicturePath.toString());
 					}
-				}
+				} else if (resultCode == RESULT_CANCELED)
+					GeneralUtils.showSnackbar(rootView, "Camera error");
 				break;
 			case (RC_IMAGE_DELETION):
 				if (resultCode == RESULT_OK) {
 					if (Boolean.parseBoolean(data.getStringExtra("Want to delete"))) {
-						int indexOfThePictureToDelete = Integer.parseInt(data.getStringExtra("View index"));
-
-						URI pathOfThePictureToDelete = URI.create(data.getStringExtra("Picture path"));
-						File pictureToDelete = new File(pathOfThePictureToDelete);
-
-						if (pictureToDelete.exists() &&
-								indexOfThePictureToDelete < reportViolationManager.numberOfPictures() &&
-								Uri.parse(data.getStringExtra("Picture path")).equals(reportViolationManager.getPicture(indexOfThePictureToDelete))) {
-							ImageView imageViewToRemove = pictureViewArray.remove(indexOfThePictureToDelete);
-
-							pictureLinearLayout.removeView(imageViewToRemove);
-							reportViolationManager.removePicture(indexOfThePictureToDelete);
-
-							String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPictures() + "/" + reportViolationManager.getMaxNumOfPictures();
-							numberOfPhotosAddedTextView.setText(textToDisplay);
-
-							Log.d(TAG, "Num of image views: " + pictureViewArray.size());
-						} else
-							Log.e(TAG, "File: " + pathOfThePictureToDelete + " not found");
+						removePictureFromView(data);
 					}
 				}
 				break;
@@ -223,21 +213,26 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		}
 	}
 
-	public void onPictureUploaded(int pictureUploaded, int totalNumberOfPicture) {
-		uploadingProgressBar.setProgress(pictureUploaded);
-		uploadingTextView.setText("Uploaded " + pictureUploaded + " out of" + totalNumberOfPicture);
-	}
-
+	/**
+	 * Displays the picture on the view.
+	 *
+	 * @param savedPicturePath uri where the picture has been saved.
+	 */
 	@Override
-	public void onPictureSaved(Uri thumbnailCreated) {
-		ImageView imageView = createImageView(thumbnailCreated);
+	public void onPictureSaved(Uri savedPicturePath) {
+		ImageView imageView = createImageView(savedPicturePath);
 		pictureViewArray.add(imageView);
 		pictureLinearLayout.addView(imageView);
-		reportViolationManager.addPhotoToReport(thumbnailCreated);
+		reportViolationManager.addPhotoToReport(savedPicturePath);
 		String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPictures() + "/" + reportViolationManager.getMaxNumOfPictures();
 		numberOfPhotosAddedTextView.setText(textToDisplay);
 	}
 
+	/**
+	 * Save the loaded picture with a lower image quality.
+	 *
+	 * @param bitmap the loaded bitmap.
+	 */
 	@Override
 	public void onPictureLoaded(Bitmap bitmap) {
 		SavePictureTask saver = new SavePictureTask(this);
@@ -297,12 +292,24 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			finish();
 		}
 	}
+
+	/**
+	 * Update the progress bar on a successfully uploaded picture.
+	 *
+	 * @param pictureUploaded      the number of pictured uploaded so far.
+	 * @param totalNumberOfPicture total number of picture to upload.
+	 */
+	public void onPictureUploaded(int pictureUploaded, int totalNumberOfPicture) {
+		uploadingProgressBar.setProgress(pictureUploaded);
+		uploadingTextView.setText("Uploaded " + pictureUploaded + " out of " + totalNumberOfPicture);
+	}
 	//endregion
 
 	//region UI methods
 	//================================================================================
 	@OnClick(R.id.report_violation_add_photo_temporary)
 	public void onClickAddPhoto(View v) {
+		//Starts the camera intent
 		if (reportViolationManager.canTakeAnotherPicture()) {
 			String fileName = String.valueOf(System.currentTimeMillis());
 			File destination = new File(fullSizePictureDirectory, fileName + ".jpg");
@@ -318,15 +325,18 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			GeneralUtils.showSnackbar(rootView, "Maximum number of pictures reached.");
 	}
 
-
 	@OnClick(R.id.report_violation_floating_send_button)
 	public void onClickSendViolation(View v) {
+		//Checks if the all mandatory fields are specified and if so starts the process of uploading
 		reportViolationManager.setPlate(plateEditText.getText().toString());
 		if (reportViolationManager.isReadyToSend()) {
-			findViewById(R.id.scroll_view).setVisibility(View.GONE);
-			findViewById(R.id.uploading_panel).setVisibility(View.VISIBLE);
-			findViewById(R.id.report_violation_floating_send_button).setVisibility(View.GONE);
-			reportViolationManager.sendViolationReport(descriptionText.getText().toString());
+			if (isEverythingOK()) {
+				//Hide the current view and show the loading screen
+				findViewById(R.id.scroll_view).setVisibility(View.GONE);
+				findViewById(R.id.uploading_panel).setVisibility(View.VISIBLE);
+				findViewById(R.id.report_violation_floating_send_button).setVisibility(View.GONE);
+				reportViolationManager.sendViolationReport(descriptionText.getText().toString());
+			}
 		} else
 			GeneralUtils.showSnackbar(rootView, "Before reporting, please complete all mandatory fields.");
 	}
@@ -349,7 +359,28 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 
 	@Override
 	public void onNothingSelected(AdapterView<?> parent) {
-		// TODO Auto-generated method stub
+	}
+
+	private void removePictureFromView(Intent data) {
+		int indexOfThePictureToDelete = Integer.parseInt(data.getStringExtra("View index"));
+
+		URI pathOfThePictureToDelete = URI.create(data.getStringExtra("Picture path"));
+		File pictureToDelete = new File(pathOfThePictureToDelete);
+
+		if (pictureToDelete.exists() &&
+				indexOfThePictureToDelete < reportViolationManager.numberOfPictures() &&
+				Uri.parse(data.getStringExtra("Picture path")).equals(reportViolationManager.getPicture(indexOfThePictureToDelete))) {
+			ImageView imageViewToRemove = pictureViewArray.remove(indexOfThePictureToDelete);
+
+			pictureLinearLayout.removeView(imageViewToRemove);
+			reportViolationManager.removePicture(indexOfThePictureToDelete);
+
+			String textToDisplay = "Number of photos added:" + reportViolationManager.numberOfPictures() + "/" + reportViolationManager.getMaxNumOfPictures();
+			numberOfPhotosAddedTextView.setText(textToDisplay);
+
+			Log.d(TAG, "Num of image views: " + pictureViewArray.size());
+		} else
+			Log.e(TAG, "File: " + pathOfThePictureToDelete + " not found");
 	}
 	//endregion
 
@@ -383,6 +414,18 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			startActivityForResult(i, RC_IMAGE_DELETION);
 		});
 		return imageView;
+	}
+
+	private boolean isEverythingOK() {
+		boolean isOK = true;
+		if (!GeneralUtils.isNetworkAvailable(this)) {
+			isOK = false;
+			GeneralUtils.showSnackbar(rootView, "Please connect to internet.");
+		} else if (!GeneralUtils.isProviderEnabled(this)) {
+			isOK = false;
+			GeneralUtils.showSnackbar(rootView, "Please turn on the GPS.");
+		}
+		return isOK;
 	}
 	//endregion
 }

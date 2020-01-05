@@ -1,18 +1,19 @@
 package it.polimi.marcermarchiscianamotta.safestreets.model;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.NonNull;
 
 /**
  * Represents a representation of a user document in the database.
  * This class contains only the relevant attributes that need to be sent or retrieved from the database.
+ *
+ * @author Desno365
  */
 public class UserRepresentation {
 
     private List<String> violationReportIds;
-
 
     //region Constructors
     //================================================================================
@@ -21,7 +22,6 @@ public class UserRepresentation {
     }
     //endregion
 
-
     //region Getter methods
     //================================================================================
     @NonNull
@@ -29,7 +29,6 @@ public class UserRepresentation {
         return violationReportIds;
     }
     //endregion
-
 
     //region Public methods
     //================================================================================

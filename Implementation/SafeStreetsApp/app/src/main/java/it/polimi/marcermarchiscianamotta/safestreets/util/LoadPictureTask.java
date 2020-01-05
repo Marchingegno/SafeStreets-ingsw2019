@@ -10,24 +10,29 @@ import android.util.Log;
 import java.io.InputStream;
 
 import it.polimi.marcermarchiscianamotta.safestreets.external.ExifUtil;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadUser;
+import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadBitmapInterface;
 
 /**
  * Loads a bitmap from the local storage and returns it.
+ * @author Marcer
  */
 public class LoadPictureTask extends AsyncTask<Uri, Void, Bitmap> {
+	//Log tag
 	private static final String TAG = "LoadPictureTask";
 
 	//Max dimensions of the bitmap
 	private int maxDimension = 1280;
 
 	private Context context;
-	private LoadUser caller;
+	private LoadBitmapInterface caller;
 
+	//Constructor
+	//================================================================================
 	public LoadPictureTask(Context context) {
 		this.context = context;
-		this.caller = (LoadUser) context;
+		this.caller = (LoadBitmapInterface) context;
 	}
+	//endregion
 
 	//region Task overridden methods
 	//================================================================================

@@ -2,10 +2,13 @@ package it.polimi.marcermarchiscianamotta.safestreets.util.interfaces;
 
 import android.location.Address;
 
+import androidx.annotation.Nullable;
+
 import com.google.android.gms.maps.model.LatLng;
 
 /**
  * This interface must be implemented by the classes that wish to retrieve the results of the MapManager.
+ * @author Marcer
  */
 public interface MapUser {
 
@@ -15,5 +18,10 @@ public interface MapUser {
 	 */
 	void onLocationFound(LatLng location);
 
-	void onAddressFound(Address address);
+	/**
+	 * This method is called once the process of retrieving the current address has terminated.
+	 *
+	 * @param address the address found.
+	 */
+	void onAddressFound(@Nullable Address address);
 }

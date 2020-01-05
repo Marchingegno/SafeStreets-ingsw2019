@@ -5,8 +5,7 @@ import androidx.annotation.NonNull;
 /**
  * The list of possible traffic violations.
  */
-public enum ViolationEnum {
-	//TODO add more violations from https://en.wikipedia.org/wiki/Parking_violation
+public enum ViolationTypeEnum {
 	PARKING_IN_A_PROHIBITED_SPACE("Parking in a prohibited space", "#e5ff22"),
 	PARKING_ON_A_SIDEWALK("Parking on a sidewalk", "#ff0000"),
 	PARKING_TOO_CLOSE_AN_INTERSECTION("Parking too close an intersection", "#0004ff"),
@@ -21,8 +20,10 @@ public enum ViolationEnum {
 	private String text;
 	private String color;
 
-	ViolationEnum(String string, String color) {
+	ViolationTypeEnum(String string, String color) {
+		//The string displayed to the user.
 		text = string;
+		//The color of the marker on the map.
 		this.color = color;
 	}
 
