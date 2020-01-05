@@ -10,7 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.SavePictureInterface;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.SavePictureInterface;
 
 /**
  * Task that saves the specified bitmap to the specified uri.

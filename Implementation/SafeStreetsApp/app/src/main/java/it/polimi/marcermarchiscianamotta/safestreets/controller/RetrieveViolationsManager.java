@@ -12,10 +12,9 @@ import java.util.Date;
 import java.util.List;
 
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationTypeEnum;
-import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.DatabaseConnection;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.DataRetrieverInterface;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.MapUser;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.DataRetrieverInterface;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.MapUser;
 
 /**
  * This class manages the violation's retrieving.

@@ -20,7 +20,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.util.LoadPictureTask;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadBitmapInterface;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.LoadBitmapInterface;
 
 /**
  * Displays a pictures and allows to delete it.

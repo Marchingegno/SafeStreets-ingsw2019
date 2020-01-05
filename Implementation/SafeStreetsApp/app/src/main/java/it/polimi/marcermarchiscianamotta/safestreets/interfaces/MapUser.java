@@ -1,4 +1,4 @@
-package it.polimi.marcermarchiscianamotta.safestreets.util.interfaces;
+package it.polimi.marcermarchiscianamotta.safestreets.interfaces;
 
 import android.location.Address;
 

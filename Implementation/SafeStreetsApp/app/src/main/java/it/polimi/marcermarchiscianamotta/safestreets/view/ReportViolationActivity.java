@@ -40,8 +40,8 @@ import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationTypeEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 import it.polimi.marcermarchiscianamotta.safestreets.util.LoadPictureTask;
 import it.polimi.marcermarchiscianamotta.safestreets.util.SavePictureTask;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.LoadBitmapInterface;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.SavePictureInterface;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.LoadBitmapInterface;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.SavePictureInterface;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 

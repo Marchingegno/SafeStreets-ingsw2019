@@ -1,4 +1,4 @@
-package it.polimi.marcermarchiscianamotta.safestreets.util;
+package it.polimi.marcermarchiscianamotta.safestreets.controller;
 
 import android.content.Context;
 import android.location.Address;
@@ -13,7 +13,7 @@ import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
 
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.MapUser;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.MapUser;
 
 /**
  * Handles map requests.

@@ -16,7 +16,7 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
-import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.AuthenticationManager;
+import it.polimi.marcermarchiscianamotta.safestreets.controller.AuthenticationManager;
 
 /**
  * The Settings menu.

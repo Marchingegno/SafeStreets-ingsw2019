@@ -16,12 +16,10 @@ import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReport;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationTypeEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 import it.polimi.marcermarchiscianamotta.safestreets.util.ImageRecognition;
-import it.polimi.marcermarchiscianamotta.safestreets.util.MapManager;
-import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.AuthenticationManager;
 import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.DatabaseConnection;
 import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.StorageConnection;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.ImageRecognitionInterface;
-import it.polimi.marcermarchiscianamotta.safestreets.util.interfaces.MapUser;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.ImageRecognitionInterface;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.MapUser;
 import it.polimi.marcermarchiscianamotta.safestreets.view.ReportViolationActivity;
 
 /**

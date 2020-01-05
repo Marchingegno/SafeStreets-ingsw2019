@@ -1,4 +1,4 @@
-package it.polimi.marcermarchiscianamotta.safestreets.util.cloud;
+package it.polimi.marcermarchiscianamotta.safestreets.controller;
 
 import android.app.Activity;
 import android.content.Intent;
