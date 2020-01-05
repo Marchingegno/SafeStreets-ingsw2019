@@ -171,7 +171,7 @@ public class ReportViolationManager implements ImageRecognitionInterface, MapUse
 			changed = true;
 			report.setLicensePlate(plate);
 		} else
-			GeneralUtils.showSnackbar(rootView, "Please insert a valid licence plate format.");
+			Toast.makeText(reportViolationActivity, "Please insert a valid licence plate format.", Toast.LENGTH_SHORT).show();
 		return changed;
 	}
 
@@ -192,7 +192,7 @@ public class ReportViolationManager implements ImageRecognitionInterface, MapUse
 			}
 		} else {
 			Log.d(TAG, "No plate found");
-			GeneralUtils.showSnackbar(rootView, "No plate found");
+			Toast.makeText(reportViolationActivity, "No plate found", Toast.LENGTH_SHORT).show();
 		}
 	}
 

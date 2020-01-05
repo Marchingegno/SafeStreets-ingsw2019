@@ -133,8 +133,10 @@ public class ClusterActivity extends AppCompatActivity implements MapUser {
 							Log.e(TAG, "Failed to retrieve groups", e);
 						});
 			}
-		} else
+		} else {
+			GeneralUtils.showSnackbar(rootView, "Unable to retrieve the current address.");
 			Log.d(TAG, "address is null in onAddressFound");
+		}
 	}
 	//endregion
 
