@@ -331,6 +331,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		reportViolationManager.setPlate(plateEditText.getText().toString());
 		if (reportViolationManager.isReadyToSend()) {
 			if (isEverythingOK()) {
+				//Hide the current view and show the loading screen
 				findViewById(R.id.scroll_view).setVisibility(View.GONE);
 				findViewById(R.id.uploading_panel).setVisibility(View.VISIBLE);
 				findViewById(R.id.report_violation_floating_send_button).setVisibility(View.GONE);

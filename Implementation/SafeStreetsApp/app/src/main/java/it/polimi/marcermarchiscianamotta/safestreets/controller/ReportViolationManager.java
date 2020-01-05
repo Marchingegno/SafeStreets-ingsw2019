@@ -192,7 +192,8 @@ public class ReportViolationManager implements ImageRecognitionInterface, MapUse
 			}
 		} else {
 			Log.d(TAG, "No plate found");
-			Toast.makeText(reportViolationActivity, "No plate found.\nPlease insert it manually.", Toast.LENGTH_SHORT).show();
+			if (!report.hasPlate())
+				Toast.makeText(reportViolationActivity, "No plate found.\nPlease insert it manually.", Toast.LENGTH_SHORT).show();
 		}
 	}
 
