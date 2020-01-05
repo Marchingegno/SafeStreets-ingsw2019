@@ -3,6 +3,7 @@ package it.polimi.marcermarchiscianamotta.safestreets.util;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.DisplayMetrics;
@@ -69,5 +70,10 @@ public final class GeneralUtils {
 				= (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
 		return activeNetworkInfo != null;
+	}
+
+	public static boolean isProviderEnabled(Activity activity) {
+		LocationManager manager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+		return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 	}
 }

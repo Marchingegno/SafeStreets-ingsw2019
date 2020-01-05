@@ -209,7 +209,6 @@ public class ReportViolationManager implements ImageRecognitionInterface, MapUse
 		MapManager.getAddressFromLocation(reportViolationActivity.getApplicationContext(), this, location);
 	}
 
-
 	@Override
 	public void onAddressFound(Address address) {
 		if (address != null) {

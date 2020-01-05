@@ -199,7 +199,8 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 						GeneralUtils.showSnackbar(rootView, "Photo not found.");
 						Log.e(TAG, "Photo not found at " + currentPicturePath.toString());
 					}
-				}
+				} else if (resultCode == RESULT_CANCELED)
+					GeneralUtils.showSnackbar(rootView, "Camera error");
 				break;
 			case (RC_IMAGE_DELETION):
 				if (resultCode == RESULT_OK) {
@@ -329,13 +330,12 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		//Checks if the all mandatory fields are specified and if so starts the process of uploading
 		reportViolationManager.setPlate(plateEditText.getText().toString());
 		if (reportViolationManager.isReadyToSend()) {
-			if (GeneralUtils.isNetworkAvailable(this)) {
+			if (isEverythingOK()) {
 				findViewById(R.id.scroll_view).setVisibility(View.GONE);
 				findViewById(R.id.uploading_panel).setVisibility(View.VISIBLE);
 				findViewById(R.id.report_violation_floating_send_button).setVisibility(View.GONE);
 				reportViolationManager.sendViolationReport(descriptionText.getText().toString());
-			} else
-				GeneralUtils.showSnackbar(rootView, "No connection to internet.");
+			}
 		} else
 			GeneralUtils.showSnackbar(rootView, "Before reporting, please complete all mandatory fields.");
 	}
@@ -413,6 +413,18 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			startActivityForResult(i, RC_IMAGE_DELETION);
 		});
 		return imageView;
+	}
+
+	private boolean isEverythingOK() {
+		boolean isOK = true;
+		if (!GeneralUtils.isNetworkAvailable(this)) {
+			isOK = false;
+			GeneralUtils.showSnackbar(rootView, "Please connect to internet.");
+		} else if (!GeneralUtils.isProviderEnabled(this)) {
+			isOK = false;
+			GeneralUtils.showSnackbar(rootView, "Please turn on the GPS.");
+		}
+		return isOK;
 	}
 	//endregion
 }
