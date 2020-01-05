@@ -12,6 +12,12 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            def versionName = variant.versionName
+            outputFileName = "SafeStreets_${versionName}.apk"
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
