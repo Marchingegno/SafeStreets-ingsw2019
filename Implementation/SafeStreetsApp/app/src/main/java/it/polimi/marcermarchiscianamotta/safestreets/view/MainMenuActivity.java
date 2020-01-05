@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,8 +35,12 @@ public class MainMenuActivity extends AppCompatActivity {
 
 	private static final String TAG = "MainMenuActivity";
 
-	@BindView(android.R.id.content) View rootView;
-	@BindView(R.id.main_menu_welcome_text) TextView welcomeText;
+	@BindView(android.R.id.content)
+	View rootView;
+	@BindView(R.id.main_menu_welcome_text)
+	TextView welcomeText;
+	@BindView(R.id.signed_in_report_violation)
+	LinearLayout reportViolationButton;
 
 
 	//region Static methods
@@ -62,6 +67,10 @@ public class MainMenuActivity extends AppCompatActivity {
 		// Debug sign-in response.
 		IdpResponse response = getIntent().getParcelableExtra(ExtraConstants.IDP_RESPONSE);
 		debugSignInResponse(response);
+
+		//If the device doesn't have a camera it could not post any report
+		if (!GeneralUtils.hasCamera(this))
+			reportViolationButton.setVisibility(View.GONE);
 	}
 
 	@Override
@@ -125,8 +134,8 @@ public class MainMenuActivity extends AppCompatActivity {
 
 	private void displayWelcomeText() {
 		UserInfo user = AuthenticationManager.getUser();
-		if(TextUtils.isEmpty(user.getEmail())) {
-			if(TextUtils.isEmpty(user.getPhoneNumber()))
+		if (TextUtils.isEmpty(user.getEmail())) {
+			if (TextUtils.isEmpty(user.getPhoneNumber()))
 				welcomeText.setText("Welcome back");
 			else
 				welcomeText.setText("Welcome back " + user.getPhoneNumber());

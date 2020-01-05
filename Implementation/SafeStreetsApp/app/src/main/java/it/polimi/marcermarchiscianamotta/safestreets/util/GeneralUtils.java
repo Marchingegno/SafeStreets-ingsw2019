@@ -2,6 +2,7 @@ package it.polimi.marcermarchiscianamotta.safestreets.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -75,5 +76,10 @@ public final class GeneralUtils {
 	public static boolean isProviderEnabled(Activity activity) {
 		LocationManager manager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
 		return manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+	}
+
+	public static boolean hasCamera(Activity activity) {
+		PackageManager packageManager = activity.getPackageManager();
+		return packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA);
 	}
 }
