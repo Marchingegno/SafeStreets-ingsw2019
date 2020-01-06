@@ -21,8 +21,7 @@ service cloud.firestore {
         // Allows update only from the municipality, doesn't allow creating or deleting.
         match /municipalities/{municipalityId}/groups/{groupId} {
             allow read;
-            //allow update: if isSpecifiedMunicipality(municipalityId) && isUpdatingStatusOfGroup(); // TODO restore to not allow every write
-            allow write;
+            allow update: if isSpecifiedMunicipality(municipalityId) && isUpdatingStatusOfGroup();
         }
 
         // Cluster documents
