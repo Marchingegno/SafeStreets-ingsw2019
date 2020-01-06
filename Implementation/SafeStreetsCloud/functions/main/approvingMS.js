@@ -45,6 +45,7 @@ async function doApproving(reportSnap) {
     if(vehiclePresent) {
         console.log(`Report has been approved.`);
         await reportSnap.ref.update("reportStatus", model.ReportStatusEnum.APPROVED);
+        await reportSnap.ref.update("statusMotivation", "Ready for municipality's confirmation.");
     } else {
         console.log(`Report has been rejected.`);
         await reportSnap.ref.update("reportStatus", model.ReportStatusEnum.REJECTED);
