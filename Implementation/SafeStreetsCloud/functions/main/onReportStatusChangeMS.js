@@ -12,7 +12,7 @@ try {
 const db = admin.firestore();
 
 /**
- * Triggers when the municipality confirms or rejects a violation group. TODO delete group from cluster if REJECTED
+ * Triggers when the municipality confirms or rejects a violation group.
  */
 exports.onReportStatusChangeMS = functions.firestore.document('/municipalities/{municipalityId}/groups/{groupId}').onUpdate(async (change, context) => {
     console.log(`onReportStatusChangeMS started.`);
@@ -49,12 +49,13 @@ async function doStatusChange(groupSnap) {
     // Get data of the status change.
     const reportIds = groupSnap.get("reports");
     const newStatus = groupSnap.get("groupStatus");
+    const newStatusMotivation = newStatus === model.ReportStatusEnum.CORRECT ? "The municipality issued a ticket." : "Rejected by the municipality.";
     console.log("Updating status of " + reportIds.length + " reports.");
 
     // Update status of reports.
     let promisesOfStatusUpdate = [];
     for (let reportId of reportIds) {
-        promisesOfStatusUpdate.push(db.collection("violationReports").doc(reportId).update({reportStatus: newStatus, statusMotivation: "Rejected by the municipality."}));
+        promisesOfStatusUpdate.push(db.collection("violationReports").doc(reportId).update({reportStatus: newStatus, statusMotivation: newStatusMotivation}));
     }
     await Promise.all(promisesOfStatusUpdate);
 }
