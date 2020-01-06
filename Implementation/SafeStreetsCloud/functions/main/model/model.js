@@ -31,9 +31,11 @@ exports.newGroup = function(firstTimestamp, groupStatus, lastTimestamp, latitude
     }
 };
 
-exports.newCluster = function(groups, latitude, longitude, typeOfViolation) {
+exports.newCluster = function(firstAddedDate, groups, lastAddedDate, latitude, longitude, typeOfViolation) {
     return {
+        firstAddedDate: firstAddedDate,
         groups: groups,
+        lastAddedDate: lastAddedDate,
         latitude: latitude,
         longitude: longitude,
         typeOfViolation: typeOfViolation

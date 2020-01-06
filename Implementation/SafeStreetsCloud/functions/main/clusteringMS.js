@@ -2,6 +2,7 @@
 
 // Dependencies
 const model = require('./model/model');
+const generalUtils = require('./utils/generalUtils');
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 try {
@@ -37,16 +38,18 @@ async function doClustering(groupSnap, municipality) {
     const latitude = groupSnap.get("latitude");
     const longitude = groupSnap.get("longitude");
     const typeOfViolation = groupSnap.get("typeOfViolation");
+    const firstGroupDate = generalUtils.getNewDateWithDayPrecision(groupSnap.get("firstTimestamp").toDate());
+    const lastGroupDate = generalUtils.getNewDateWithDayPrecision(groupSnap.get("lastTimestamp").toDate());
 
     // Get cluster to which the group must be added, null if no cluster exists.
     const clusterDocSnap = await getClusterOfReport(municipality, typeOfViolation, latitude, longitude);
 
     if(clusterDocSnap === null) { // If a cluster doesn't exist...
         console.log('No clusters found. Creating a new cluster...');
-        await createNewCluster(typeOfViolation, latitude, longitude, groupSnap.ref.id, municipality);
+        await createNewCluster(firstGroupDate, groupSnap.ref.id, lastGroupDate, latitude, longitude, typeOfViolation, municipality);
     } else {
         console.log('A cluster has been found. Adding group to the cluster...');
-        await addGroupToExistingCluster(clusterDocSnap, groupSnap.ref.id, municipality)
+        await addGroupToExistingCluster(clusterDocSnap, groupSnap.ref.id, firstGroupDate, lastGroupDate, municipality)
     }
 }
 
@@ -87,16 +90,20 @@ function alsoCheckForLongitudeForQuery(querySnapshot, newLongitude) {
 /**
  * Creates a new cluster in the database with the given group.
  *
- * @param typeOfViolation type of the violation of the cluster.
+ * @param firstGroupDate date with day precision of the firstTimestamp field of the group
+ * @param groupId group to be added to the new cluster.
+ * @param lastGroupDate date with day precision of the lastTimestamp field of the group
  * @param latitude latitude of the cluster.
  * @param longitude longitude of the cluster,
- * @param groupId group to be added to the new cluster.
+ * @param typeOfViolation type of the violation of the cluster.
  * @param municipality the municipality that should contain both the group and the cluster.
  */
-async function createNewCluster(typeOfViolation, latitude, longitude, groupId, municipality) {
+async function createNewCluster(firstGroupDate, groupId, lastGroupDate, latitude, longitude, typeOfViolation, municipality) {
     // Create cluster data.
     const newCluster = model.newCluster(
+        firstGroupDate,
         new Array(groupId),
+        lastGroupDate,
         latitude,
         longitude,
         typeOfViolation
@@ -111,12 +118,22 @@ async function createNewCluster(typeOfViolation, latitude, longitude, groupId, m
  *
  * @param clusterDocSnap the cluster on which to add the group.
  * @param groupId the group to add.
+ * @param firstGroupDate date with day precision of the firstTimestamp field of the group
+ * @param lastGroupDate date with day precision of the lastTimestamp field of the group
  * @param municipality the municipality that contains both the group and the cluster.
  */
-async function addGroupToExistingCluster(clusterDocSnap, groupId, municipality) {
-    // Modify existing cluster data.
+async function addGroupToExistingCluster(clusterDocSnap, groupId, firstGroupDate, lastGroupDate, municipality) {
+    // Get current data.
     const clusterObject = clusterDocSnap.data();
+    const firstAddedDate = clusterObject.firstAddedDate;
+    const lastAddedDate = clusterObject.lastAddedDate;
+
+    // Modify data.
     clusterObject.groups.push(groupId); // Add groupId to the groups array.
+    if(firstGroupDate < firstAddedDate)
+        clusterObject.firstAddedDate = firstGroupDate;
+    if(lastGroupDate > lastAddedDate)
+        clusterObject.lastAddedDate = lastGroupDate;
 
     // Update data on the database.
     await db.collection("municipalities").doc(municipality).collection("clusters").doc(clusterDocSnap.ref.id).set(clusterObject);
