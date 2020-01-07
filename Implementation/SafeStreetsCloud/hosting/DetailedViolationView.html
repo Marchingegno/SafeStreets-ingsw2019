@@ -247,11 +247,11 @@
                 transaction.update(groupRef, {groupStatus: "CORRECT"});
             });
         }).then(function() {
-			console.log("updated to confirmed");
-			window.location.href = "AcceptViolations.html";
-		}).catch(function(error) {
-			console.log("Transaction failed: ", error);
-		});
+            console.log("updated to correct");
+            window.location.href = "AcceptViolations.html";
+        }).catch(function(error) {
+            console.log("Transaction failed: " + error);
+        });
     }
 
     function rejectViolation() {
@@ -267,8 +267,8 @@
 			console.log("updated to rejected");
 			window.location.href = "AcceptViolations.html";
 		}).catch(function(error) {
-			console.log("Transaction failed: ", error);
-		});
+            console.log("Transaction failed: " + error);
+        });
     }
 
 

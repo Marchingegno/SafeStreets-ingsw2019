@@ -118,6 +118,7 @@
 <script>
     // Initialize and add the map
     var map;
+    var municipDB = firebase.firestore().collection("municipalities").doc(localStorage.municip);
 
     function initMap() {
         console.log(localStorage.municip);
@@ -128,11 +129,11 @@
             document.getElementById('map'), {zoom: 14, center: loc, streetViewControl: false});
     }
 
-    function addMarkerAtLocationAndCenter(latitude, longitude) {
+    function addMarkerAtLocationAndCenter(latitude, longitude, title) {
         var loc = {lat: latitude, lng: longitude};
-        var marker = new google.maps.Marker({position: loc, map: map});
+        var marker = new google.maps.Marker({position: loc, map: map, title: title});
         map.setCenter(loc);
-
+        return marker;
     }
 
     function updateSearch() {
@@ -141,7 +142,6 @@
         var loc = {lat: latitude, lng: longitude};
         map = new google.maps.Map(
             document.getElementById('map'), {zoom: 15, center: loc, streetViewControl: false});
-        var municipDB = firebase.firestore().collection("municipalities").doc(localStorage.municip);
         var endDateSet = document.getElementById("eDate").value !== "";
         var startDateSet = document.getElementById("stDate").value !== "";
         var startDate = new Date(document.getElementById("stDate").value).getTime() / 1000;
@@ -150,29 +150,58 @@
         var licensePlateSet = licensePlate !== "";
         var location = document.getElementById("loc").value;
 
-        municipDB.collection("clusters").get().then(function (clustersSnapshot) {
-            clustersSnapshot.forEach(function (clusterSnapshot) {
-                var firstAddedDate = clusterSnapshot.get("firstAddedDate");
-                var lastAddedDate = clusterSnapshot.get("lastAddedDate");
+        if (!licensePlateSet) {
+            searchClusters(startDateSet, endDateSet, startDate, endDate);
+        } else {
+            searchGroups(startDateSet, endDateSet, startDate, endDate, licensePlate);
+        }
+    }
+
+
+    function searchGroups(startDateSet, endDateSet, startDate, endDate, licensePlate) {
+        municipDB.collection("groups").get().then(function (groupsSnapshot) {
+            groupsSnapshot.forEach(function (group) {
+                var firstAddedDate = group.get("firstTimestamp");
+                var lastAddedDate = group.get("lastTimestamp");
                 if (startDateSet && lastAddedDate.seconds < startDate)
                     return;
                 if (endDateSet && firstAddedDate.seconds > endDate)
                     return;
-                if (licensePlateSet) {
-                    if (licensePlate !== clusterSnapshot.get("licensePlate"))
-                        console.log(clusterSnapshot.get("licensePlate"));
+                if (group.get("licensePlate") !== licensePlate)
                     return;
-                }
-                var clusterId = clusterSnapshot.id;
 
+                groupId = group.id;
+                title = "Group: " + groupId + "\n" + "Type of violation: " + group.get("typeOfViolation");
+                title += "\nFirst violation date: " + new Date(firstAddedDate.seconds * 1000);
+                title += "\nLast violation date: " + new Date(lastAddedDate.seconds * 1000);
+                title += "\nLicense Plate: " + licensePlate;
+                addMarkerAtLocationAndCenter(group.get("latitude"), group.get("longitude"), title);
+            })
+        });
+    }
+
+
+    function searchClusters(startDateSet, endDateSet, startDate, endDate) {
+        municipDB.collection("clusters").get().then(function (clustersSnapshot) {
+            clustersSnapshot.forEach(function (cluster) {
+                var firstAddedDate = cluster.get("firstAddedDate");
+                var lastAddedDate = cluster.get("lastAddedDate");
+                if (startDateSet && lastAddedDate.seconds < startDate)
+                    return;
+                if (endDateSet && firstAddedDate.seconds > endDate)
+                    return;
+                var clusterId = cluster.id;
                 console.log("found a cluster");
-                addMarkerAtLocationAndCenter(clusterSnapshot.get("latitude"), clusterSnapshot.get("longitude"));
-                var newLoc = {lat: clusterSnapshot.get("latitude"), lng: clusterSnapshot.get("longitude")};
-                var marker = new google.maps.Marker({position: newLoc, map: map, title: clusterId});
-                map.setCenter(newLoc);
+                title = "Cluster: " + clusterId + "\n" + "Type of violation: " + cluster.get("typeOfViolation");
+                title += "\nOldest group date: " + new Date(firstAddedDate.seconds * 1000);
+                title += "\nLast group date: " + new Date(lastAddedDate.seconds * 1000);
+                marker = addMarkerAtLocationAndCenter(cluster.get("latitude"), cluster.get("longitude"), title);
+
             });
         });
     }
+
+
 </script>
 
 
