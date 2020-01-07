@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title>SafeStreets Municipality Interface</title>
-	<link href="stylesheets/TemplateStylesheet.css" media="screen" rel="stylesheet" type="text/css"/>
+	<link href="stylesheets/BaseStylesheet.css" media="screen" rel="stylesheet" type="text/css"/>
 	<style>
 		h3 {
 			margin-left: 150px;
@@ -101,6 +101,7 @@
 		<h4>Display...</h4>
 
 		<button>Select types</button>
+		<button onclick="updateLocation()">Update location</button>
 		<p>
 			<button onclick="updateSearch()">Search</button>
 		</p>
@@ -131,6 +132,18 @@
         var marker = new google.maps.Marker({position: loc, map: map, title: title});
         map.setCenter(loc);
         return marker;
+    }
+
+    function updateLocation() {
+        var geocoder = new google.maps.Geocoder();
+        var address = document.getElementById('loc').value;
+        geocoder.geocode({'address': address}, function (results, status) {
+            if (status == 'OK') {
+                map.setCenter(results[0].geometry.location);
+            } else {
+                alert('Geocode was not successful for the following reason: ' + status);
+            }
+        });
     }
 
     function updateSearch() {
@@ -203,7 +216,7 @@
 
 
 <script async defer
-		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAm3oFtymMHMAt5B5pvtejRRb0d2mARJY8&callback=initMap"
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBlIuZpimS107pjOQLOUdoScW-x63GDUw4&callback=initMap"
 		type="text/javascript"></script>
 
 <script src="scripts/logout.js"></script>
