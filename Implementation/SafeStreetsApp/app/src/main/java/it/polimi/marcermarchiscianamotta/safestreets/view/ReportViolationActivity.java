@@ -20,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -36,12 +37,12 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.ReportViolationManager;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.LoadBitmapInterface;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.SavePictureInterface;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationTypeEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 import it.polimi.marcermarchiscianamotta.safestreets.util.LoadPictureTask;
 import it.polimi.marcermarchiscianamotta.safestreets.util.SavePictureTask;
-import it.polimi.marcermarchiscianamotta.safestreets.interfaces.LoadBitmapInterface;
-import it.polimi.marcermarchiscianamotta.safestreets.interfaces.SavePictureInterface;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -327,18 +328,22 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 
 	@OnClick(R.id.report_violation_floating_send_button)
 	public void onClickSendViolation(View v) {
+		String plateInserted = plateEditText.getText().toString();
 		//Checks if the all mandatory fields are specified and if so starts the process of uploading
-		reportViolationManager.setPlate(plateEditText.getText().toString());
-		if (reportViolationManager.isReadyToSend()) {
-			if (isEverythingOK()) {
-				//Hide the current view and show the loading screen
-				findViewById(R.id.scroll_view).setVisibility(View.GONE);
-				findViewById(R.id.uploading_panel).setVisibility(View.VISIBLE);
-				findViewById(R.id.report_violation_floating_send_button).setVisibility(View.GONE);
-				reportViolationManager.sendViolationReport(descriptionText.getText().toString());
-			}
+		if (GeneralUtils.isPlate(plateInserted)) {
+			reportViolationManager.setPlate(plateInserted);
+			if (reportViolationManager.isReadyToSend()) {
+				if (isEverythingOK()) {
+					//Hide the current view and show the loading screen
+					findViewById(R.id.scroll_view).setVisibility(View.GONE);
+					findViewById(R.id.uploading_panel).setVisibility(View.VISIBLE);
+					findViewById(R.id.report_violation_floating_send_button).setVisibility(View.GONE);
+					reportViolationManager.sendViolationReport(descriptionText.getText().toString());
+				}
+			} else
+				GeneralUtils.showSnackbar(rootView, "Before reporting, please complete all mandatory fields.");
 		} else
-			GeneralUtils.showSnackbar(rootView, "Before reporting, please complete all mandatory fields.");
+			Toast.makeText(this, "Please insert a valid licence plate format.", Toast.LENGTH_SHORT).show();
 	}
 
 	public void setPlateText(String plate) {
