@@ -14,5 +14,9 @@
 /captures
 .externalNativeBuild
 .cxx
-google-services.json
 app/release
+
+# Keys
+google-services.json
+safestreets-app-key
+app/gradle.properties

@@ -18,10 +18,21 @@ android {
             outputFileName = "SafeStreets_${versionName}.apk"
         }
     }
+    signingConfigs{
+        key{
+            storeFile file(project.property("SIGNING"))
+            storePassword project.property("SIGNING_PASSWORD")
+            keyAlias project.property("SIGNING_ALIAS")
+            keyPassword project.property("SIGNING_PASSWORD")
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug{
+            signingConfig signingConfigs.key
         }
     }
     compileOptions {
