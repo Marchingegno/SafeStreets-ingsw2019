@@ -1,0 +1,44 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="Eslint" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="HtmlUnknownAttribute" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="myValues">
+        <value>
+          <list size="1">
+            <item index="0" class="java.lang.String" itemvalue="href" />
+          </list>
+        </value>
+      </option>
+      <option name="myCustomValuesEnabled" value="true" />
+    </inspection_tool>
+    <inspection_tool class="HtmlUnknownTag" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="myValues">
+        <value>
+          <list size="19">
+            <item index="0" class="java.lang.String" itemvalue="nobr" />
+            <item index="1" class="java.lang.String" itemvalue="noembed" />
+            <item index="2" class="java.lang.String" itemvalue="comment" />
+            <item index="3" class="java.lang.String" itemvalue="noscript" />
+            <item index="4" class="java.lang.String" itemvalue="embed" />
+            <item index="5" class="java.lang.String" itemvalue="script" />
+            <item index="6" class="java.lang.String" itemvalue="usrnm" />
+            <item index="7" class="java.lang.String" itemvalue="lg" />
+            <item index="8" class="java.lang.String" itemvalue="o_b" />
+            <item index="9" class="java.lang.String" itemvalue="report" />
+            <item index="10" class="java.lang.String" itemvalue="txt" />
+            <item index="11" class="java.lang.String" itemvalue="det" />
+            <item index="12" class="java.lang.String" itemvalue="style" />
+            <item index="13" class="java.lang.String" itemvalue="infos" />
+            <item index="14" class="java.lang.String" itemvalue="box" />
+            <item index="15" class="java.lang.String" itemvalue="titles" />
+            <item index="16" class="java.lang.String" itemvalue="boxes" />
+            <item index="17" class="java.lang.String" itemvalue="maps" />
+            <item index="18" class="java.lang.String" itemvalue="mapcontainer" />
+          </list>
+        </value>
+      </option>
+      <option name="myCustomValuesEnabled" value="true" />
+    </inspection_tool>
+  </profile>
+</component>

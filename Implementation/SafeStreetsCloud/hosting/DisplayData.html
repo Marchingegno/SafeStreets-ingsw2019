@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>SafeStreets Municipality Interface</title>
+	<link href="stylesheets/BaseStylesheet.css" media="screen" rel="stylesheet" type="text/css"/>
+	<style>
+		h3 {
+			margin-left: 150px;
+		}
+
+		.subContent {
+			margin-left: 20px;
+			margin-top: 20px;
+		}
+
+		div.mapContainer {
+			margin-left: 10%;
+			height: 550px;
+			width: 70%;
+		}
+
+
+		div.locationInput, div.dateInput {
+			padding-right: 50px;
+			width: 150px;
+		}
+
+		div.locationInput, div.licenseInput, div.dateInput {
+			display: inline-block;
+		}
+
+
+		input[type=text] {
+			border: 1px solid black;
+			border-radius: 200px;
+		}
+
+		input[type=checkbox] {
+			display: inline-block;
+			margin-bottom: 10px;
+		}
+
+		h4 {
+			color: #7a7a7a;
+			font-weight: normal;
+		}
+
+		#map {
+			height: inherit;
+			margin-top: 50px;
+		}
+
+		button {
+			display: block;
+			margin-top: 1%;
+		}
+
+	</style>
+</head>
+<body>
+
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-firestore.js"></script>
+<script src="scripts/api.js"></script>
+
+
+<div class="center">SafeStreets Municipality Interface</div>
+
+<ul class="hamburger-menu">
+	<li><a href="AcceptViolations.html">Accept Violations</a></li>
+	<li class="active"><a href="DisplayData.html">Display Data</a></li>
+	<lg id="logout">Logout</lg>
+</ul>
+
+<div class="content">
+	<div class="subContent">
+		<div class="Container">
+			<div class="locationInput">
+				<input id="loc" placeholder=" Search location" type="text"/>
+			</div>
+
+			<div class="licenseInput">
+				<input id="lic" placeholder=" Search license plate" type="text"/>
+			</div>
+		</div>
+
+		<div class="Container">
+			<div class="dateInput">
+				<h4>Start date</h4>
+				<input id="stDate" type="date" value="2019-06-06"/>
+			</div>
+
+			<div class="dateInput">
+				<h4>End date</h4>
+				<input id="eDate" type="date" value="2020-12-31">
+			</div>
+		</div>
+
+		<h4>Display...</h4>
+
+		<button>Select types</button>
+		<button onclick="updateLocation()">Update location</button>
+		<p>
+			<button onclick="updateSearch()">Search</button>
+		</p>
+
+		<div class="mapContainer">
+			<div id="map"></div>
+		</div>
+	</div>
+	<br>
+</div>
+
+<script>
+    // Initialize and add the map
+    var map;
+    var municipDB = firebase.firestore().collection("municipalities").doc(localStorage.municip);
+
+    function initMap() {
+        console.log(localStorage.municip);
+        latitude = 45.5488358;
+        longitude = 9.1217414;
+        var loc = {lat: latitude, lng: longitude};
+        map = new google.maps.Map(
+            document.getElementById('map'), {zoom: 14, center: loc, streetViewControl: false});
+    }
+
+    function addMarkerAtLocationAndCenter(latitude, longitude, title) {
+        var loc = {lat: latitude, lng: longitude};
+        var marker = new google.maps.Marker({position: loc, map: map, title: title});
+        map.setCenter(loc);
+        return marker;
+    }
+
+    function updateLocation() {
+        var geocoder = new google.maps.Geocoder();
+        var address = document.getElementById('loc').value;
+        geocoder.geocode({'address': address}, function (results, status) {
+            if (status == 'OK') {
+                map.setCenter(results[0].geometry.location);
+            } else {
+                alert('Geocode was not successful for the following reason: ' + status);
+            }
+        });
+    }
+
+    function updateSearch() {
+        latitude = 45.5488358;
+        longitude = 9.1217414;
+        var loc = {lat: latitude, lng: longitude};
+        map = new google.maps.Map(
+            document.getElementById('map'), {zoom: 15, center: loc, streetViewControl: false});
+        var endDateSet = document.getElementById("eDate").value !== "";
+        var startDateSet = document.getElementById("stDate").value !== "";
+        var startDate = new Date(document.getElementById("stDate").value).getTime() / 1000;
+        var endDate = new Date(document.getElementById("eDate").value).getTime() / 1000;
+        var licensePlate = document.getElementById("lic").value;
+        var licensePlateSet = licensePlate !== "";
+        var location = document.getElementById("loc").value;
+
+        if (!licensePlateSet) {
+            searchClusters(startDateSet, endDateSet, startDate, endDate);
+        } else {
+            searchGroups(startDateSet, endDateSet, startDate, endDate, licensePlate);
+        }
+    }
+
+
+    function searchGroups(startDateSet, endDateSet, startDate, endDate, licensePlate) {
+        municipDB.collection("groups").get().then(function (groupsSnapshot) {
+            groupsSnapshot.forEach(function (group) {
+                var firstAddedDate = group.get("firstTimestamp");
+                var lastAddedDate = group.get("lastTimestamp");
+                if (startDateSet && lastAddedDate.seconds < startDate)
+                    return;
+                if (endDateSet && firstAddedDate.seconds > endDate)
+                    return;
+                if (group.get("licensePlate") !== licensePlate)
+                    return;
+
+                groupId = group.id;
+                title = "Group: " + groupId + "\n" + "Type of violation: " + group.get("typeOfViolation");
+                title += "\nFirst violation date: " + new Date(firstAddedDate.seconds * 1000);
+                title += "\nLast violation date: " + new Date(lastAddedDate.seconds * 1000);
+                title += "\nLicense Plate: " + licensePlate;
+                addMarkerAtLocationAndCenter(group.get("latitude"), group.get("longitude"), title);
+            })
+        });
+    }
+
+
+    function searchClusters(startDateSet, endDateSet, startDate, endDate) {
+        municipDB.collection("clusters").get().then(function (clustersSnapshot) {
+            clustersSnapshot.forEach(function (cluster) {
+                var firstAddedDate = cluster.get("firstAddedDate");
+                var lastAddedDate = cluster.get("lastAddedDate");
+                if (startDateSet && lastAddedDate.seconds < startDate)
+                    return;
+                if (endDateSet && firstAddedDate.seconds > endDate)
+                    return;
+                var clusterId = cluster.id;
+                console.log("found a cluster");
+                title = "Cluster: " + clusterId + "\n" + "Type of violation: " + cluster.get("typeOfViolation");
+                title += "\nOldest group date: " + new Date(firstAddedDate.seconds * 1000);
+                title += "\nLast group date: " + new Date(lastAddedDate.seconds * 1000);
+                marker = addMarkerAtLocationAndCenter(cluster.get("latitude"), cluster.get("longitude"), title);
+
+            });
+        });
+    }
+
+
+</script>
+
+
+<script async defer
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBlIuZpimS107pjOQLOUdoScW-x63GDUw4&callback=initMap"
+		type="text/javascript"></script>
+
+<script src="scripts/logout.js"></script>
+</body>
+</html>

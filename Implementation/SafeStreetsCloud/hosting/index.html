@@ -1,65 +1,175 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/7.4.0/firebase-app.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/7.4.0/firebase-auth.js"></script>
-    <script defer src="/__/firebase/7.4.0/firebase-database.js"></script>
-    <script defer src="/__/firebase/7.4.0/firebase-messaging.js"></script>
-    <script defer src="/__/firebase/7.4.0/firebase-storage.js"></script>
-    <!-- initialize the SDK after all desired features are loaded -->
-    <script defer src="/__/firebase/init.js"></script>
+<head>
+	<script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+	<link href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" rel="stylesheet" type="text/css"/>
+	<meta charset="utf-8">
+	<meta content="width=device-width, initial-scale=1" name="viewport">
+	<title>Welcome to Firebase Hosting</title>
 
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
-    </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+	<style media="screen">
+		body {
+			background: #ECEFF1;
+			color: rgba(0, 0, 0, 0.87);
+			font-family: Roboto, Helvetica, Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+		}
 
-        try {
-          let app = firebase.app();
-          let features = ['auth', 'database', 'messaging', 'storage'].filter(feature => typeof app[feature] === 'function');
-          document.getElementById('load').innerHTML = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          document.getElementById('load').innerHTML = 'Error loading the Firebase SDK, check the console.';
+		#message {
+			background: white;
+			text-align: center;
+			max-width: 360px;
+			margin: 100px auto 16px;
+			padding: 32px 24px;
+			border-radius: 3px;
+		}
+
+		#message h2 {
+			color: #ffa100;
+			font-weight: bold;
+			font-size: 16px;
+			margin: 0 0 8px;
+		}
+
+		#message h1 {
+			font-size: 22px;
+			font-weight: 300;
+			color: rgba(0, 0, 0, 0.6);
+			margin: 0 0 16px;
+		}
+
+		#message p {
+			line-height: 140%;
+			margin: 16px 0 24px;
+			font-size: 14px;
+		}
+
+		#message lg {
+			cursor: pointer;
+			display: block;
+			text-align: center;
+			background: #039be5;
+			text-transform: uppercase;
+			text-decoration: none;
+			color: white;
+			margin: 10px;
+			padding: 4px;
+			border-radius: 1px;
+		}
+
+		#message, #message lg {
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+		}
+
+		#message a[id=github] {
+			cursor: pointer;
+			color: darkgray;
+			font-size: 12px;
+			text-align: center;
+		}
+
+		#load {
+			color: rgba(0, 0, 0, 0.4);
+			text-align: center;
+			font-size: 13px;
+		}
+
+		@media (max-width: 600px) {
+			body, #message {
+				margin-top: 0;
+				background: white;
+				box-shadow: none;
+			}
+
+			body {
+				border-top: 16px solid #ffa100;
+			}
+		}
+	</style>
+</head>
+
+<body>
+<div id="message">
+	<h2>SafeStreets Web Interface</h2>
+	<h1>Municipality login</h1>
+	<p>Please login to the interface</p>
+	<input id="username"
+		   placeholder="Username"
+		   type="text"/>
+
+	<input id="password"
+		   placeholder="Password"
+		   type="password"/>
+
+	<lg id="login" target="_blank">Login</lg>
+	<a href="https://github.com/Marchingegno/MarcerMarchiscianaMotta" id="github">GitHub</a>
+</div>
+
+
+<!-- IMPORT STATEMENTS -->
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.6.0/firebase-auth.js"></script>
+<script src="scripts/api.js"></script>
+
+
+<script>
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    document.getElementById("login").addEventListener("click", login);
+
+    document.getElementById("login").addEventListener("keyup", function (event) {
+        if (event.key === "13") {
+            console.log("ho premuto invio");
+            event.preventDefault();
+            document.getElementById("login").click();
         }
-      });
-    </script>
-  </body>
+    });
+
+    //pressing enter does not work for some abstract reason
+
+    function login() {
+        let email = document.getElementById("username").value;
+        let password = document.getElementById("password").value;
+        console.log("Username: " + email + "\n" + "Password :) : " + password);
+
+        firebase.auth().signInWithEmailAndPassword(email, password).catch(function (error) {
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log("Error");
+            // ...
+        });
+    }
+
+    firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+			user.getIdTokenResult()
+					.then((idTokenResult) => {
+						// Signed in.
+						console.log(idTokenResult.toString());
+						if(idTokenResult.claims !== null && idTokenResult.claims.isMunicipality === true) {
+                            // User is a municipality.
+                            const municipalityId = idTokenResult.claims.municipalityId;
+                            localStorage.municip = municipalityId;
+                            console.log("Municipality logged in, has authorization to access files of " + municipalityId + ".");
+                            window.location.href = "AcceptViolations.html"
+                        } else {
+							// User is not a municipality.
+							console.log("This user doesn't have authorization (not a municipality).");
+							alert("This service is reserved for municipalities only.\n" +
+									"Your account isn't authorized for municipality access.\n" +
+									"If you think this is an error contact us at safestreetspolimi@gmail.com");
+						}
+					})
+					.catch((error) => {
+						console.log(error);
+					});
+        }
+    });
+</script>
+
+
+</body>
 </html>
