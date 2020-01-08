@@ -72,20 +72,17 @@
 </ul>
 <div class="content">
 
-	<!--<div class="orderBy">
-		Order by
-		<menu style="display: inline">number of reports</menu>
-		<br>
-	</diz> -->
 
 	<h1>
 		Violations
 	</h1>
 
+<!--
 	<div>
 		<button onclick="deleteReport()">Delete</button>
 		<button onclick="retrieveReports()">Retrieve reports</button>
 	</div>
+-->
 
 	<div class="reports" id="reports">
 	</div>
@@ -138,90 +135,28 @@
 
 
 <!-- RETRIEVE REPORT SCRIPT -->
-<script>
-    /*function retrieveReports() {
-        var reports = firebase.firestore().collection("violationReports");
-        reports.get().then(function (querySnapshot) {
-            querySnapshot.forEach(function (doc) {
-                //console.log(doc.data());
-                let uid = doc.id;
-                let licensePlate = doc.get("licensePlate");
-                console.log(licensePlate);
-                if (licensePlate == undefined || licensePlate == "") licensePlate = doc.get("licencePlate");
-                let location = doc.get("latitude").toString() + "  |  " + doc.get("longitude").toString();
-                let violationType = doc.get("violationType");
-                let numOfReports = "Not implemented yet";
+<script defer>
+    var db = firebase.firestore();
 
-                createReportWithParameters(licensePlate, location, violationType, numOfReports, uid);
-            })
-        })
-    }*/
-
-	var db = firebase.firestore();
-
-    function retrieveReports() {
-        var groups = db.collection("municipalities").doc(localStorage.municip).collection("groups");
-        groups.get().then(function (querySnapshot) {
-            querySnapshot.forEach(function (doc) {
-                //console.log(doc.data());
-                let groupID = doc.id;
-                let licensePlate = doc.get("licensePlate");
-                let location = doc.get("latitude").toString() + "  |  " + doc.get("longitude").toString();
-                let violationType = doc.get("typeOfViolation");
-                var reports = doc.get("reports");
-                let numOfReports = 0;
-                reports.forEach(function (repo) {
-					numOfReports++;
-                });
-				createReportWithParameters(licensePlate, location, violationType, numOfReports, groupID);
-			})
-		})
-	}
-
-</script>
-
-<!-- <script async>
-    //retrieve municipality names
-    var municipalities = firebase.firestore().collection("municipalities");
-
-    municipalities.get().then(function (querySnapshot) {
+    var groups = db.collection("municipalities").doc(localStorage.municip).collection("groups");
+    groups.get().then(function (querySnapshot) {
         querySnapshot.forEach(function (doc) {
-            console.log(doc.id);
-            var municip = document.createElement("a");
-            municip.textContent = doc.id;
-            municip.setAttribute("href", "#" + doc.id);
-            municip.addEventListener("click", selectMunicip);
-            document.getElementById("dropdown-content").appendChild(municip);
+            if (doc.get("groupStatus") !== "APPROVED")
+                return;
+            let groupID = doc.id;
+            let licensePlate = doc.get("licensePlate");
+            let location = doc.get("latitude").toString() + "  |  " + doc.get("longitude").toString();
+            let violationType = doc.get("typeOfViolation");
+            var reports = doc.get("reports");
+            let numOfReports = 0;
+            reports.forEach(function (repo) {
+                numOfReports++;
+            });
+            createReportWithParameters(licensePlate, location, violationType, numOfReports, groupID);
         })
-    });
+    })
 
-
-    function selectMunicip() {
-        var municipalityName = location.hash;
-        municipalityName = municipalityName.slice(1);
-        localStorage.municip = municipalityName;
-        console.log(localStorage.municip);
-    }
-
-    function retrieveMunicipalityReports() {
-        console.log("before query");
-        municipalities.doc(localStorage.municip).collection("groups").get().then(function (documentSnapshot) {
-            documentSnapshot.forEach(function (doc) {
-                console.log("control");
-                let uid = doc.id;
-                let licensePlate = doc.get("licensePlate");
-                console.log(licensePlate);
-                if (licensePlate == undefined || licensePlate == "") licensePlate = doc.get("licencePlate");
-                let location = doc.get("latitude").toString() + "  |  " + doc.get("longitude").toString();
-                let violationType = doc.get("typeOfViolation");
-                let numOfReports = "Not implemented yet";
-                createReportWithParameters(licensePlate, location, violationType, numOfReports, uid);
-            })
-        });
-
-    }
 </script>
--->
 
 <script src="scripts/logout.js"></script>
 

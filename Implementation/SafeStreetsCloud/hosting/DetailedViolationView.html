@@ -128,8 +128,6 @@
 		-moz-transition-duration: .2s;
 		cursor: pointer;
 	}
-
-
 </style>
 
 
@@ -201,7 +199,6 @@
                 let report = db.collection("violationReports").doc(repoId);
                 report.get().then(function (reportSnapshot) {
                     if (reportSnapshot.exists) {
-                        console.log("found a report");
                         document.getElementById("num").textContent = "Number of reports:\t\t" + ++reportsNumber;
                         document.getElementById("descr").innerText += reportSnapshot.get("description");
                         picturesCollection = reportSnapshot.get("pictures");
@@ -210,6 +207,7 @@
                         userid = reportSnapshot.get("userUid");
                         if (picturesCollection) {
                             picturesCollection.forEach(function (value) {
+
                                 storage.child("pictures/" + userid + "/" + value).getDownloadURL().then(function (url) {
                                     var newImg = document.createElement("img");
                                     newImg.setAttribute("src", url);
@@ -220,7 +218,7 @@
                                     });
                                     document.getElementById("pic").appendChild(newImg);
                                 }).catch(function (error) {
-                                    console.log("There has been an error. " + error);
+                                    console.log(error.code + error.message);
                                 })
                             });
                         }
@@ -247,9 +245,10 @@
             });
         }).then(function() {
             console.log("updated to correct");
+            alert("Updated status to CORRECT.");
             window.location.href = "AcceptViolations.html";
         }).catch(function(error) {
-            console.log("Transaction failed: " + error);
+            console.log(error.code + error.message);
         });
     }
 
@@ -263,10 +262,11 @@
                 transaction.update(groupRef, {groupStatus: "REJECTED"});
             });
         }).then(function() {
-			console.log("updated to rejected");
-			window.location.href = "AcceptViolations.html";
+            console.log("updated to rejected");
+            alert("Updated status to REJECTED.");
+            window.location.href = "AcceptViolations.html";
 		}).catch(function(error) {
-            console.log("Transaction failed: " + error);
+            console.log(error.code + error.message);
         });
     }
 

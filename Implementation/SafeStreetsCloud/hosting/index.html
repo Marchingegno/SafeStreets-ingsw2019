@@ -119,26 +119,16 @@
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     document.getElementById("login").addEventListener("click", login);
 
-    document.getElementById("login").addEventListener("keyup", function (event) {
-        if (event.key === "13") {
-            console.log("ho premuto invio");
-            event.preventDefault();
-            document.getElementById("login").click();
-        }
-    });
-
-    //pressing enter does not work for some abstract reason
 
     function login() {
         let email = document.getElementById("username").value;
         let password = document.getElementById("password").value;
-        console.log("Username: " + email + "\n" + "Password :) : " + password);
 
         firebase.auth().signInWithEmailAndPassword(email, password).catch(function (error) {
             // Handle Errors here.
             var errorCode = error.code;
             var errorMessage = error.message;
-            console.log("Error");
+            console.log(errorCode + errorMessage);
             // ...
         });
     }
