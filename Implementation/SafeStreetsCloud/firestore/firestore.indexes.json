@@ -1,0 +1,30 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "groups",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "licensePlate", "order": "ASCENDING" },
+        { "fieldPath": "typeOfViolation", "order": "ASCENDING" },
+        { "fieldPath": "latitude", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "clusters",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "typeOfViolation", "order": "ASCENDING" },
+        { "fieldPath": "latitude", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "violationReports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userUid", "order": "ASCENDING" },
+        { "fieldPath": "uploadTimestamp", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

@@ -1,0 +1,94 @@
+rules_version = '2';
+service cloud.firestore {
+    match /databases/{db}/documents {
+
+        // Violation Reports documents
+        // Allows reading.
+        // Allows only creation of new violation reports, doesn't allow updating and deleting.
+        match /violationReports/{violationReportId} {
+            allow read;
+            allow create: if isOwnerFieldCorrect() && isCreatingViolationReport();
+        }
+
+        // User documents
+        // Allows everything if the user is the owner.
+        match /users/{userId} {
+            allow read, write: if isOwner(userId);
+        }
+
+        // Group documents
+        // Allows reading by everyone (for queries).
+        // Allows update only from the municipality, doesn't allow creating or deleting.
+        match /municipalities/{municipalityId}/groups/{groupId} {
+            allow read;
+            allow update: if isSpecifiedMunicipality(municipalityId) && isUpdatingStatusOfGroup();
+        }
+
+        // Cluster documents
+        // Allows reading by everyone (for queries).
+        // Doesn't allow creating, updating or deleting.
+        match /municipalities/{municipality}/clusters/{clusterId} {
+            allow read;
+        }
+    }
+}
+
+
+function prefix() {
+    return /databases/{db}/documents;
+}
+
+// ############################## Data validation functions ##############################
+
+function isCreatingViolationReport() {
+    return request.resource.data.size() == 11
+        && request.resource.data.latitude is number
+        && request.resource.data.licensePlate is string
+        && request.resource.data.longitude is number
+        && request.resource.data.municipality is string
+        && request.resource.data.pictures is list
+        && request.resource.data.reportStatus is string
+        && request.resource.data.typeOfViolation is string
+        && request.resource.data.uploadTimestamp is timestamp
+        && request.resource.data.userUid is string;
+}
+
+function isUpdatingStatusOfGroup() {
+    return isUpdatingField("groupStatus") && !isUpdatingField("firstTimestamp") && !isUpdatingField("lastTimestamp") &&
+        !isUpdatingField("latitude") && !isUpdatingField("licensePlate") && !isUpdatingField("longitude") &&
+        !isUpdatingField("reports") && !isUpdatingField("typeOfViolation");
+}
+
+
+// ############################## Ownership functions ##############################
+
+// Returns true iff the document that is currently created or modified has the userUid field that corresponds to the user.
+function isOwnerFieldCorrect() {
+    return request.auth.uid == request.resource.data.userUid;
+}
+
+// Returns true if the user is the owner of the file.
+function isOwner(uid) {
+    return request.auth.uid == uid;
+}
+
+
+// ############################## Custom identity functions ##############################
+
+// Returns true if the user is the specified municipality.
+function isSpecifiedMunicipality(municipalityId) {
+    return request.auth.token != null && request.auth.token.isMunicipality == true && request.auth.token.municipalityId == municipalityId;
+}
+
+
+// ############################## General field checking functions ##############################
+
+// Returns true if the field specified by fieldName is being updated.
+function isUpdatingField(fieldName) {
+    return resource.data[fieldName] != request.resource.data[fieldName];
+}
+
+// Returns true if the field specified by fieldName is being added.
+function isAddingField(fieldName) {
+    return !fieldName in resource.data && fieldName in request.resource.data;
+}

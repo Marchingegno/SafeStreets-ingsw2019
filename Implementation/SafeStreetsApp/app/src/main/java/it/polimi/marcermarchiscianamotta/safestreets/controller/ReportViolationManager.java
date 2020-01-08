@@ -1,99 +1,282 @@
 package it.polimi.marcermarchiscianamotta.safestreets.controller;
 
-import android.app.Activity;
+import android.location.Address;
 import android.net.Uri;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
+import it.polimi.marcermarchiscianamotta.safestreets.R;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReport;
-import it.polimi.marcermarchiscianamotta.safestreets.util.AuthenticationManager;
-import it.polimi.marcermarchiscianamotta.safestreets.util.DatabaseConnection;
+import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationTypeEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
-import it.polimi.marcermarchiscianamotta.safestreets.util.StorageConnection;
+import it.polimi.marcermarchiscianamotta.safestreets.util.ImageRecognition;
+import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.DatabaseConnection;
+import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.StorageConnection;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.ImageRecognitionInterface;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.MapUser;
+import it.polimi.marcermarchiscianamotta.safestreets.view.ReportViolationActivity;
 
-public class ReportViolationManager {
+/**
+ * This class manages the violation's reporting.
+ *
+ * @author Marcer
+ * @author Desno365
+ */
+public class ReportViolationManager implements ImageRecognitionInterface, MapUser {
 
-    private static final String TAG = "ReportViolationManager";
-    private Activity activity;
-    private View rootView;
+	//Tag for logging
+	private static final String TAG = "ReportViolationManager";
 
-    private List<Uri> selectedPictures;
-    private String violationDescription;
-    private double latitude;
-    private double longitude;
-    private List<String> picturesInUpload;
-    private int numberOfUploadedPhotos = 0;
-    private boolean failedUplaod = false;
+	//Constants
+	private static final int MAX_NUM_OF_PHOTOS = 5;
+
+	//Information about the caller
+	private ReportViolationActivity reportViolationActivity;
+	private View rootView;
+
+	//The violation report that is going to be sent.
+	private ViolationReport report;
+
+	//Identifier of the pictures on the server.
+	//They are needed in order to link the report with its pictures correctly.
+	private List<String> picturesIDOnServer;
+
+	//Others
+	private int numberOfUploadedPhotos = 0;
+
+	//Constructor
+	//================================================================================
+	public ReportViolationManager(ReportViolationActivity reportViolationActivity, View rootView) {
+		this.reportViolationActivity = reportViolationActivity;
+		this.rootView = rootView;
+		report = new ViolationReport(AuthenticationManager.getUserUid());
+	}
+	//endregion
+
+	//region Public methods
+	//================================================================================
+
+	/**
+	 * Sets the report description and starts uploading the photos to the server.
+	 *
+	 * @param description report's description.
+	 */
+	public void sendViolationReport(String description) {
+		report.setDescription(description);
+		uploadPhotosToCloudStorage();
+	}
+
+	/**
+	 * Returns true if and only if all mandatory fields of the report are specified.
+	 *
+	 * @return true if and only if all mandatory fields of the report are specified.
+	 */
+	public boolean isReadyToSend() {
+		return report.isReadyToSend();
+	}
+
+	/**
+	 * Adds the specified photo path to the report and then stats two processes in
+	 * order to retrieve the license plate and the current location.
+	 *
+	 * @param photoPath the path of the photo to be added to the report.
+	 */
+	public void addPhotoToReport(Uri photoPath) {
+		report.addPhoto(photoPath);
+		ImageRecognition.retrievePlateFromPhoto(reportViolationActivity, photoPath, this);
+		MapManager.retrieveLocation(reportViolationActivity, this);
+	}
+
+	/**
+	 * Sets the violation type to the report.
+	 *
+	 * @param violationType the violation type of the report to be set.
+	 */
+	public void setViolationType(String violationType) {
+		//Default violation type is the first one
+		ViolationTypeEnum resultType = ViolationTypeEnum.values()[0];
+
+		//Converts the string to the corresponding enum
+		for (ViolationTypeEnum violationEnum : ViolationTypeEnum.values()) {
+			if (violationType.equals(violationEnum.toString()))
+				resultType = violationEnum;
+		}
+
+		report.setTypeOfViolation(resultType);
+	}
+
+	/**
+	 * Returns true if and only if the photos associated with the report are
+	 * less than the maximum number of photos permitted.
+	 *
+	 * @return true if and only if the photos associated with the report are less than the maximum number of photos permitted.
+	 */
+	public boolean canTakeAnotherPicture() {
+		return report.getPictures().size() < MAX_NUM_OF_PHOTOS;
+	}
+
+	/**
+	 * Returns the maximum number of pictures that can be taken.
+	 *
+	 * @return the maximum number of pictures that can be taken.
+	 */
+	public int getMaxNumOfPictures() {
+		return MAX_NUM_OF_PHOTOS;
+	}
+
+	/**
+	 * Returns the current number of pictures taken.
+	 *
+	 * @return the current number of pictures taken.
+	 */
+	public int numberOfPictures() {
+		return report.getPictures().size();
+	}
+
+	/**
+	 * Returns the picture's path in the specified position.
+	 *
+	 * @param index index of the picture.
+	 * @return the picture's path in the specified position.
+	 */
+	public Uri getPicture(int index) {
+		return report.getPicture(index);
+	}
+
+	/**
+	 * Removes the picture at the specified index.
+	 *
+	 * @param index index of the picture to remove.
+	 */
+	public void removePicture(int index) {
+		report.removePhoto(index);
+	}
+
+	/**
+	 * Sets the license plate number to the specified one.
+	 *
+	 * @param plate license plate number to set.
+	 */
+	public boolean setPlate(String plate) {
+		boolean changed = false;
+		if (GeneralUtils.isPlate(plate)) {
+			changed = true;
+			report.setLicensePlate(plate);
+		} else
+			Toast.makeText(reportViolationActivity, "Please insert a valid licence plate format.", Toast.LENGTH_SHORT).show();
+		return changed;
+	}
+
+	/**
+	 * If the text recognition process has found a license plate, the report is updated with this new information.
+	 * Moreover the view is updated to show the plate found.
+	 *
+	 * @param result the String found by the text recognition process.
+	 */
+	@Override
+	public void onTextRecognized(String[] result) {
+		if (result != null && result.length > 0) {
+			Log.d(TAG, "Plate found: " + result[0]);
+			GeneralUtils.showSnackbar(rootView, "Plate found: " + result[0]);
+			if (!report.hasPlate()) {
+				report.setLicensePlate(result[0]);
+				reportViolationActivity.setPlateText(result[0]);
+			}
+		} else {
+			Log.d(TAG, "No plate found");
+			if (!report.hasPlate())
+				Toast.makeText(reportViolationActivity, "No plate found.\nPlease insert it manually.", Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	/**
+	 * Once the location has been found retrieves the municipality and updates the report.
+	 * Moreover the view is updated to show the municipality.
+	 *
+	 * @param location The current location.
+	 */
+	@Override
+	public void onLocationFound(LatLng location) {
+		report.setLocation(location);
+		Log.d(TAG, "Location[" + location.latitude + ", " + location.longitude + "] set.");
+		MapManager.getAddressFromLocation(reportViolationActivity.getApplicationContext(), this, location);
+	}
+
+	@Override
+	public void onAddressFound(Address address) {
+		if (address != null) {
+			report.setMunicipality(address.getLocality());
+			reportViolationActivity.setAddressText(address.getThoroughfare() + ", " + address.getLocality());
+			Log.d(TAG, "Address: " + address + " set.");
+		} else Log.d(TAG, "address is null in onAddressFound");
+	}
+	//endregion
 
 
-    public ReportViolationManager(Activity activity, View rootView) {
-        this.activity = activity;
-        this.rootView = rootView;
-    }
+	//region Private methods
+	//================================================================================
 
+	/**
+	 * Uploads the photos to the Cloud Storage.
+	 */
+	private void uploadPhotosToCloudStorage() {
+		((ProgressBar) rootView.findViewById(R.id.uploading_progress_bar)).setMax(numberOfPictures());
 
-    //region Public methods
-    //================================================================================
-    public void onSendViolationReport(List<Uri> selectedPictures, String violationDescription, double latitude, double longitude) {
-        this.selectedPictures = selectedPictures;
-        this.violationDescription = violationDescription;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        numberOfUploadedPhotos = 0;
-        failedUplaod = false;
+		Log.d(TAG, "Uploading photos...");
 
-        Toast.makeText(activity, "Uploading photos...", Toast.LENGTH_SHORT).show();
-        uploadPhotosToCloudStorage();
-    }
-    //endregion
+		reportViolationActivity.onPictureUploaded(0, numberOfPictures());
+		//In picturesIDOnServer are saved the identifiers of the pictures on the cloud storage so that they can bi linked by the report.
+		picturesIDOnServer = StorageConnection.uploadPicturesToCloudStorage(report.getPictures(), reportViolationActivity,
+				//Called each time a photo has been uploaded correctly
+				taskSnapshot -> {
+					checkIfAllUploadsEnded();
+					Log.d(TAG, "Uploaded " + numberOfUploadedPhotos + " out of " + numberOfPictures());
+					reportViolationActivity.onPictureUploaded(numberOfUploadedPhotos, numberOfPictures());//TODO create interface
+				},
+				//Called if the upload throws an exception
+				e -> {
+					Log.e(TAG, "uploadPhotosToCloudStorage:onError", e);
+					GeneralUtils.showSnackbar(rootView, "Failed to upload the photos. Please try again.");
+					Toast.makeText(reportViolationActivity, "Upload failed", Toast.LENGTH_SHORT).show();
+				});
 
+		report.setPicturesIDOnServer(picturesIDOnServer);
+	}
 
-    //region Private methods
-    //================================================================================
-    private void uploadPhotosToCloudStorage() {
-        picturesInUpload = StorageConnection.uploadPicturesToCloudStorage(selectedPictures, activity,
-                taskSnapshot -> {
-                    checkIfAllUploadsEnded();
-                    Toast.makeText(activity, "Image uploaded", Toast.LENGTH_SHORT).show();
-                },
-                e -> {
-                    Log.w(TAG, "uploadPhotosToCloudStorage:onError", e);
-                    failedUplaod = true;
-                    checkIfAllUploadsEnded();
-                    Toast.makeText(activity, "Upload failed", Toast.LENGTH_SHORT).show();
-                });
-    }
+	/**
+	 * Checks if all the photo have been sent. If so uploads the report.
+	 */
+	private void checkIfAllUploadsEnded() {
+		numberOfUploadedPhotos++;
 
-    private void checkIfAllUploadsEnded() {
-        numberOfUploadedPhotos++;
-        if(picturesInUpload != null && numberOfUploadedPhotos == picturesInUpload.size()) {
-            // End upload
-            if(failedUplaod) {
-                GeneralUtils.showSnackbar(rootView, "Failed to send the violation report. Please try again.");
-            } else {
-                insertViolationReportInDatabase();
-            }
-        }
-    }
+		//If all photos have been uploaded
+		if (picturesIDOnServer != null && numberOfUploadedPhotos == picturesIDOnServer.size())
+			insertViolationReportInDatabase();
+	}
 
-    private void insertViolationReportInDatabase() {
-        // Create ViolationReport object.
-        // TODO violationType, licensePlate
-        ViolationReport vr = new ViolationReport(AuthenticationManager.getUserUid(), 0, violationDescription, picturesInUpload, "AB123CD", latitude, longitude);
-
-        // Upload object to database.
-        DatabaseConnection.uploadViolationReport(vr, activity,
-                document -> {
-                    Toast.makeText(activity, "Violation Report sent successfully!", Toast.LENGTH_SHORT).show();
-                    activity.finish();
-                },
-                e -> {
-                    Log.e(TAG, "Failed to write message", e);
-                    GeneralUtils.showSnackbar(rootView, "Failed to send the violation report. Please try again.");
-                });
-    }
-    //endregion
+	/**
+	 * Uploads the report to the database.
+	 */
+	private void insertViolationReportInDatabase() {
+		// Upload object to database.
+		DatabaseConnection.uploadViolationReport(report.getReportRepresentation(), reportViolationActivity,
+				// On success.
+				voidObj -> {
+					GeneralUtils.showSnackbar(rootView, "Violation report sent successfully!");
+					//Close the reporting activity
+					reportViolationActivity.finish();
+				},
+				// On failure.
+				e -> {
+					GeneralUtils.showSnackbar(rootView, "Failed to send the violation report. Please try again.");
+					Log.e(TAG, "Failed to write message", e);
+				});
+	}
+	//endregion
 }

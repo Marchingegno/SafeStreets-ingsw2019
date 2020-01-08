@@ -5,12 +5,27 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+		<item name="android:navigationBarColor">@color/colorPrimary</item>
     </style>
 
     <!-- Warning theme for button. -->
     <style name="ButtonWarning" parent="Widget.AppCompat.Button.Colored">
         <item name="colorButtonNormal">@android:color/holo_red_dark</item>
         <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <!-- Themes for SpinnerItem. -->
+    <style name="spinnerItemStyle" parent="android:Widget.TextView.SpinnerItem" />
+    <style name="spinnerDropDownItemStyle" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
+        <item name="android:textAppearanceListItem" />
+    </style>
+
+    <!-- Theme for CardView. -->
+    <style name="CardViewStyle" parent="CardView.Light">
+        <item name="cardUseCompatPadding">true</item>
+        <item name="cardBackgroundColor">@color/white</item>
+        <item name="cardElevation">@dimen/card_elevation_default</item>
+        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
     </style>
 
 </resources>

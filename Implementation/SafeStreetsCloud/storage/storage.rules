@@ -1,0 +1,25 @@
+service firebase.storage {
+    match /b/{bucket}/o {
+
+        match /pictures/{userId}/{pictureName} {
+            allow read: if isOwner(userId) || isMunicipality();
+            allow create: if isOwner(userId) && isImageBelowMaxSize(5);
+        }
+    }
+}
+
+
+// Returns true if the uploaded file is an image and its size is below the given number of MB.
+function isImageBelowMaxSize(maxSizeMB) {
+    return request.resource.size < maxSizeMB * 1024 * 1024 && request.resource.contentType.matches('image/.*');
+}
+
+// Returns true if the user is the owner of the file.
+function isOwner(uid) {
+    return request.auth.uid == uid;
+}
+
+// Returns true if the user is a municipality.
+function isMunicipality() {
+    return request.auth.token != null && request.auth.token.isMunicipality == true;
+}
