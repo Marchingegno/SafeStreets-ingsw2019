@@ -205,13 +205,49 @@
                 title = "Cluster: " + clusterId + "\n" + "Type of violation: " + cluster.get("typeOfViolation");
                 title += "\nOldest group date: " + new Date(firstAddedDate.seconds * 1000);
                 title += "\nLast group date: " + new Date(lastAddedDate.seconds * 1000);
+                title += "\nSuggestion: " + generateSuggestion(cluster.get("typeOfViolation"));
                 marker = addMarkerAtLocationAndCenter(cluster.get("latitude"), cluster.get("longitude"), title);
 
             });
         });
     }
 
-
+    function generateSuggestion(typeOfViolation) {
+        let suggestion;
+        switch (typeOfViolation) {
+            case("PARKING_IN_A_PROHIBITED_SPACE"):
+                suggestion = "Enhance the visibility of the road signs.";
+                break;
+            case("PARKING_ON_A_SIDEWALK"):
+                suggestion = "Increase the sanction amount";
+                break;
+            case("PARKING_TOO_CLOSE_AN_INTERSECTION"):
+                suggestion = "Install a \"No parking\" road sign.";
+                break;
+            case("DOUBLE_PARKING"):
+                suggestion = "Increase the sanction amount.";
+                break;
+            case("PARKING_IN_A_HANDICAPPED_ZONE "):
+                suggestion = "Enhance the visibility of the road sign.";
+                break;
+            case("PARKING_AT_A_PARKING_METER_WITHOUT_PAYING"):
+                suggestion = "Increase agent patrolling in the zone.";
+                break;
+            case("PARKING_IN_A_ZTL"):
+                suggestion = "Enhance the visibility of the road sign.";
+                break;
+            case("PARKING_FOR_LONGER_THAN_THE_MAXIMUM_TIME"):
+                suggestion = "Increase agent patrolling in the zone.";
+                break;
+            case("PARKING_OUTSIDE_MARKED_SQUARES"):
+                suggestion = "Increase the sanction amount.";
+                break;
+            case("OTHER;"):
+                suggestion = "No suggestion for this type of violation.";
+                break;
+        }
+        return suggestion;
+    }
 </script>
 
 
