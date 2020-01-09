@@ -61,8 +61,9 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 	private static final int PICTURE_DESIRED_SIZE = 680;
 
 	//Paths where picture aed are saved
+	private static String externalDirectoryPath;
+	private static File externalDirectory;
 	private static String mainDirectoryPath;
-	private static File fullSizePictureDirectory;
 	private static File thumbnailPictureDirectory;
 
 	//Request codes
@@ -158,17 +159,13 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			EasyPermissions.requestPermissions(this, "Camera permission", RC_WRITE_EXT_STORAGE_PERMS, WRITE_EXT_STORAGE_PERMS);
 		}
 
-		//TODO move to internal storage
-		mainDirectoryPath = Environment.getExternalStorageDirectory() + "/SafeStreets/";
-		fullSizePictureDirectory = new File(mainDirectoryPath + "/Pictures/");
+		//Generate directories where to save pictures
+		mainDirectoryPath = this.getFilesDir().toString();
 		thumbnailPictureDirectory = new File(mainDirectoryPath + "/Thumbnails/");
-
-		if (!fullSizePictureDirectory.exists()) {
-			fullSizePictureDirectory.mkdirs();
-		}
-		if (!thumbnailPictureDirectory.exists()) {
-			thumbnailPictureDirectory.mkdirs();
-		}
+		createDirectory(thumbnailPictureDirectory);
+		externalDirectoryPath = Environment.getExternalStorageDirectory() + "/SafeStreets/";
+		externalDirectory = new File(externalDirectoryPath);
+		createDirectory(externalDirectory);
 
 		// Add back button to action bar.
 		ActionBar actionBar = getSupportActionBar();
@@ -200,8 +197,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 						GeneralUtils.showSnackbar(rootView, "Photo not found.");
 						Log.e(TAG, "Photo not found at " + currentPicturePath.toString());
 					}
-				} else if (resultCode == RESULT_CANCELED)
-					GeneralUtils.showSnackbar(rootView, "Camera error");
+				}
 				break;
 			case (RC_IMAGE_DELETION):
 				if (resultCode == RESULT_OK) {
@@ -268,12 +264,13 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			}
 		}
 		if (requestCode == RC_WRITE_EXT_STORAGE_PERMS) {
-			//Initializes the directories
-			if (!fullSizePictureDirectory.exists()) {
-				boolean created = fullSizePictureDirectory.mkdirs();
-				if (!created)
-					Log.e(TAG, "Folders not created");
-			}
+			//Generate directories where to save pictures
+			mainDirectoryPath = this.getFilesDir().toString();
+			thumbnailPictureDirectory = new File(mainDirectoryPath + "/Thumbnails/");
+			createDirectory(thumbnailPictureDirectory);
+			externalDirectoryPath = Environment.getExternalStorageDirectory() + "/SafeStreets/";
+			externalDirectory = new File(externalDirectoryPath);
+			createDirectory(externalDirectory);
 		}
 	}
 
@@ -313,7 +310,7 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 		//Starts the camera intent
 		if (reportViolationManager.canTakeAnotherPicture()) {
 			String fileName = String.valueOf(System.currentTimeMillis());
-			File destination = new File(fullSizePictureDirectory, fileName + ".jpg");
+			File destination = new File(externalDirectory, fileName + ".jpg");
 			currentPicturePath = Uri.parse(destination.toURI().toString());
 
 			StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
@@ -419,6 +416,16 @@ public class ReportViolationActivity extends AppCompatActivity implements EasyPe
 			startActivityForResult(i, RC_IMAGE_DELETION);
 		});
 		return imageView;
+	}
+
+	private void createDirectory(File directory) {
+		if (!directory.exists()) {
+			if (directory.mkdirs())
+				Log.d(TAG, "Created: " + directory.toString());
+			else
+				Log.d(TAG, "Directory not created: " + directory);
+		} else
+			Log.d(TAG, "Directory: " + directory.toString() + " already exists");
 	}
 
 	private boolean isEverythingOK() {
