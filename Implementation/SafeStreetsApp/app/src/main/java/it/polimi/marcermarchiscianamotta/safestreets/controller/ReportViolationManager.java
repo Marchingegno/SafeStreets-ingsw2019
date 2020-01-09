@@ -12,14 +12,14 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.List;
 
 import it.polimi.marcermarchiscianamotta.safestreets.R;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.ImageRecognitionInterface;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.MapUser;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationReport;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationTypeEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
 import it.polimi.marcermarchiscianamotta.safestreets.util.ImageRecognition;
 import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.DatabaseConnection;
 import it.polimi.marcermarchiscianamotta.safestreets.util.cloud.StorageConnection;
-import it.polimi.marcermarchiscianamotta.safestreets.interfaces.ImageRecognitionInterface;
-import it.polimi.marcermarchiscianamotta.safestreets.interfaces.MapUser;
 import it.polimi.marcermarchiscianamotta.safestreets.view.ReportViolationActivity;
 
 /**
@@ -237,7 +237,7 @@ public class ReportViolationManager implements ImageRecognitionInterface, MapUse
 				taskSnapshot -> {
 					checkIfAllUploadsEnded();
 					Log.d(TAG, "Uploaded " + numberOfUploadedPhotos + " out of " + numberOfPictures());
-					reportViolationActivity.onPictureUploaded(numberOfUploadedPhotos, numberOfPictures());//TODO create interface
+					reportViolationActivity.onPictureUploaded(numberOfUploadedPhotos, numberOfPictures());
 				},
 				//Called if the upload throws an exception
 				e -> {

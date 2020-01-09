@@ -37,8 +37,7 @@ public class AuthenticationManager {
 	 */
 	public static Intent getLaunchableAuthenticationIntent() {
 		// Choose authentication providers
-		// TODO choose to use email or phone.
-		List<AuthUI.IdpConfig> providers = Collections.singletonList(new AuthUI.IdpConfig.EmailBuilder().setRequireName(false).build()/*, new AuthUI.IdpConfig.PhoneBuilder().build()*/);
+		List<AuthUI.IdpConfig> providers = Collections.singletonList(new AuthUI.IdpConfig.EmailBuilder().setRequireName(false).build());
 
 		// Create sign-in intent using the Firebase UI library.
 		return AuthUI.getInstance()

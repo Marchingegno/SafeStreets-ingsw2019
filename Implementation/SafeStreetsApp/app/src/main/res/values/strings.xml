@@ -1,12 +1,7 @@
 <resources>
-
 	<string name="app_name">SafeStreets</string>
 	<string name="take_picture">Take Picture</string>
 	<string name="returns">Return</string>
 
 	<string name="google_maps_key">AIzaSyA2H5rotAo38Moiz2Q_C5Cu71FYi5Uzsks</string>
-
-	<!-- TODO: Remove or change this placeholder text -->
-	<string name="hello_blank_fragment">Hello blank fragment</string>
-
 </resources>
