@@ -130,9 +130,9 @@ async function addGroupToExistingCluster(clusterDocSnap, groupId, firstGroupDate
 
     // Modify data.
     clusterObject.groups.push(groupId); // Add groupId to the groups array.
-    if(firstGroupDate < firstAddedDate)
+    if(firstGroupDate < firstAddedDate.toDate())
         clusterObject.firstAddedDate = firstGroupDate;
-    if(lastGroupDate > lastAddedDate)
+    if(lastGroupDate > lastAddedDate.toDate())
         clusterObject.lastAddedDate = lastGroupDate;
 
     // Update data on the database.

@@ -496,6 +496,8 @@ function createExampleGroupThatShouldCluster() {
     const exampleGroup = createExampleGroup();
     exampleGroup.latitude += 0.00001;
     exampleGroup.longitude += 0.00001;
+    exampleGroup.firstTimestamp = new Date('December 20, 2019 04:51:00');
+    exampleGroup.lastTimestamp = new Date('December 20, 2019 04:51:00');
     return exampleGroup;
 }
 //endregion
