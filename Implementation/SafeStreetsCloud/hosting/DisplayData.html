@@ -187,7 +187,10 @@
                 title += "\nFirst violation date: " + new Date(firstAddedDate.seconds * 1000);
                 title += "\nLast violation date: " + new Date(lastAddedDate.seconds * 1000);
                 title += "\nLicense Plate: " + licensePlate;
-                addMarkerAtLocationAndCenter(group.get("latitude"), group.get("longitude"), title);
+                marker = addMarkerAtLocationAndCenter(group.get("latitude"), group.get("longitude"), title);
+				marker.addListener('click', function() {
+					alert(marker.title);
+				});
             })
         });
     }
@@ -210,7 +213,9 @@
                 title += "\nLast group date: " + new Date(lastAddedDate.seconds * 1000);
                 title += "\nSuggestion: " + generateSuggestion(cluster.get("typeOfViolation"));
                 marker = addMarkerAtLocationAndCenter(cluster.get("latitude"), cluster.get("longitude"), title);
-
+				marker.addListener('click', function() {
+					alert(marker.title);
+				});
             });
         });
     }
