@@ -208,24 +208,28 @@
 
                 groupId = group.id;
 
-                /*var contentString =
+                var contentString =
                     "<h4> Group: </h4>" + groupId +
                     "<h4> Type of violation: </h4>" + group.get("typeOfViolation") +
                     "<h4> First violation date: </h4>" + new Date(firstAddedDate.seconds * 1000) +
                     "<h4> Last Violation date: </h4>" + new Date(lastAddedDate.seconds * 1000) +
-                    "<h4> License plate: </h4>" + licensePlate;*/
+                    "<h4> License plate: </h4>" + licensePlate;
                 title = "Group: " + groupId + "\n" + "Type of violation: " + group.get("typeOfViolation");
                 title += "\nFirst violation date: " + new Date(firstAddedDate.seconds * 1000);
                 title += "\nLast violation date: " + new Date(lastAddedDate.seconds * 1000);
                 title += "\nLicense Plate: " + licensePlate;
-                /*var infowindow = new google.maps.InfoWindow({
+                var infowindow = new google.maps.InfoWindow({
                     content: contentString
-                });*/
-                const marker = addMarkerAtLocationAndCenter(group.get("latitude"), group.get("longitude"), title);
-                marker.addListener('click', function () {
-                    alert(marker.title);
                 });
+                const marker = addMarkerAtLocationAndCenter(group.get("latitude"), group.get("longitude"), title);
+                addInfoWindow(marker, infowindow);
             })
+        });
+    }
+
+    function addInfoWindow(marker, window) {
+        marker.addListener('click', function () {
+            window.open(map, marker)
         });
     }
 
@@ -246,28 +250,27 @@
                 var clusterId = cluster.id;
                 var suggestion = generateSuggestion(cluster.get("typeOfViolation"));
 
-                /*var contentString =
+                var contentString =
                     "<h4> Cluster: </h4>" + clusterId +
                     "<h4> Type of violation: </h4>" + cluster.get("typeOfViolation") +
                     "<h4> Oldest group date: </h4>" + new Date(firstAddedDate.seconds * 1000) +
                     "<h4> Last group date: </h4>" + new Date(lastAddedDate.seconds * 1000) +
                     "<h4> Suggestion: </h4>" + suggestion;
-				*/
+
 
                 title = "Cluster: " + clusterId + "\n" + "Type of violation: " + cluster.get("typeOfViolation");
                 title += "\nOldest group date: " + new Date(firstAddedDate.seconds * 1000);
                 title += "\nLast group date: " + new Date(lastAddedDate.seconds * 1000);
                 title += "\nSuggestion: " + suggestion;
-                /*var infowindow = new google.maps.InfoWindow({
+                var infowindow = new google.maps.InfoWindow({
                     content: contentString
-                });*/
-                marker = addMarkerAtLocationAndCenter(cluster.get("latitude"), cluster.get("longitude"), title);
-                marker.addListener('click', function () {
-                    alert(marker.title);
                 });
+                marker = addMarkerAtLocationAndCenter(cluster.get("latitude"), cluster.get("longitude"), title);
+                addInfoWindow(marker, infowindow);
             });
         });
     }
+
 
     function generateSuggestion(typeOfViolation) {
         let suggestion;
