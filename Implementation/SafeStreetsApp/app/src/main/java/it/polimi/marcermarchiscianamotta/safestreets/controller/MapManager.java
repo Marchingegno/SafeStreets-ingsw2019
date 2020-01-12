@@ -5,6 +5,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -91,7 +92,8 @@ public class MapManager {
 				try {
 					address = new Geocoder(context).getFromLocation(location.latitude, location.longitude, 1).get(0);
 				} catch (IOException e) {
-					Log.e(TAG, TAG + "Failed while retrieving the address from the location ", e);
+					Toast.makeText(context, "Error while retrieving current location", Toast.LENGTH_SHORT).show();
+					Log.e(TAG, TAG + " Failed while retrieving the address from the location ", e);
 				}
 				Log.d(TAG, "Address found: " + address);
 				//Notify the caller
