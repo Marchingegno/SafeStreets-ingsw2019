@@ -1,4 +1,4 @@
-package it.polimi.marcermarchiscianamotta.safestreets.external.loadingview;
+package it.polimi.marcermarchiscianamotta.safestreets.util.external.loadingview;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;

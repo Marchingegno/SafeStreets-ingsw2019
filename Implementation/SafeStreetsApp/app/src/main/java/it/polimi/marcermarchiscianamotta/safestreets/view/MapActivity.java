@@ -47,12 +47,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import it.polimi.marcermarchiscianamotta.safestreets.R;
+import it.polimi.marcermarchiscianamotta.safestreets.controller.MapManager;
 import it.polimi.marcermarchiscianamotta.safestreets.controller.RetrieveViolationsManager;
+import it.polimi.marcermarchiscianamotta.safestreets.interfaces.DataRetrieverInterface;
 import it.polimi.marcermarchiscianamotta.safestreets.model.Cluster;
 import it.polimi.marcermarchiscianamotta.safestreets.model.ViolationTypeEnum;
 import it.polimi.marcermarchiscianamotta.safestreets.util.GeneralUtils;
-import it.polimi.marcermarchiscianamotta.safestreets.controller.MapManager;
-import it.polimi.marcermarchiscianamotta.safestreets.interfaces.DataRetrieverInterface;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -205,6 +205,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 	 */
 	@Override
 	public void onClusterLoaded(List<Cluster> clusters) {
+		Log.d(TAG, "Displaying clusters");
 		if (mMap != null) {
 			removeMarkers();
 			for (Cluster cluster : clusters) {
@@ -230,7 +231,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 		int currentMonth = calendar.get(Calendar.MONTH);
 		int currentYear = calendar.get(Calendar.YEAR);
 
-		endDate = System.currentTimeMillis();
+		endDate = GeneralUtils.convertDateToLong(currentDay + "/" + (currentMonth + 1) + "/" + currentYear + " 23:59:59");
 
 		startDateTextView.setOnClickListener(v -> {
 			//On click
@@ -410,6 +411,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 	private void addMarker(Cluster cluster) {
 		assert mMap != null; //Checked int the caller
+		Log.d(TAG, "Adding cluster: " + cluster.getTypeOfViolation());
 		MarkerOptions markerOption = new MarkerOptions()
 				.position(new LatLng(cluster.getLatitude(), cluster.getLongitude()))
 				.icon(getMarkerIcon(cluster.getTypeOfViolation().getColor()));
@@ -420,6 +422,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 	//Removes the markers from the map
 	private void removeMarkers() {
+		Log.d(TAG, "Removing markers");
 		for (int i = markers.size() - 1; i >= 0; i--) {
 			markers.get(i).remove();
 			markers.remove(i);

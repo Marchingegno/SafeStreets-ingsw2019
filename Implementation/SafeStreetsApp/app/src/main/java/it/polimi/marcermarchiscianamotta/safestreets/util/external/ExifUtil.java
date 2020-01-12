@@ -1,4 +1,4 @@
-package it.polimi.marcermarchiscianamotta.safestreets.external;
+package it.polimi.marcermarchiscianamotta.safestreets.util.external;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
