@@ -200,7 +200,7 @@
                 report.get().then(function (reportSnapshot) {
                     if (reportSnapshot.exists) {
                         document.getElementById("num").textContent = "Number of reports:\t\t" + ++reportsNumber;
-                        document.getElementById("descr").innerText += reportSnapshot.get("description");
+                        document.getElementById("descr").innerText += reportSnapshot.get("description") + "\n\n";
                         picturesCollection = reportSnapshot.get("pictures");
 
                         //Retrieve pictures of the report

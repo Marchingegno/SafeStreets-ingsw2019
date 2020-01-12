@@ -77,13 +77,6 @@
 		Violations
 	</h1>
 
-<!--
-	<div>
-		<button onclick="deleteReport()">Delete</button>
-		<button onclick="retrieveReports()">Retrieve reports</button>
-	</div>
--->
-
 	<div class="reports" id="reports">
 	</div>
 </div>
@@ -91,14 +84,9 @@
 <script>
     let counter = 0;
 
-    function deleteReport() {
-        var reportsElem = document.getElementById("reports");
-        children = reportsElem.childNodes;
-        while (children.length !== 0) {
-            reportsElem.removeChild(children[0]);
-        }
-    }
-
+    /**
+     * This function creates a report element and appends it to the div.
+     */
     function createReportWithParameters(licensePlate, location, violationType, numOfReports, uid) {
         let newReportElem = document.createElement('div');
         newReportElem.className = "report";
@@ -136,6 +124,9 @@
 <script defer>
     var db = firebase.firestore();
 
+    /**
+     * Retrieve all groups of the associated municipality. For each group, retrieve the data and create a report.
+     */
     var groups = db.collection("municipalities").doc(localStorage.municip).collection("groups");
     groups.get().then(function (querySnapshot) {
         querySnapshot.forEach(function (doc) {
