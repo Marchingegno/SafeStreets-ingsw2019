@@ -136,6 +136,7 @@
     function updateLocation() {
         var geocoder = new google.maps.Geocoder();
         var address = document.getElementById('loc').value;
+        if (address == "") return;
         geocoder.geocode({'address': address}, function (results, status) {
             if (status == 'OK') {
                 map.setCenter(results[0].geometry.location);
