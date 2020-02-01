@@ -10,7 +10,6 @@ android {
         versionCode 2
         versionName "1.0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        multiDexEnabled true
     }
     applicationVariants.all { variant ->
         variant.outputs.all {
@@ -76,10 +75,6 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore:21.3.1'
     implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
     implementation 'com.google.firebase:firebase-ml-vision:24.0.1'
-
-
-    // Multi dex support library
-    implementation 'androidx.multidex:multidex:2.0.1'
 
     // Material UI library
     implementation 'com.google.android.material:material:1.0.0'
