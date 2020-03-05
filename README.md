@@ -1,14 +1,16 @@
 # SafeStreets
 
-We are using collaborative Google Doc files for the creation of the RASD and the DD, the documents with all the latest changes can be found at these links:
+<img src="https://raw.githubusercontent.com/Marchingegno/SafeStreets-ingsw2019/master/Implementation/SafeStreetsApp/app/src/main/res/drawable/ic_launcher.png" width=200 height=200></img>
 
-## RASD - Requirement analysis and specification document
-https://drive.google.com/open?id=1CBsMZ8Gdj3NCnGjpzmdSQ2zPjetc_L_YsSlyMpWNy6w
+The assignment was to build a crowd-sourced application that provides user with the possibiltiy to notify an authority when a parking violation occurs.
 
-## DD - Design document
-https://docs.google.com/document/d/1CaygP79kSGGhhu8kQA4cvQd8f2xsDiUF21gPHZdtfSQ
+## Application
+The application can be found in the "Releases" section.
 
-## ITD - Implementation and test deliverable
-https://drive.google.com/open?id=1MO-Y58Ukl1ekwW0RxP4KA-5JWth55yryZr82Zq4y9yM
+## Municipality Web Interface
+The municipality web interface can be found at https://safestreets-project.web.app/
 
-The final version of the documents can be found in "DeliveryFolder".
+## Developers
+- Matteo Marchisciana (https://github.com/Marchingegno)
+- Dennis Motta (https://github.com/Desno365)
+- Andrea Marcer (https://github.com/AndreaMarcer)
